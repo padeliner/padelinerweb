@@ -67,6 +67,30 @@ export default function RegisterPage() {
       }
 
       if (data.user) {
+        // Intentar crear el perfil en la tabla users
+        // (por si el trigger de Supabase no funciona)
+        try {
+          const { error: profileError } = await supabase
+            .from('users')
+            .insert({
+              id: data.user.id,
+              email: data.user.email!,
+              role: USER_ROLES.STUDENT,
+              full_name: fullName.trim(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+          
+          // Si hay error, probablemente el trigger ya lo creó (ignorar)
+          if (profileError && !profileError.message.includes('duplicate')) {
+            console.warn('⚠️ Error creando perfil:', profileError)
+          } else {
+            console.log('✅ Perfil creado manualmente')
+          }
+        } catch (profileErr) {
+          console.warn('⚠️ Error creando perfil:', profileErr)
+        }
+        
         setSuccess(true)
       }
     } catch (err) {
