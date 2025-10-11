@@ -3,81 +3,72 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { User } from '@supabase/supabase-js'
+import { USER_ROLES } from '@/lib/constants'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/login')
-        return
-      }
+    const redirectToDashboard = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          router.push('/login')
+          return
+        }
 
-      setUser(user)
-      setLoading(false)
+        // Obtener el rol del usuario desde la tabla users
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if (error || !userData) {
+          console.error('Error obteniendo rol:', error)
+          router.push('/login')
+          return
+        }
+
+        const userRole = userData.role
+
+        // Redirigir al dashboard específico según el rol
+        switch (userRole) {
+          case USER_ROLES.ADMIN:
+            router.push('/dashboard/admin')
+            break
+          case USER_ROLES.STUDENT:
+            router.push('/dashboard/alumno')
+            break
+          case USER_ROLES.COACH:
+            router.push('/dashboard/entrenador')
+            break
+          case USER_ROLES.CLUB:
+            router.push('/dashboard/club')
+            break
+          case USER_ROLES.ACADEMY:
+            router.push('/dashboard/academia')
+            break
+          default:
+            // Si no tiene rol válido, ir al dashboard de alumno por defecto
+            router.push('/dashboard/alumno')
+        }
+      } catch (error) {
+        console.error('Error en redirect:', error)
+        router.push('/login')
+      }
     }
 
-    getUser()
+    redirectToDashboard()
   }, [router])
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-neutral-600">Cargando...</div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-neutral-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-4">
-            Dashboard
-          </h1>
-          <p className="text-neutral-600 mb-6">
-            Bienvenido a Padeliner, {user?.email}
-          </p>
-          
-          <div className="space-y-4">
-            <div className="p-4 bg-neutral-50 rounded-xl">
-              <p className="text-sm font-semibold text-neutral-700">Email:</p>
-              <p className="text-neutral-900">{user?.email}</p>
-            </div>
-            
-            <div className="p-4 bg-neutral-50 rounded-xl">
-              <p className="text-sm font-semibold text-neutral-700">Usuario ID:</p>
-              <p className="text-neutral-900 font-mono text-sm">{user?.id}</p>
-            </div>
-          </div>
-
-          <div className="mt-8 flex gap-4">
-            <button
-              onClick={handleLogout}
-              className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
-            >
-              Cerrar Sesión
-            </button>
-            
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-900 font-semibold rounded-xl transition-colors"
-            >
-              Volver al inicio
-            </button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
+        <p className="text-lg text-neutral-600">Redirigiendo a tu dashboard...</p>
       </div>
     </div>
   )
