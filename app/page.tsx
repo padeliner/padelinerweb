@@ -8,9 +8,11 @@ import { CoachesSection } from '@/components/CoachesSection'
 import { ClubsSection } from '@/components/ClubsSection'
 import { AcademiesSection } from '@/components/AcademiesSection'
 import { ShopSection } from '@/components/ShopSection'
+import { StatsSection } from '@/components/StatsSection'
 import { HowItWorks } from '@/components/HowItWorks'
 import { MobileAppsSection } from '@/components/MobileAppsSection'
 import { Testimonials } from '@/components/Testimonials'
+import { FAQSection } from '@/components/FAQSection'
 import { Footer } from '@/components/Footer'
 
 export default function Home() {
@@ -35,6 +37,7 @@ export default function Home() {
       <ClubsSection />
       <AcademiesSection />
       <ShopSection />
+      <StatsSection />
       <HowItWorks />
       
       {/* Ad Banner 2 - Nike */}
@@ -49,6 +52,7 @@ export default function Home() {
       />
       
       <Testimonials />
+      <FAQSection />
       <MobileAppsSection />
       <Footer />
     </main>
