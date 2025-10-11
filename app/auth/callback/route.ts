@@ -16,6 +16,12 @@ export async function GET(request: Request) {
   console.log('🔍 All query params:', Object.fromEntries(requestUrl.searchParams))
   console.log('========================================')
 
+  // Si no hay code pero hay rol, redirigir a complete-profile
+  if (!code && role) {
+    console.log('⚠️ No hay code de OAuth, pero hay rol. Redirigiendo a complete-profile...')
+    return NextResponse.redirect(new URL('/auth/complete-profile', requestUrl.origin))
+  }
+
   if (code) {
     try {
       const cookieStore = cookies()
