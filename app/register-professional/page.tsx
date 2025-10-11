@@ -9,7 +9,6 @@ import { USER_ROLES } from '@/lib/constants'
 
 function RegisterProfessionalContent() {
   const router = useRouter()
-{{ ... }}
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role') || 'entrenador'
   
