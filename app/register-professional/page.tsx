@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { User, Mail, Lock, UserPlus, ArrowLeft, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-export default function RegisterProfessionalPage() {
+function RegisterProfessionalContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedRole = searchParams.get('role') || 'coach'
@@ -290,5 +290,20 @@ export default function RegisterProfessionalPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegisterProfessionalPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
+          <p className="text-lg text-neutral-600">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <RegisterProfessionalContent />
+    </Suspense>
   )
 }
