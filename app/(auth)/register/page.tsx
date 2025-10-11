@@ -78,6 +78,9 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = async () => {
     try {
+      // Guardar el rol de alumno en localStorage antes del redirect
+      localStorage.setItem('pending_role', USER_ROLES.STUDENT)
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

@@ -9,9 +9,12 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = cookies()
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data } = await supabase.auth.exchangeCodeForSession(code)
+    
+    // Verificar si hay un rol pendiente de asignar (OAuth flow)
+    // Nota: Este código se ejecuta server-side, necesitamos manejarlo client-side
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
+  // Redirigir a una página que maneje la actualización del rol
+  return NextResponse.redirect(new URL('/auth/complete-profile', requestUrl.origin))
 }

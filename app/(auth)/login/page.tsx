@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, LogIn, ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { USER_ROLES } from '@/lib/constants'
 
 export default function LoginPage() {
   const router = useRouter()
