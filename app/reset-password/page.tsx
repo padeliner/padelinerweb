@@ -1,27 +1,60 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Lock, KeyRound, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 function ResetPasswordContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [tokenVerified, setTokenVerified] = useState(false)
 
   useEffect(() => {
-    // Verificar que hay un access_token en los params
-    const accessToken = searchParams.get('access_token')
-    if (!accessToken) {
-      setError('Link de recuperación inválido o expirado')
+    const verifyToken = async () => {
+      try {
+        // Leer el hash fragment (todo después del #)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
+        const type = hashParams.get('type')
+
+        console.log('🔑 Token de acceso:', accessToken ? 'presente' : 'ausente')
+        console.log('🔄 Refresh token:', refreshToken ? 'presente' : 'ausente')
+        console.log('📝 Tipo:', type)
+
+        if (!accessToken || type !== 'recovery') {
+          setError('Link de recuperación inválido o expirado')
+          return
+        }
+
+        // Establecer la sesión con el token de recuperación
+        const { data, error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        })
+
+        if (sessionError) {
+          console.error('❌ Error estableciendo sesión:', sessionError)
+          setError('Link de recuperación inválido o expirado')
+          return
+        }
+
+        console.log('✅ Sesión establecida correctamente')
+        setTokenVerified(true)
+      } catch (err) {
+        console.error('❌ Error verificando token:', err)
+        setError('Hubo un problema al verificar el link de recuperación')
+      }
     }
-  }, [searchParams])
+
+    verifyToken()
+  }, [])
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,6 +122,18 @@ function ResetPasswordContent() {
               Ir al Login
             </Link>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Mostrar loading mientras verifica el token
+  if (!tokenVerified && !error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
+          <p className="text-lg text-neutral-600">Verificando link de recuperación...</p>
         </div>
       </div>
     )
@@ -181,16 +226,5 @@ function ResetPasswordContent() {
 }
 
 export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
-          <p className="text-lg text-neutral-600">Cargando...</p>
-        </div>
-      </div>
-    }>
-      <ResetPasswordContent />
-    </Suspense>
-  )
+  return <ResetPasswordContent />
 }
