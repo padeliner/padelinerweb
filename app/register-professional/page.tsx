@@ -5,11 +5,24 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { User, Mail, Lock, UserPlus, ArrowLeft, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { USER_ROLES } from '@/lib/constants'
 
 function RegisterProfessionalContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const selectedRole = searchParams.get('role') || 'coach'
+  const roleParam = searchParams.get('role') || 'entrenador'
+  
+  // Mapear el rol del URL al valor correcto en español
+  const getRoleValue = (role: string) => {
+    switch(role) {
+      case 'coach': return USER_ROLES.COACH
+      case 'club': return USER_ROLES.CLUB
+      case 'academy': return USER_ROLES.ACADEMY
+      default: return USER_ROLES.COACH
+    }
+  }
+  
+  const selectedRole = getRoleValue(roleParam)
   
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -21,11 +34,11 @@ function RegisterProfessionalContent() {
 
   const roleTitle = useMemo(() => {
     switch (selectedRole) {
-      case 'coach':
+      case USER_ROLES.COACH:
         return 'Entrenador'
-      case 'club':
+      case USER_ROLES.CLUB:
         return 'Club'
-      case 'academy':
+      case USER_ROLES.ACADEMY:
         return 'Academia'
       default:
         return 'Profesional'

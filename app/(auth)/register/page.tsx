@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { User, Mail, Lock, UserPlus, ArrowLeft, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { USER_ROLES } from '@/lib/constants'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function RegisterPage() {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             full_name: fullName.trim(),
-            role: 'student',
+            role: USER_ROLES.STUDENT,  // 'alumno' en español
           },
         },
       })
