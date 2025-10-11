@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Search, MapPin, Star } from 'lucide-react'
+import Link from 'next/link'
 
 export function Hero() {
   return (
@@ -78,14 +79,16 @@ export function Hero() {
             transition={{ delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-full shadow-2xl shadow-primary-500/40 transition-all duration-200 flex items-center justify-center space-x-2"
-            >
-              <Search className="w-5 h-5" />
-              <span>Buscar entrenador</span>
-            </motion.button>
+            <Link href="/welcome">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-full shadow-2xl shadow-primary-500/40 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <Search className="w-5 h-5" />
+                <span>Buscar entrenador</span>
+              </motion.button>
+            </Link>
 
             <motion.button
               whileHover={{ scale: 1.05 }}

@@ -80,7 +80,7 @@ export function Header() {
               </button>
 
               {/* Acceder Button */}
-              <Link href="/login">
+              <Link href="/welcome">
                 <button
                   className={`
                     flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5
