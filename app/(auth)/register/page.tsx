@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, Lock, UserPlus, ArrowLeft, Check, AlertCircle } from 'lucide-react'
+import { Mail, Lock, UserPlus, ArrowLeft, Check, AlertCircle, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { USER_ROLES } from '@/lib/constants'
 
