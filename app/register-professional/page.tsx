@@ -131,7 +131,12 @@ function RegisterProfessionalContent() {
   const handleGoogleRegister = async () => {
     try {
       // Guardar el rol en localStorage antes del redirect
+      console.log('🎭 Guardando rol en localStorage:', selectedRole)
       localStorage.setItem('pending_role', selectedRole)
+      
+      // Verificar que se guardó
+      const savedRole = localStorage.getItem('pending_role')
+      console.log('✅ Rol guardado verificado:', savedRole)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -146,6 +151,7 @@ function RegisterProfessionalContent() {
 
       if (error) throw error
     } catch (err) {
+      console.error('❌ Error en Google Register:', err)
       setError('Error al registrarse con Google')
     }
   }
