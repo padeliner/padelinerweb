@@ -1,0 +1,172 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Menu, X, Search, User, CircleDot } from 'lucide-react'
+import Link from 'next/link'
+
+export function Header() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      
+      // Detectar si ha scrolleado más de 20px
+      setIsScrolled(currentScrollY > 20)
+      
+      // Mostrar/ocultar header según dirección del scroll
+      if (currentScrollY < 10) {
+        // Siempre visible al inicio
+        setIsVisible(true)
+      } else if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        // Scrolling down & past threshold - hide
+        setIsVisible(false)
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show
+        setIsVisible(true)
+      }
+      
+      setLastScrollY(currentScrollY)
+    }
+    
+    // Check initial scroll position
+    handleScroll()
+    
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
+
+  return (
+    <>
+      <header
+        className={`fixed left-0 right-0 z-50 bg-white transition-all duration-300 ${
+          isScrolled 
+            ? 'shadow-md' 
+            : 'shadow-sm'
+        } ${
+          isVisible ? 'top-0' : '-top-24'
+        }`}
+      >
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="flex items-center justify-center w-10 h-10 bg-primary-500 rounded-xl transition-transform group-hover:scale-110">
+                <CircleDot className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl sm:text-2xl font-bold text-neutral-900">
+                Padeliner
+              </span>
+            </Link>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <NavLink href="#entrenadores">Entrenadores</NavLink>
+              <NavLink href="#tienda">Tienda</NavLink>
+              <NavLink href="#como-funciona">Cómo funciona</NavLink>
+              <NavLink href="#contacto">Contacto</NavLink>
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              {/* Search Icon (Mobile) */}
+              <button 
+                className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                aria-label="Buscar"
+              >
+                <Search className="w-5 h-5 text-neutral-700" />
+              </button>
+
+              {/* Acceder Button */}
+              <Link href="/login">
+                <button
+                  className={`
+                    flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5
+                    bg-primary-500 hover:bg-primary-600 active:scale-95
+                    text-white font-semibold rounded-full
+                    transition-all duration-200
+                    shadow-lg shadow-primary-500/30
+                    hover:shadow-xl hover:shadow-primary-500/40
+                  `}
+                >
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Acceder</span>
+                </button>
+              </Link>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                aria-label="Menú"
+              >
+                {isOpen ? (
+                  <X className="w-6 h-6 text-neutral-700" />
+                ) : (
+                  <Menu className="w-6 h-6 text-neutral-700" />
+                )}
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Mobile Menu */}
+        <div
+          className={`md:hidden overflow-hidden bg-white border-t border-neutral-200 transition-all duration-300 ${
+            isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="px-4 py-6 space-y-4">
+            <MobileNavLink href="#entrenadores" onClick={() => setIsOpen(false)}>
+              Entrenadores
+            </MobileNavLink>
+            <MobileNavLink href="#tienda" onClick={() => setIsOpen(false)}>
+              Tienda
+            </MobileNavLink>
+            <MobileNavLink href="#como-funciona" onClick={() => setIsOpen(false)}>
+              Cómo funciona
+            </MobileNavLink>
+            <MobileNavLink href="#contacto" onClick={() => setIsOpen(false)}>
+              Contacto
+            </MobileNavLink>
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer */}
+      <div className="h-16 sm:h-20" />
+    </>
+  )
+}
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href}>
+      <span className="text-neutral-700 hover:text-primary-600 font-medium transition-all duration-200 relative group hover:-translate-y-0.5">
+        {children}
+        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 group-hover:w-full transition-all duration-300" />
+      </span>
+    </Link>
+  )
+}
+
+function MobileNavLink({ 
+  href, 
+  children, 
+  onClick 
+}: { 
+  href: string
+  children: React.ReactNode
+  onClick: () => void 
+}) {
+  return (
+    <Link href={href} onClick={onClick}>
+      <div className="flex items-center justify-between p-4 hover:bg-neutral-50 rounded-lg transition-colors">
+        <span className="text-lg font-medium text-neutral-900">{children}</span>
+        <span className="text-neutral-400">→</span>
+      </div>
+    </Link>
+  )
+}
