@@ -138,10 +138,16 @@ function RegisterProfessionalContent() {
       const savedRole = localStorage.getItem('pending_role')
       console.log('✅ Rol guardado verificado:', savedRole)
       
+      // Obtener el origin correcto (puede ser localhost, vercel o dominio personalizado)
+      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : ''
+      const callbackUrl = `${currentOrigin}/auth/callback`
+      
+      console.log('🔗 Callback URL:', callbackUrl)
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -149,7 +155,10 @@ function RegisterProfessionalContent() {
         },
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Error OAuth:', error)
+        throw error
+      }
     } catch (err) {
       console.error('❌ Error en Google Register:', err)
       setError('Error al registrarse con Google')
