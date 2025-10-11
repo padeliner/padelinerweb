@@ -10,8 +10,10 @@ export async function GET(request: Request) {
   console.log('========================================')
   console.log('🔄 Callback ejecutándose...')
   console.log('🔑 Code:', code ? 'presente' : 'ausente')
-  console.log('🎭 Rol recibido:', role)
+  console.log('🎭 Rol recibido del query param:', role)
   console.log('🌐 Origin:', requestUrl.origin)
+  console.log('📋 Full URL:', requestUrl.toString())
+  console.log('🔍 All query params:', Object.fromEntries(requestUrl.searchParams))
   console.log('========================================')
 
   if (code) {
@@ -33,7 +35,7 @@ export async function GET(request: Request) {
       
       // PASO 2: Si hay un rol, actualizar metadata y crear perfil
       if (role && data.user) {
-        console.log('⏳ Aplicando rol:', role)
+        console.log('⏳ Aplicando rol desde query param:', role)
         
         // Actualizar metadata del usuario
         const { error: updateError } = await supabase.auth.updateUser({
@@ -83,6 +85,10 @@ export async function GET(request: Request) {
         }
         
         console.log('✅✅✅ Perfil procesado con rol:', role)
+      } else if (data.user) {
+        // No hay rol en query param, redirigir a complete-profile para leer de localStorage
+        console.log('⚠️ No hay rol en query param, redirigiendo a complete-profile')
+        return NextResponse.redirect(new URL('/auth/complete-profile', requestUrl.origin))
       }
       
     } catch (err) {
