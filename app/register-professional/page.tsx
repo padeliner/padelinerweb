@@ -3,12 +3,13 @@
 import { useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { User, Mail, Lock, UserPlus, ArrowLeft, Check } from 'lucide-react'
+import { User, Mail, Lock, UserPlus, ArrowLeft, Check, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { USER_ROLES } from '@/lib/constants'
 
 function RegisterProfessionalContent() {
   const router = useRouter()
+{{ ... }}
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role') || 'entrenador'
   
@@ -142,27 +143,100 @@ function RegisterProfessionalContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-primary-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                <div className="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full">
+                  <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-              ¡Cuenta creada!
+
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-bold text-center text-neutral-900 mb-3">
+              ¡Cuenta Creada con Éxito!
             </h1>
-            <p className="text-neutral-600 mb-6">
-              Te hemos enviado un email a <strong>{email}</strong> para verificar tu cuenta.
+            
+            {/* Subtitle */}
+            <p className="text-center text-neutral-600 mb-8">
+              Ya casi está todo listo. Solo falta un paso más.
             </p>
-            <p className="text-sm text-neutral-500 mb-6">
-              Revisa tu bandeja de entrada y haz clic en el enlace de verificación.
-            </p>
-            <Link
-              href="/login"
-              className="inline-block w-full py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
-            >
-              Ir a Iniciar Sesión
-            </Link>
+
+            {/* Email Info */}
+            <div className="bg-primary-50 border-2 border-primary-100 rounded-2xl p-6 mb-6">
+              <div className="flex items-start space-x-3">
+                <Mail className="w-6 h-6 text-primary-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-neutral-900 mb-2">
+                    Revisa tu correo electrónico
+                  </h3>
+                  <p className="text-sm text-neutral-700 mb-3">
+                    Te hemos enviado un email de verificación a:
+                  </p>
+                  <p className="text-sm font-bold text-primary-600 bg-white px-3 py-2 rounded-lg border border-primary-200 break-all">
+                    {email}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-yellow-50 border-2 border-yellow-100 rounded-2xl p-6 mb-6">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-neutral-900 mb-2">
+                    Importante: Revisa tu bandeja de spam
+                  </h3>
+                  <p className="text-sm text-neutral-700">
+                    Si no ves el correo en tu bandeja de entrada, por favor revisa la carpeta de <strong>spam</strong> o <strong>correo no deseado</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Steps */}
+            <div className="space-y-3 mb-8">
+              <h3 className="font-semibold text-neutral-900 mb-3">Pasos a seguir:</h3>
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center justify-center w-6 h-6 bg-primary-500 text-white rounded-full text-xs font-bold flex-shrink-0">
+                  1
+                </div>
+                <p className="text-sm text-neutral-700">Abre el correo de verificación</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center justify-center w-6 h-6 bg-primary-500 text-white rounded-full text-xs font-bold flex-shrink-0">
+                  2
+                </div>
+                <p className="text-sm text-neutral-700">Haz clic en el enlace de confirmación</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center justify-center w-6 h-6 bg-primary-500 text-white rounded-full text-xs font-bold flex-shrink-0">
+                  3
+                </div>
+                <p className="text-sm text-neutral-700">Inicia sesión y comienza a ofrecer tus servicios</p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3">
+              <Link
+                href="/login"
+                className="block w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all duration-200 text-center shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40"
+              >
+                Ir a Iniciar Sesión
+              </Link>
+              <Link
+                href="/"
+                className="block w-full py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-xl transition-colors text-center"
+              >
+                Volver al Inicio
+              </Link>
+            </div>
           </div>
         </div>
       </div>
