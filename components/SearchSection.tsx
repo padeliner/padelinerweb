@@ -14,63 +14,68 @@ export function SearchSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="bg-white rounded-2xl shadow-2xl p-2"
+          className="bg-white rounded-2xl shadow-2xl p-3 sm:p-4"
         >
-          <div className="flex flex-col lg:flex-row gap-2">
-            {/* Location */}
-            <SearchInput
-              icon={<MapPin className="w-5 h-5" />}
-              label="Ubicación"
-              placeholder="¿Dónde?"
-              isActive={activeInput === 'location'}
-              onFocus={() => setActiveInput('location')}
-              onBlur={() => setActiveInput(null)}
-            />
+          <div className="flex flex-col gap-2">
+            {/* Search Inputs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {/* Location */}
+              <SearchInput
+                icon={<MapPin className="w-5 h-5" />}
+                label="Ubicación"
+                placeholder="¿Dónde?"
+                isActive={activeInput === 'location'}
+                onFocus={() => setActiveInput('location')}
+                onBlur={() => setActiveInput(null)}
+              />
 
-            {/* Date */}
-            <SearchInput
-              icon={<Calendar className="w-5 h-5" />}
-              label="Fecha"
-              placeholder="¿Cuándo?"
-              isActive={activeInput === 'date'}
-              onFocus={() => setActiveInput('date')}
-              onBlur={() => setActiveInput(null)}
-            />
+              {/* Date */}
+              <SearchInput
+                icon={<Calendar className="w-5 h-5" />}
+                label="Fecha"
+                placeholder="¿Cuándo?"
+                isActive={activeInput === 'date'}
+                onFocus={() => setActiveInput('date')}
+                onBlur={() => setActiveInput(null)}
+              />
 
-            {/* Type */}
-            <SearchInput
-              icon={<Users className="w-5 h-5" />}
-              label="Tipo de clase"
-              placeholder="Individual o grupo"
-              isActive={activeInput === 'type'}
-              onFocus={() => setActiveInput('type')}
-              onBlur={() => setActiveInput(null)}
-            />
+              {/* Type */}
+              <SearchInput
+                icon={<Users className="w-5 h-5" />}
+                label="Tipo de clase"
+                placeholder="Individual o grupo"
+                isActive={activeInput === 'type'}
+                onFocus={() => setActiveInput('type')}
+                onBlur={() => setActiveInput(null)}
+              />
+            </div>
 
             {/* Search Button */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center justify-center space-x-2 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/30"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center justify-center space-x-2 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/30"
             >
               <Search className="w-5 h-5" />
-              <span>Buscar</span>
+              <span>Buscar entrenadores</span>
             </motion.button>
           </div>
 
           {/* Filters */}
-          <div className="mt-4 px-2 flex items-center justify-between">
-            <div className="flex flex-wrap gap-2">
-              <FilterChip label="Cerca de mí" />
-              <FilterChip label="Mejor valorados" />
-              <FilterChip label="Disponible hoy" />
-              <FilterChip label="Precio económico" />
+          <div className="mt-4 px-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <FilterChip label="Cerca de mí" />
+                <FilterChip label="Mejor valorados" />
+                <FilterChip label="Disponible hoy" />
+                <FilterChip label="Precio económico" />
+              </div>
+              
+              <button className="flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors whitespace-nowrap">
+                <SlidersHorizontal className="w-4 h-4" />
+                <span className="text-sm font-medium">Más filtros</span>
+              </button>
             </div>
-            
-            <button className="flex items-center space-x-2 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors">
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="text-sm font-medium">Filtros</span>
-            </button>
           </div>
         </motion.div>
       </div>
