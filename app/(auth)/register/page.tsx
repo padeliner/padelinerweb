@@ -102,13 +102,19 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = async () => {
     try {
-      // Guardar el rol de alumno en localStorage antes del redirect
-      localStorage.setItem('pending_role', USER_ROLES.STUDENT)
+      // Guardar el rol de alumno
+      const role = USER_ROLES.STUDENT
+      console.log('🎭 Rol seleccionado:', role)
+      localStorage.setItem('pending_role', role)
+      
+      // Pasar el rol como query parameter
+      const callbackUrl = `${window.location.origin}/auth/callback?role=${role}`
+      console.log('🔗 Callback URL con rol:', callbackUrl)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
