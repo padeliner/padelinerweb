@@ -92,7 +92,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Messages Button */}
-              {!hideMessages && (
+              {!hideMessages && isAuthenticated && (
                 <Link 
                   href="/mensajes"
                   className="relative p-2 hover:bg-neutral-100 rounded-lg transition-colors"

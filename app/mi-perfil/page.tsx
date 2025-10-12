@@ -99,7 +99,7 @@ export default function MiPerfilPage() {
     setSaving(true)
     try {
       const { error } = await supabase
-        .from('usuarios')
+        .from('users')
         .update(formData)
         .eq('id', user.id)
 
@@ -125,9 +125,9 @@ export default function MiPerfilPage() {
 
     setDeleting(true)
     try {
-      // 1. Eliminar el perfil de la tabla usuarios
+      // 1. Eliminar el perfil de la tabla users
       const { error: deleteProfileError } = await supabase
-        .from('usuarios')
+        .from('users')
         .delete()
         .eq('id', user.id)
 

@@ -103,8 +103,8 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redirigir al dashboard
-  console.log('➡️  Redirigiendo a: /dashboard')
+  // Redirigir al home
+  console.log('➡️  Redirigiendo a: /')
   console.log('========================================')
-  return NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
+  return NextResponse.redirect(new URL('/', requestUrl.origin))
 }

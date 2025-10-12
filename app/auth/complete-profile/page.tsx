@@ -121,12 +121,12 @@ export default function CompleteProfilePage() {
         // Pequeño delay para que se apliquen los cambios
         await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // Redirigir al dashboard
-        router.push('/dashboard')
+        // Redirigir al home
+        router.push('/')
       } catch (error) {
         console.error('❌ Error completando perfil:', error)
         // Redirigir de todos modos
-        router.push('/dashboard')
+        router.push('/')
       } finally {
         setProcessing(false)
       }
