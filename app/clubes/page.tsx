@@ -4,24 +4,21 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { LocationSearch, LocationData, calculateDistance } from '@/components/LocationSearch'
 import { mockClubs } from '@/lib/mock-data/clubs'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, Users } from 'lucide-react'
 
 export default function ClubesPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCity, setSelectedCity] = useState('all')
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
+  const [maxDistance, setMaxDistance] = useState(50)
   const [minCourts, setMinCourts] = useState('all')
   const [priceRange, setPriceRange] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
 
-  // Extraer ciudades únicas
-  const cities = ['all', ...Array.from(new Set(mockClubs.map(c => c.city)))]
-
-  // Filtrar clubes
-  const filteredClubs = mockClubs.filter(club => {
-    const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         club.city.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCity = selectedCity === 'all' || club.city === selectedCity
+  // Filtrar y ordenar clubes por distancia
+  let filteredClubs = mockClubs.filter(club => {
+    const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCourts = minCourts === 'all' ||
                           (minCourts === '4' && club.courtsCount >= 4) ||
                           (minCourts === '8' && club.courtsCount >= 8) ||
@@ -31,8 +28,32 @@ export default function ClubesPage() {
                         (priceRange === 'medium' && club.pricePerHour >= 23 && club.pricePerHour < 27) ||
                         (priceRange === 'high' && club.pricePerHour >= 27)
     
-    return matchesSearch && matchesCity && matchesCourts && matchesPrice
+    let matchesDistance = true
+    if (selectedLocation) {
+      const distance = calculateDistance(
+        selectedLocation.lat,
+        selectedLocation.lng,
+        club.lat,
+        club.lng
+      )
+      matchesDistance = distance <= maxDistance
+    }
+    
+    return matchesSearch && matchesCourts && matchesPrice && matchesDistance
   })
+
+  // Si hay ubicación seleccionada, ordenar por distancia
+  if (selectedLocation) {
+    filteredClubs = filteredClubs.map(club => ({
+      ...club,
+      distance: calculateDistance(
+        selectedLocation.lat,
+        selectedLocation.lng,
+        club.lat,
+        club.lng
+      )
+    })).sort((a, b) => a.distance - b.distance)
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -49,13 +70,21 @@ export default function ClubesPage() {
               {mockClubs.length} clubes con las mejores instalaciones de España
             </p>
             
-            {/* Search Bar */}
+            {/* Location Search */}
+            <div className="max-w-2xl mx-auto mb-6">
+              <LocationSearch
+                onLocationSelect={setSelectedLocation}
+                placeholder="¿Dónde buscas club? (ej: Madrid, Barcelona...)"
+              />
+            </div>
+
+            {/* Search by Name */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre o ciudad..."
+                  placeholder="Buscar por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-green-300 text-lg"
@@ -86,19 +115,29 @@ export default function ClubesPage() {
 
           {/* Filters */}
           <div className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
-            {/* Ciudad */}
-            <div className="relative">
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Todas las ciudades</option>
-                {cities.slice(1).map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            {/* Distancia Máxima */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Distancia máxima: {maxDistance} km
+              </label>
+              <input
+                type="range"
+                min="5"
+                max="100"
+                step="5"
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                disabled={!selectedLocation}
+                className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: selectedLocation 
+                    ? `linear-gradient(to right, #16a34a 0%, #16a34a ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
+                    : '#e5e7eb'
+                }}
+              />
+              {!selectedLocation && (
+                <p className="text-xs text-neutral-500 mt-1">Selecciona una ubicación primero</p>
+              )}
             </div>
 
             {/* Número de pistas */}
@@ -135,7 +174,8 @@ export default function ClubesPage() {
             <button
               onClick={() => {
                 setSearchTerm('')
-                setSelectedCity('all')
+                setSelectedLocation(null)
+                setMaxDistance(50)
                 setMinCourts('all')
                 setPriceRange('all')
               }}
@@ -156,7 +196,8 @@ export default function ClubesPage() {
               <button
                 onClick={() => {
                   setSearchTerm('')
-                  setSelectedCity('all')
+                  setSelectedLocation(null)
+                  setMaxDistance(50)
                   setMinCourts('all')
                   setPriceRange('all')
                 }}
@@ -204,7 +245,12 @@ export default function ClubesPage() {
 
                     <div className="flex items-center text-sm text-neutral-600 mb-3">
                       <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                      <span className="truncate">{club.location}, {club.city}</span>
+                      <span className="truncate">{club.city}</span>
+                      {'distance' in club && typeof club.distance === 'number' && (
+                        <span className="ml-auto text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                          {club.distance.toFixed(1)} km
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center text-sm text-neutral-600 mb-3">

@@ -4,28 +4,51 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { LocationSearch, LocationData, calculateDistance } from '@/components/LocationSearch'
 import { mockAcademies } from '@/lib/mock-data/academies'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, GraduationCap, Users } from 'lucide-react'
 
 export default function AcademiasPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCity, setSelectedCity] = useState('all')
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
+  const [maxDistance, setMaxDistance] = useState(50)
   const [priceRange, setPriceRange] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
 
-  const cities = ['all', ...Array.from(new Set(mockAcademies.map(a => a.city)))]
-
-  const filteredAcademies = mockAcademies.filter(academy => {
-    const matchesSearch = academy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         academy.city.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCity = selectedCity === 'all' || academy.city === selectedCity
+  // Filtrar y ordenar academias por distancia
+  let filteredAcademies = mockAcademies.filter(academy => {
+    const matchesSearch = academy.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesPrice = priceRange === 'all' ||
                         (priceRange === 'low' && academy.pricePerMonth < 100) ||
                         (priceRange === 'medium' && academy.pricePerMonth >= 100 && academy.pricePerMonth < 130) ||
                         (priceRange === 'high' && academy.pricePerMonth >= 130)
     
-    return matchesSearch && matchesCity && matchesPrice
+    let matchesDistance = true
+    if (selectedLocation) {
+      const distance = calculateDistance(
+        selectedLocation.lat,
+        selectedLocation.lng,
+        academy.lat,
+        academy.lng
+      )
+      matchesDistance = distance <= maxDistance
+    }
+    
+    return matchesSearch && matchesPrice && matchesDistance
   })
+
+  // Si hay ubicación seleccionada, ordenar por distancia
+  if (selectedLocation) {
+    filteredAcademies = filteredAcademies.map(academy => ({
+      ...academy,
+      distance: calculateDistance(
+        selectedLocation.lat,
+        selectedLocation.lng,
+        academy.lat,
+        academy.lng
+      )
+    })).sort((a, b) => a.distance - b.distance)
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -41,12 +64,21 @@ export default function AcademiasPage() {
               {mockAcademies.length} academias profesionales con programas para todos los niveles
             </p>
             
+            {/* Location Search */}
+            <div className="max-w-2xl mx-auto mb-6">
+              <LocationSearch
+                onLocationSelect={setSelectedLocation}
+                placeholder="¿Dónde buscas academia? (ej: Madrid, Barcelona...)"
+              />
+            </div>
+
+            {/* Search by Name */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre o ciudad..."
+                  placeholder="Buscar por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg"
@@ -74,18 +106,29 @@ export default function AcademiasPage() {
           </div>
 
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
-            <div className="relative">
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-blue-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Todas las ciudades</option>
-                {cities.slice(1).map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            {/* Distancia Máxima */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Distancia máxima: {maxDistance} km
+              </label>
+              <input
+                type="range"
+                min="5"
+                max="100"
+                step="5"
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                disabled={!selectedLocation}
+                className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: selectedLocation 
+                    ? `linear-gradient(to right, #2563eb 0%, #2563eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
+                    : '#e5e7eb'
+                }}
+              />
+              {!selectedLocation && (
+                <p className="text-xs text-neutral-500 mt-1">Selecciona una ubicación primero</p>
+              )}
             </div>
 
             <div className="relative">
@@ -105,7 +148,8 @@ export default function AcademiasPage() {
             <button
               onClick={() => {
                 setSearchTerm('')
-                setSelectedCity('all')
+                setSelectedLocation(null)
+                setMaxDistance(50)
                 setPriceRange('all')
               }}
               className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
@@ -124,7 +168,8 @@ export default function AcademiasPage() {
               <button
                 onClick={() => {
                   setSearchTerm('')
-                  setSelectedCity('all')
+                  setSelectedLocation(null)
+                  setMaxDistance(50)
                   setPriceRange('all')
                 }}
                 className="mt-4 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors"
@@ -170,6 +215,11 @@ export default function AcademiasPage() {
                     <div className="flex items-center text-sm text-neutral-600 mb-3">
                       <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
                       <span className="truncate">{academy.city}</span>
+                      {'distance' in academy && typeof academy.distance === 'number' && (
+                        <span className="ml-auto text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                          {academy.distance.toFixed(1)} km
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center text-sm text-neutral-600 mb-3">

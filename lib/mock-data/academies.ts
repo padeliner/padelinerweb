@@ -3,6 +3,8 @@ export interface Academy {
   name: string
   location: string
   city: string
+  lat: number
+  lng: number
   programs: string[]
   rating: number
   reviewsCount: number
@@ -24,6 +26,8 @@ export const mockAcademies: Academy[] = [
     name: "Academia Pádel Elite Madrid",
     location: "Calle Serrano 123",
     city: "Madrid",
+    lat: 40.4168,
+    lng: -3.7038,
     programs: ["Iniciación niños", "Perfeccionamiento adultos", "Competición", "Pádel intensivo", "Campus de verano"],
     rating: 4.9,
     reviewsCount: 256,
@@ -47,6 +51,8 @@ export const mockAcademies: Academy[] = [
     name: "Barcelona Padel Academy",
     location: "Avenida Diagonal 567",
     city: "Barcelona",
+    lat: 41.3851,
+    lng: 2.1734,
     programs: ["Escuela infantil", "Adultos principiantes", "Alto rendimiento", "Preparación física", "Psicología deportiva"],
     rating: 4.8,
     reviewsCount: 342,
@@ -69,6 +75,8 @@ export const mockAcademies: Academy[] = [
     name: "Valencia Padel School",
     location: "Calle Colón 234",
     city: "Valencia",
+    lat: 39.4699,
+    lng: -0.3763,
     programs: ["Escuela de menores", "Tecnificación", "Clases particulares", "Grupos reducidos"],
     rating: 4.7,
     reviewsCount: 189,
@@ -90,6 +98,8 @@ export const mockAcademies: Academy[] = [
     name: "Sevilla Padel Pro Academy",
     location: "Avenida de la Palmera 345",
     city: "Sevilla",
+    lat: 37.3891,
+    lng: -5.9845,
     programs: ["Iniciación", "Perfeccionamiento", "Competición regional", "Técnica avanzada", "Campus intensivos"],
     rating: 4.8,
     reviewsCount: 223,
@@ -112,6 +122,8 @@ export const mockAcademies: Academy[] = [
     name: "Málaga Padel Junior Academy",
     location: "Paseo Marítimo 89",
     city: "Málaga",
+    lat: 36.7213,
+    lng: -4.4214,
     programs: ["Escuela de menores 5-17 años", "Competición juvenil", "Campus de Navidad", "Campus de verano"],
     rating: 4.9,
     reviewsCount: 298,
@@ -135,6 +147,8 @@ export const mockAcademies: Academy[] = [
     name: "Bilbao Sport Academy",
     location: "Gran Vía 234",
     city: "Bilbao",
+    lat: 43.2627,
+    lng: -2.9253,
     programs: ["Escuela de pádel", "Entrenamiento personal", "Preparación física integral", "Nutrición deportiva"],
     rating: 4.6,
     reviewsCount: 167,
@@ -156,6 +170,8 @@ export const mockAcademies: Academy[] = [
     name: "Zaragoza Padel Formation",
     location: "Paseo Independencia 456",
     city: "Zaragoza",
+    lat: 41.6488,
+    lng: -0.8891,
     programs: ["Iniciación adultos", "Perfeccionamiento", "Grupos de nivel", "Clases particulares"],
     rating: 4.5,
     reviewsCount: 134,
@@ -177,6 +193,8 @@ export const mockAcademies: Academy[] = [
     name: "Alicante Elite Training",
     location: "Playa de San Juan s/n",
     city: "Alicante",
+    lat: 38.3452,
+    lng: -0.4810,
     programs: ["Alto rendimiento", "Preparación WPT", "Análisis de vídeo", "Entrenamiento mental", "Fisioterapia"],
     rating: 4.9,
     reviewsCount: 178,

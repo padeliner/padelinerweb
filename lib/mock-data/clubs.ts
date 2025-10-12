@@ -3,6 +3,8 @@ export interface Club {
   name: string
   location: string
   city: string
+  lat: number
+  lng: number
   courtsCount: number
   amenities: string[]
   rating: number
@@ -23,6 +25,8 @@ export const mockClubs: Club[] = [
     name: "Padel Pro Madrid",
     location: "Calle de Alcalá 123",
     city: "Madrid",
+    lat: 40.4168,
+    lng: -3.7038,
     courtsCount: 8,
     amenities: ["Parking gratuito", "Vestuarios", "Cafetería", "Tienda", "Alquiler de palas", "Iluminación LED"],
     rating: 4.8,
@@ -45,6 +49,8 @@ export const mockClubs: Club[] = [
     name: "Barcelona Padel Center",
     location: "Avenida Diagonal 456",
     city: "Barcelona",
+    lat: 41.3851,
+    lng: 2.1734,
     courtsCount: 12,
     amenities: ["Parking", "Vestuarios premium", "Restaurante", "Spa", "Clases grupales", "WiFi gratis"],
     rating: 4.9,
@@ -66,6 +72,8 @@ export const mockClubs: Club[] = [
     name: "Valencia Sports Club",
     location: "Calle Colón 78",
     city: "Valencia",
+    lat: 39.4699,
+    lng: -0.3763,
     courtsCount: 6,
     amenities: ["Parking", "Vestuarios", "Bar", "Alquiler material", "Pistas cubiertas"],
     rating: 4.7,
@@ -86,6 +94,8 @@ export const mockClubs: Club[] = [
     name: "Sevilla Padel Arena",
     location: "Avenida de la Palmera 234",
     city: "Sevilla",
+    lat: 37.3891,
+    lng: -5.9845,
     courtsCount: 10,
     amenities: ["Parking vigilado", "Vestuarios", "Cafetería", "Tienda especializada", "Clases personalizadas"],
     rating: 4.6,
@@ -107,6 +117,8 @@ export const mockClubs: Club[] = [
     name: "Málaga Padel Club",
     location: "Paseo Marítimo 56",
     city: "Málaga",
+    lat: 36.7213,
+    lng: -4.4214,
     courtsCount: 8,
     amenities: ["Vista al mar", "Parking", "Vestuarios", "Chiringuito", "Alquiler palas", "Duchas"],
     rating: 4.9,
@@ -129,6 +141,8 @@ export const mockClubs: Club[] = [
     name: "Bilbao Sport Center",
     location: "Gran Vía 89",
     city: "Bilbao",
+    lat: 43.2627,
+    lng: -2.9253,
     courtsCount: 7,
     amenities: ["Parking subterráneo", "Vestuarios premium", "Gimnasio", "Sauna", "Cafetería", "WiFi"],
     rating: 4.7,
@@ -149,6 +163,8 @@ export const mockClubs: Club[] = [
     name: "Zaragoza Padel Point",
     location: "Paseo Independencia 145",
     city: "Zaragoza",
+    lat: 41.6488,
+    lng: -0.8891,
     courtsCount: 5,
     amenities: ["Parking", "Vestuarios", "Bar deportivo", "Alquiler material", "Torneos semanales"],
     rating: 4.5,
@@ -169,6 +185,8 @@ export const mockClubs: Club[] = [
     name: "Alicante Beach Padel",
     location: "Playa de San Juan s/n",
     city: "Alicante",
+    lat: 38.3452,
+    lng: -0.4810,
     courtsCount: 6,
     amenities: ["Parking gratuito", "Vista al mar", "Bar-restaurante", "Duchas exteriores", "Alquiler palas"],
     rating: 4.8,
@@ -190,6 +208,8 @@ export const mockClubs: Club[] = [
     name: "Murcia Indoor Padel",
     location: "Avenida Juan Carlos I, 34",
     city: "Murcia",
+    lat: 37.9922,
+    lng: -1.1307,
     courtsCount: 9,
     amenities: ["Pistas climatizadas", "Parking vigilado", "Vestuarios", "Cafetería", "Tienda", "WiFi gratis"],
     rating: 4.6,
@@ -210,6 +230,8 @@ export const mockClubs: Club[] = [
     name: "Córdoba Padel Elite",
     location: "Avenida del Gran Capitán 67",
     city: "Córdoba",
+    lat: 37.8882,
+    lng: -4.7794,
     courtsCount: 4,
     amenities: ["Parking", "Vestuarios", "Bar", "Alquiler completo", "Clases disponibles"],
     rating: 4.4,
