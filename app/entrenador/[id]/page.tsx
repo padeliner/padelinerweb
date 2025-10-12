@@ -171,15 +171,19 @@ export default function EntrenadorPage() {
                 </div>
 
                 <div className="space-y-3 mb-6">
-                  <button className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
-                    <Calendar className="w-5 h-5" />
-                    <span>Reservar Clase</span>
-                  </button>
+                  <Link href={`/reservar/${coach.id}`}>
+                    <button className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
+                      <Calendar className="w-5 h-5" />
+                      <span>Reservar Clase</span>
+                    </button>
+                  </Link>
                   
-                  <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
-                    <MessageCircle className="w-5 h-5" />
-                    <span>Contactar</span>
-                  </button>
+                  <Link href="/mensajes">
+                    <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
+                      <MessageCircle className="w-5 h-5" />
+                      <span>Contactar</span>
+                    </button>
+                  </Link>
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 space-y-3 text-sm">
