@@ -104,15 +104,15 @@ function ClubCard({ club, index }: { club: typeof mockClubs[0]; index: number })
           <div className="space-y-2 mb-3">
             <div className="flex items-center space-x-2 text-sm text-neutral-600">
               <Users className="w-4 h-4" />
-              <span>{club.courtsCount} pistas disponibles</span>
+              <span>{club.instructorsCount} instructores profesionales</span>
             </div>
           </div>
 
           {/* Price & Reviews */}
           <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
             <div>
-              <span className="text-2xl font-bold text-neutral-900">€{club.pricePerHour}</span>
-              <span className="text-sm text-neutral-600">/hora</span>
+              <span className="text-2xl font-bold text-neutral-900">€{club.pricePerClass}</span>
+              <span className="text-sm text-neutral-600">/clase</span>
             </div>
             <div className="text-sm text-neutral-500">
               {club.reviewsCount} valoraciones
