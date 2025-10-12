@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X, Search, User, CircleDot, ShoppingCart } from 'lucide-react'
+import { Menu, X, User, CircleDot, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 
 interface HeaderProps {
@@ -77,14 +77,6 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0 }: He
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3 sm:space-x-4">
-              {/* Search Icon (Mobile) */}
-              <button 
-                className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-                aria-label="Buscar"
-              >
-                <Search className="w-5 h-5 text-neutral-700" />
-              </button>
-
               {/* Cart Button (Only in shop pages) */}
               {showCart && (
                 <button
