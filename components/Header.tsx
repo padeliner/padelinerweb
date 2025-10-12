@@ -156,7 +156,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                   </button>
                 </Link>
               ) : (
-                <Link href="/welcome">
+                <Link href="/login">
                   <button
                     className={`
                       flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5

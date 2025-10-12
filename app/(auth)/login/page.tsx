@@ -184,6 +184,17 @@ export default function LoginPage() {
               Crear cuenta
             </Link>
           </div>
+
+          {/* Professional Link */}
+          <div className="mt-4 text-center">
+            <span className="text-neutral-600">¿Eres profesional? </span>
+            <Link
+              href="/role-selection"
+              className="text-primary-600 hover:text-primary-700 font-semibold transition-colors"
+            >
+              Regístrate aquí
+            </Link>
+          </div>
         </div>
       </div>
     </div>
