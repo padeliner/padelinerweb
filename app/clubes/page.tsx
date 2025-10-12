@@ -74,6 +74,27 @@ export default function ClubesPage() {
                 onLocationSelect={setSelectedLocation}
                 placeholder="¿Dónde buscas club? (ej: Madrid, Barcelona...)"
               />
+              
+              {/* Filtro de Distancia - Solo visible cuando hay ubicación */}
+              {selectedLocation && (
+                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <label className="block text-sm font-medium text-white mb-3">
+                    Distancia máxima: <span className="text-green-200 font-bold">{maxDistance} km</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    step="5"
+                    value={maxDistance}
+                    onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
+                    style={{
+                      background: `linear-gradient(to right, #fff 0%, #fff ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Search by Name */}
@@ -174,33 +195,6 @@ export default function ClubesPage() {
                     style={{ zIndex: 4 }}
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Distancia Máxima */}
-            <div className="flex-1 min-w-0">
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Distancia: <span className="text-green-600 font-semibold">{maxDistance} km</span>
-              </label>
-              <div className="pb-1">
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="5"
-                  value={maxDistance}
-                  onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                  disabled={!selectedLocation}
-                  className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md disabled:[&::-webkit-slider-thumb]:border-neutral-300 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-green-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md disabled:[&::-moz-range-thumb]:border-neutral-300"
-                  style={{
-                    background: selectedLocation 
-                      ? `linear-gradient(to right, #16a34a 0%, #16a34a ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
-                      : '#e5e7eb'
-                  }}
-                />
-                {!selectedLocation && (
-                  <p className="text-xs text-neutral-500 mt-1.5">Selecciona ubicación primero</p>
-                )}
               </div>
             </div>
 
