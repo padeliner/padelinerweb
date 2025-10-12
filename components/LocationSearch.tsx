@@ -29,7 +29,12 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
   const wrapperRef = useRef<HTMLDivElement>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // No necesitamos inicializar servicios, la nueva API usa importLibrary
+  // Verificar si Google Maps ya está cargado al montar el componente
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.google?.maps) {
+      setIsGoogleLoaded(true)
+    }
+  }, [])
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
