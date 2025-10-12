@@ -27,17 +27,9 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
-  const geocoderRef = useRef<google.maps.Geocoder | null>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Inicializar Google Places cuando esté disponible
-  useEffect(() => {
-    if (isGoogleLoaded && typeof window !== 'undefined' && window.google?.maps?.places) {
-      autocompleteServiceRef.current = new google.maps.places.AutocompleteService()
-      geocoderRef.current = new google.maps.Geocoder()
-    }
-  }, [isGoogleLoaded])
+  // No necesitamos inicializar servicios, la nueva API usa importLibrary
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -55,7 +47,7 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     }
   }, [])
 
-  // Buscar ubicaciones usando Google Places API
+  // Buscar ubicaciones usando la nueva Google Places API
   const searchLocations = useCallback((query: string) => {
     if (query.length < 2) {
       setSuggestions([])
@@ -68,76 +60,88 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     }
 
     // Debounce de 300ms
-    searchTimeoutRef.current = setTimeout(() => {
-      if (!autocompleteServiceRef.current || !geocoderRef.current) {
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (!isGoogleLoaded) {
         console.warn('Google Places API no está cargada aún')
         return
       }
 
-      const request: google.maps.places.AutocompletionRequest = {
-        input: query,
-        componentRestrictions: { country: 'es' }, // Solo España
-        types: ['(cities)'], // Ciudades, pueblos, localidades
-      }
+      try {
+        // @ts-ignore - Importar la nueva librería Places
+        const { AutocompleteSuggestion } = await google.maps.importLibrary("places")
 
-      autocompleteServiceRef.current.getPlacePredictions(request, (predictions, status) => {
-        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+        // Crear request para autocompletado
+        const request = {
+          input: query,
+          includedRegionCodes: ['es'], // Solo España
+          language: 'es-ES',
+        }
+
+        // Obtener sugerencias
+        const { suggestions: predictions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request)
+
+        if (!predictions || predictions.length === 0) {
           setSuggestions([])
           return
         }
 
-        // Obtener detalles de cada lugar (coordenadas)
-        const locationPromises = predictions.map(prediction => 
-          new Promise<LocationData>((resolve) => {
-            if (!geocoderRef.current) return
+        // Procesar cada sugerencia
+        const locationPromises = predictions.slice(0, 5).map(async (suggestion: any) => {
+          const placePrediction = suggestion.placePrediction
+          
+          try {
+            // Convertir a Place y obtener detalles
+            const place = placePrediction.toPlace()
+            await place.fetchFields({
+              fields: ['displayName', 'formattedAddress', 'location', 'addressComponents']
+            })
+
+            // Extraer ciudad y país
+            let city = ''
+            let country = 'España'
             
-            geocoderRef.current.geocode(
-              { placeId: prediction.place_id },
-              (results, status) => {
-                if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-                  const result = results[0]
-                  const location = result.geometry.location
-                  
-                  // Extraer componentes de la dirección
-                  const city = result.address_components.find(c => 
-                    c.types.includes('locality') || c.types.includes('administrative_area_level_2')
-                  )?.long_name || ''
-                  
-                  const country = result.address_components.find(c => 
-                    c.types.includes('country')
-                  )?.long_name || 'España'
+            if (place.addressComponents) {
+              const cityComponent = place.addressComponents.find((c: any) => 
+                c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+              )
+              const countryComponent = place.addressComponents.find((c: any) => 
+                c.types.includes('country')
+              )
+              
+              city = cityComponent?.longText || ''
+              country = countryComponent?.longText || 'España'
+            }
 
-                  resolve({
-                    address: prediction.description,
-                    city: city,
-                    country: country,
-                    lat: location.lat(),
-                    lng: location.lng(),
-                    formatted: prediction.description
-                  })
-                } else {
-                  // Fallback si falla el geocoding
-                  resolve({
-                    address: prediction.description,
-                    city: prediction.structured_formatting.main_text,
-                    country: 'España',
-                    lat: 0,
-                    lng: 0,
-                    formatted: prediction.description
-                  })
-                }
-              }
-            )
-          })
-        )
-
-        Promise.all(locationPromises).then(locations => {
-          setSuggestions(locations.slice(0, 5))
-          setShowSuggestions(true)
+            return {
+              address: place.formattedAddress || placePrediction.text.toString(),
+              city: city || place.displayName || '',
+              country: country,
+              lat: place.location?.lat() || 0,
+              lng: place.location?.lng() || 0,
+              formatted: place.formattedAddress || placePrediction.text.toString()
+            }
+          } catch (error) {
+            // Fallback si falla fetchFields
+            return {
+              address: placePrediction.text.toString(),
+              city: placePrediction.mainText?.toString() || '',
+              country: 'España',
+              lat: 0,
+              lng: 0,
+              formatted: placePrediction.text.toString()
+            }
+          }
         })
-      })
+
+        const locations = await Promise.all(locationPromises)
+        setSuggestions(locations)
+        setShowSuggestions(true)
+      } catch (error) {
+        console.error('Error fetching autocomplete suggestions:', error)
+        setSuggestions([])
+      }
     }, 300)
-  }, [])
+  }, [isGoogleLoaded])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -158,52 +162,61 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     setShowSuggestions(false)
   }
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = async () => {
     setIsLoadingLocation(true)
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords
           
-          // Usar Google Geocoding API para reverse geocoding
-          if (!geocoderRef.current) {
+          // Usar la nueva API de Geocoding
+          if (!isGoogleLoaded) {
             alert('Google Maps aún no está cargado')
             setIsLoadingLocation(false)
             return
           }
 
-          geocoderRef.current.geocode(
-            { location: { lat: latitude, lng: longitude } },
-            (results, status) => {
-              if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-                const result = results[0]
-                
-                // Extraer componentes
-                const city = result.address_components.find(c => 
-                  c.types.includes('locality') || c.types.includes('administrative_area_level_2')
-                )?.long_name || ''
-                
-                const country = result.address_components.find(c => 
-                  c.types.includes('country')
-                )?.long_name || 'España'
+          try {
+            // @ts-ignore
+            const { Geocoder } = await google.maps.importLibrary("geocoding")
+            const geocoder = new Geocoder()
 
-                const locationData: LocationData = {
-                  address: result.formatted_address,
-                  city: city,
-                  country: country,
-                  lat: latitude,
-                  lng: longitude,
-                  formatted: result.formatted_address
-                }
-                
-                setInputValue(locationData.formatted)
-                onLocationSelect(locationData)
-              } else {
-                alert('No se pudo determinar tu ubicación exacta')
+            const response = await geocoder.geocode({
+              location: { lat: latitude, lng: longitude }
+            })
+
+            if (response.results && response.results[0]) {
+              const result = response.results[0]
+              
+              // Extraer componentes
+              const city = result.address_components.find((c: any) => 
+                c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+              )?.long_name || ''
+              
+              const country = result.address_components.find((c: any) => 
+                c.types.includes('country')
+              )?.long_name || 'España'
+
+              const locationData: LocationData = {
+                address: result.formatted_address,
+                city: city,
+                country: country,
+                lat: latitude,
+                lng: longitude,
+                formatted: result.formatted_address
               }
-              setIsLoadingLocation(false)
+              
+              setInputValue(locationData.formatted)
+              onLocationSelect(locationData)
+            } else {
+              alert('No se pudo determinar tu ubicación exacta')
             }
-          )
+          } catch (error) {
+            console.error('Error con geocoding:', error)
+            alert('No se pudo determinar tu ubicación exacta')
+          }
+          
+          setIsLoadingLocation(false)
         },
         (error) => {
           console.error('Error obteniendo ubicación:', error)
@@ -219,9 +232,9 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
 
   return (
     <>
-      {/* Cargar Google Maps API */}
+      {/* Cargar Google Maps API con nueva arquitectura */}
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&loading=async&language=es`}
         onLoad={() => {
           // Esperar un momento para asegurar que todo esté cargado
           setTimeout(() => setIsGoogleLoaded(true), 100)
