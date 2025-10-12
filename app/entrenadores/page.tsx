@@ -15,6 +15,7 @@ export default function EntrenadoresPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all')
   const [minPrice, setMinPrice] = useState(25)
   const [maxPrice, setMaxPrice] = useState(75)
+  const [showOnlyWithHomeService, setShowOnlyWithHomeService] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   
   // Categorías de entrenadores por público objetivo
@@ -28,6 +29,9 @@ export default function EntrenadoresPage() {
                              coach.specialties.includes(selectedSpecialty)
     const matchesPrice = coach.pricePerHour >= minPrice && coach.pricePerHour <= maxPrice
     
+    // Filtro por disponibilidad de desplazamiento
+    const matchesHomeService = !showOnlyWithHomeService || coach.offersHomeService
+    
     // Filtro por distancia
     let matchesDistance = true
     if (selectedLocation) {
@@ -40,7 +44,7 @@ export default function EntrenadoresPage() {
       matchesDistance = distance <= maxDistance
     }
     
-    return matchesSearch && matchesSpecialty && matchesPrice && matchesDistance
+    return matchesSearch && matchesSpecialty && matchesPrice && matchesHomeService && matchesDistance
   })
 
   // Si hay ubicación seleccionada, ordenar por distancia
@@ -157,6 +161,19 @@ export default function EntrenadoresPage() {
               </div>
             </div>
 
+            {/* Filtro de Desplazamiento */}
+            <div className="flex items-center h-[42px]">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOnlyWithHomeService}
+                  onChange={(e) => setShowOnlyWithHomeService(e.target.checked)}
+                  className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-neutral-700 whitespace-nowrap">Con desplazamiento</span>
+              </label>
+            </div>
+
             {/* Rango de Precio */}
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -212,6 +229,7 @@ export default function EntrenadoresPage() {
                 setSelectedSpecialty('all')
                 setMinPrice(25)
                 setMaxPrice(75)
+                setShowOnlyWithHomeService(false)
               }}
               className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
             >
@@ -235,6 +253,7 @@ export default function EntrenadoresPage() {
                   setSelectedSpecialty('all')
                   setMinPrice(25)
                   setMaxPrice(75)
+                  setShowOnlyWithHomeService(false)
                 }}
                 className="mt-4 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
               >
