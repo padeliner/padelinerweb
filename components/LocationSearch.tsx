@@ -185,7 +185,7 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
           onChange={handleInputChange}
           onFocus={() => inputValue && setShowSuggestions(true)}
           placeholder={placeholder}
-          className="w-full pl-12 pr-24 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
+          className="w-full pl-12 pr-24 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors text-neutral-900"
         />
         <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
           {inputValue && (
