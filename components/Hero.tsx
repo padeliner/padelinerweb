@@ -72,12 +72,11 @@ export function Hero() {
             <Stat number="4.8" label="Valoración" icon={<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />} />
           </motion.div>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4"
           >
             <Link href="/welcome">
               <motion.button
@@ -89,14 +88,6 @@ export function Hero() {
                 <span>Buscar entrenador</span>
               </motion.button>
             </Link>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-white/90 backdrop-blur-sm hover:bg-white text-neutral-900 font-semibold rounded-full shadow-xl transition-all duration-200"
-            >
-              Ver cómo funciona
-            </motion.button>
           </motion.div>
         </motion.div>
       </div>
