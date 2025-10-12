@@ -143,7 +143,7 @@ function AcademiasContent() {
                   placeholder="Buscar por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-blue-300 focus:outline-none transition-colors text-neutral-900"
                 />
               </div>
             </div>

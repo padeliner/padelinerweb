@@ -142,13 +142,13 @@ function EntrenadoresContent() {
             {/* Search by Name */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-neutral-400" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input
                   type="text"
                   placeholder="Buscar por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-300 text-base md:text-lg"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-300 focus:outline-none transition-colors text-neutral-900"
                 />
               </div>
             </div>
