@@ -161,9 +161,17 @@ export default function EntrenadoresPage() {
               <label className="block text-sm font-medium text-neutral-700 mb-2">
                 Precio: {minPrice}€ - {maxPrice}€/h
               </label>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-3">
-                  <span className="text-xs text-neutral-500 w-12">Min:</span>
+              <div className="relative pt-1">
+                <div className="relative h-2 bg-neutral-200 rounded-lg">
+                  {/* Barra de progreso coloreada */}
+                  <div 
+                    className="absolute h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg"
+                    style={{
+                      left: `${(minPrice - 25) / 50 * 100}%`,
+                      right: `${100 - (maxPrice - 25) / 50 * 100}%`
+                    }}
+                  />
+                  {/* Input MIN */}
                   <input
                     type="range"
                     min="25"
@@ -174,14 +182,10 @@ export default function EntrenadoresPage() {
                       const value = parseInt(e.target.value)
                       if (value <= maxPrice) setMinPrice(value)
                     }}
-                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #e5e7eb 0%, #e5e7eb ${(minPrice - 25) / 50 * 100}%, #f97316 ${(minPrice - 25) / 50 * 100}%, #f97316 100%)`
-                    }}
+                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-orange-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-orange-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: minPrice > maxPrice - 10 ? 5 : 3 }}
                   />
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-xs text-neutral-500 w-12">Max:</span>
+                  {/* Input MAX */}
                   <input
                     type="range"
                     min="25"
@@ -192,10 +196,8 @@ export default function EntrenadoresPage() {
                       const value = parseInt(e.target.value)
                       if (value >= minPrice) setMaxPrice(value)
                     }}
-                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #f97316 0%, #f97316 ${(maxPrice - 25) / 50 * 100}%, #e5e7eb ${(maxPrice - 25) / 50 * 100}%, #e5e7eb 100%)`
-                    }}
+                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-orange-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-orange-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: 4 }}
                   />
                 </div>
               </div>
@@ -211,9 +213,9 @@ export default function EntrenadoresPage() {
                 setMinPrice(25)
                 setMaxPrice(75)
               }}
-              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
+              className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors"
             >
-              Limpiar Filtros
+              Limpiar
             </button>
           </div>
         </div>
