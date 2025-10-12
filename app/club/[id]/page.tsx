@@ -25,7 +25,7 @@ const mockReviews = [
     userName: "Antonio García",
     rating: 5,
     date: "Hace 1 semana",
-    comment: "Instalaciones impecables y personal muy atento. Las pistas están en perfecto estado.",
+    comment: "Instructores muy profesionales y metodología excelente. He mejorado muchísimo mi técnica.",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
   },
   {
@@ -33,7 +33,7 @@ const mockReviews = [
     userName: "María Rodríguez",
     rating: 5,
     date: "Hace 2 semanas",
-    comment: "Mi club favorito. Siempre limpio y bien mantenido. La cafetería es genial.",
+    comment: "Las clases grupales son geniales. Ambiente muy motivador y profesores atentos.",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
   },
   {
@@ -41,7 +41,7 @@ const mockReviews = [
     userName: "Carlos López",
     rating: 4,
     date: "Hace 3 semanas",
-    comment: "Muy buen club. El parking es amplio y las pistas de calidad. Volveré seguro.",
+    comment: "Muy buen nivel de enseñanza. Los entrenadores se adaptan perfectamente a tu nivel.",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
   },
   {
@@ -49,7 +49,7 @@ const mockReviews = [
     userName: "Laura Martínez",
     rating: 5,
     date: "Hace 1 mes",
-    comment: "Excelente relación calidad-precio. Los vestuarios están muy bien equipados.",
+    comment: "Excelente relación calidad-precio. Las clases son dinámicas y se aprende rápido.",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
   }
 ]
@@ -142,7 +142,7 @@ export default function ClubPage() {
 
                 <div className="flex items-center text-neutral-600">
                   <Users className="w-5 h-5 mr-2" />
-                  <span className="font-semibold">{club.courtsCount} pistas disponibles</span>
+                  <span className="font-semibold">{club.instructorsCount} instructores profesionales</span>
                 </div>
               </div>
 
@@ -167,14 +167,14 @@ export default function ClubPage() {
             <div className="lg:col-span-1">
               <div className="bg-white border-2 border-neutral-200 rounded-2xl p-6 sticky top-24 shadow-lg">
                 <div className="text-center mb-6">
-                  <p className="text-sm text-neutral-600 mb-2">Precio por hora</p>
-                  <p className="text-4xl font-bold text-green-600">{club.pricePerHour}€</p>
+                  <p className="text-sm text-neutral-600 mb-2">Precio por clase</p>
+                  <p className="text-4xl font-bold text-green-600">{club.pricePerClass}€</p>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   <button className="w-full py-3.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
                     <Calendar className="w-5 h-5" />
-                    <span>Reservar Pista</span>
+                    <span>Reservar Clase</span>
                   </button>
                 </div>
 
