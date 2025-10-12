@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Menu, X, User, CircleDot, ShoppingCart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 // Mock data simplificado - en producción esto vendría de una API/estado global
 const getUnreadMessagesCount = () => {
@@ -23,6 +24,9 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+  
+  // Autenticación
+  const { user, profile, isAuthenticated } = useAuth()
   
   // Obtener mensajes no leídos
   const unreadMessagesCount = getUnreadMessagesCount()
@@ -120,22 +124,46 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                 </button>
               )}
 
-              {/* Acceder Button */}
-              <Link href="/welcome">
-                <button
-                  className={`
-                    flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5
-                    bg-primary-500 hover:bg-primary-600 active:scale-95
-                    text-white font-semibold rounded-full
-                    transition-all duration-200
-                    shadow-lg shadow-primary-500/30
-                    hover:shadow-xl hover:shadow-primary-500/40
-                  `}
-                >
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">Acceder</span>
-                </button>
-              </Link>
+              {/* Acceder / Perfil Button */}
+              {isAuthenticated && profile ? (
+                <Link href="/mi-perfil">
+                  <button
+                    className="flex items-center space-x-2 px-2 py-2 hover:bg-neutral-100 rounded-full transition-all duration-200"
+                    aria-label="Mi Perfil"
+                  >
+                    {profile.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt={profile.full_name || 'Usuario'}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-primary-500"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
+                        {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
+                    <span className="hidden sm:inline text-sm font-medium text-neutral-900">
+                      {profile.full_name || 'Mi Perfil'}
+                    </span>
+                  </button>
+                </Link>
+              ) : (
+                <Link href="/welcome">
+                  <button
+                    className={`
+                      flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5
+                      bg-primary-500 hover:bg-primary-600 active:scale-95
+                      text-white font-semibold rounded-full
+                      transition-all duration-200
+                      shadow-lg shadow-primary-500/30
+                      hover:shadow-xl hover:shadow-primary-500/40
+                    `}
+                  >
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="hidden sm:inline">Acceder</span>
+                  </button>
+                </Link>
+              )}
 
               {/* Mobile Menu Button */}
               <button
