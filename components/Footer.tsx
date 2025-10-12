@@ -41,15 +41,15 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* For Professionals */}
+          {/* Company */}
           <div>
-            <h3 className="text-lg font-bold mb-6">Para Profesionales</h3>
+            <h3 className="text-lg font-bold mb-6">Empresa</h3>
             <ul className="space-y-3">
-              <FooterLink href="#">Hazte entrenador</FooterLink>
-              <FooterLink href="#">Gestiona tu negocio</FooterLink>
-              <FooterLink href="#">Promociona tu club</FooterLink>
-              <FooterLink href="#">Centro de ayuda</FooterLink>
-              <FooterLink href="#">Recursos</FooterLink>
+              <FooterLink href="/sobre-nosotros">Sobre nosotros</FooterLink>
+              <FooterLink href="/contacto">Contacto</FooterLink>
+              <FooterLink href="#">Trabaja con nosotros</FooterLink>
+              <FooterLink href="#">Blog</FooterLink>
+              <FooterLink href="#">Prensa</FooterLink>
             </ul>
           </div>
 
@@ -119,10 +119,15 @@ export function Footer() {
               © 2025 Padeliner. Todos los derechos reservados.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <FooterLink href="#">Términos de uso</FooterLink>
-              <FooterLink href="#">Política de privacidad</FooterLink>
-              <FooterLink href="#">Cookies</FooterLink>
-              <FooterLink href="#">Legal</FooterLink>
+              <Link href="/terminos-y-condiciones" className="text-neutral-400 hover:text-primary-400 transition-colors">
+                Términos y Condiciones
+              </Link>
+              <Link href="/politica-privacidad" className="text-neutral-400 hover:text-primary-400 transition-colors">
+                Política de Privacidad
+              </Link>
+              <Link href="/contacto" className="text-neutral-400 hover:text-primary-400 transition-colors">
+                Contacto
+              </Link>
             </div>
           </div>
         </div>
