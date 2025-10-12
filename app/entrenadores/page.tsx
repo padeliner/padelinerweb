@@ -6,7 +6,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { LocationSearch, LocationData, calculateDistance } from '@/components/LocationSearch'
 import { mockCoaches } from '@/lib/mock-data/coaches'
-import { Search, MapPin, Star, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, CheckCircle } from 'lucide-react'
 
 export default function EntrenadoresPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -304,9 +304,17 @@ export default function EntrenadoresPage() {
                       )}
                     </div>
 
-                    <p className="text-sm text-neutral-500">
-                      {coach.experience} años de experiencia
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-neutral-500">
+                        {coach.experience} años de experiencia
+                      </p>
+                      {coach.offersHomeService && (
+                        <div className="flex items-center text-xs text-green-600" title="Se desplaza a domicilio">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          <span className="font-medium">Desplazamiento</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}

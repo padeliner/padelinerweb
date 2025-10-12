@@ -183,6 +183,12 @@ export default function EntrenadorPage() {
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 space-y-3 text-sm">
+                  {coach.offersHomeService && (
+                    <div className="flex items-center text-neutral-600">
+                      <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                      <span>Disponibilidad de desplazamiento</span>
+                    </div>
+                  )}
                   <div className="flex items-center text-neutral-600">
                     <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
                     <span>Respuesta en menos de 2h</span>

@@ -17,6 +17,7 @@ export interface Coach {
   availability: string[]
   images: string[]
   isFeatured: boolean
+  offersHomeService: boolean // Disponibilidad de desplazamiento
 }
 
 export const mockCoaches: Coach[] = [
@@ -42,7 +43,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800",
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
     ],
-    isFeatured: true
+    isFeatured: true,
+    offersHomeService: true
   },
   {
     id: 2,
@@ -65,7 +67,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800",
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: true
+    isFeatured: true,
+    offersHomeService: true
   },
   {
     id: 3,
@@ -89,7 +92,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800",
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800"
     ],
-    isFeatured: true
+    isFeatured: true,
+    offersHomeService: true
   },
   {
     id: 4,
@@ -111,7 +115,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 5,
@@ -134,7 +139,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800",
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 6,
@@ -156,7 +162,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 7,
@@ -180,7 +187,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800"
     ],
-    isFeatured: true
+    isFeatured: true,
+    offersHomeService: true
   },
   {
     id: 8,
@@ -202,7 +210,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 9,
@@ -225,7 +234,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800",
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 10,
@@ -247,7 +257,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 11,
@@ -270,7 +281,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800",
       "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 12,
@@ -292,7 +304,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 13,
@@ -314,7 +327,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 14,
@@ -337,7 +351,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800",
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 15,
@@ -360,7 +375,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800",
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 16,
@@ -382,7 +398,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 17,
@@ -405,7 +422,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800",
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 18,
@@ -427,7 +445,8 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 19,
@@ -450,7 +469,8 @@ export const mockCoaches: Coach[] = [
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800",
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: false
   },
   {
     id: 20,
@@ -472,6 +492,7 @@ export const mockCoaches: Coach[] = [
     images: [
       "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800"
     ],
-    isFeatured: false
+    isFeatured: false,
+    offersHomeService: true
   }
 ]
