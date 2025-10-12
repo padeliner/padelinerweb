@@ -23,7 +23,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 1,
     name: "Carlos Martínez",
-    specialties: ["Técnica de golpeo", "Estrategia de juego", "Preparación física"],
+    specialties: ["Adultos", "Iniciación", "Junior"],
     experience: 8,
     rating: 4.9,
     reviewsCount: 127,
@@ -47,7 +47,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 2,
     name: "Laura Sánchez",
-    specialties: ["Pádel femenino", "Técnica de saque", "Juego en pareja"],
+    specialties: ["Adultos", "Junior", "Competición"],
     experience: 6,
     rating: 4.8,
     reviewsCount: 94,
@@ -70,7 +70,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 3,
     name: "Miguel Ángel Torres",
-    specialties: ["Táctica avanzada", "Competición", "Mental coaching"],
+    specialties: ["Competición", "Adultos"],
     experience: 12,
     rating: 5.0,
     reviewsCount: 203,
@@ -94,7 +94,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 4,
     name: "Ana Rodríguez",
-    specialties: ["Principiantes", "Niños", "Técnica básica"],
+    specialties: ["Infantil", "Iniciación", "Junior"],
     experience: 5,
     rating: 4.7,
     reviewsCount: 81,
@@ -116,7 +116,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 5,
     name: "Javier Moreno",
-    specialties: ["Golpes de ataque", "Remate", "Juego ofensivo"],
+    specialties: ["Adultos", "Competición"],
     experience: 10,
     rating: 4.9,
     reviewsCount: 156,
@@ -139,7 +139,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 6,
     name: "Patricia López",
-    specialties: ["Defensa", "Volea", "Posicionamiento"],
+    specialties: ["Adultos", "Junior"],
     experience: 7,
     rating: 4.8,
     reviewsCount: 112,
@@ -161,7 +161,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 7,
     name: "Roberto Fernández",
-    specialties: ["Alto rendimiento", "Competición profesional", "Análisis táctico"],
+    specialties: ["Competición", "Adultos"],
     experience: 15,
     rating: 5.0,
     reviewsCount: 89,
@@ -185,7 +185,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 8,
     name: "Elena Jiménez",
-    specialties: ["Técnica de golpeo", "Coordinación", "Clases grupales"],
+    specialties: ["Iniciación", "Adultos", "Junior"],
     experience: 4,
     rating: 4.6,
     reviewsCount: 67,
@@ -207,7 +207,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 9,
     name: "David Ruiz",
-    specialties: ["Saque", "Devolución", "Fundamentos"],
+    specialties: ["Adultos", "Iniciación"],
     experience: 9,
     rating: 4.8,
     reviewsCount: 134,
@@ -230,7 +230,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 10,
     name: "Sofía Martín",
-    specialties: ["Juego mixto", "Comunicación en pista", "Estrategia de pareja"],
+    specialties: ["Adultos", "Competición"],
     experience: 6,
     rating: 4.7,
     reviewsCount: 98,
@@ -252,7 +252,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 11,
     name: "Alberto Castro",
-    specialties: ["Preparación física", "Prevención lesiones", "Rendimiento"],
+    specialties: ["Adultos", "Competición", "Senior"],
     experience: 11,
     rating: 4.9,
     reviewsCount: 145,
@@ -275,7 +275,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 12,
     name: "Carmen Díaz",
-    specialties: ["Veteranos", "Adaptación al nivel", "Técnica personalizada"],
+    specialties: ["Senior", "Adultos"],
     experience: 8,
     rating: 4.8,
     reviewsCount: 121,
@@ -297,7 +297,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 13,
     name: "Fernando Gil",
-    specialties: ["Iniciación", "Técnica básica", "Juego recreativo"],
+    specialties: ["Iniciación", "Adultos"],
     experience: 5,
     rating: 4.6,
     reviewsCount: 73,
@@ -319,7 +319,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 14,
     name: "Marta Vega",
-    specialties: ["Técnica avanzada", "Competición regional", "Estrategia"],
+    specialties: ["Competición", "Junior", "Adultos"],
     experience: 7,
     rating: 4.7,
     reviewsCount: 105,
@@ -342,7 +342,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 15,
     name: "Jorge Ramírez",
-    specialties: ["Juego defensivo", "Paciencia táctica", "Control del ritmo"],
+    specialties: ["Adultos", "Competición"],
     experience: 9,
     rating: 4.8,
     reviewsCount: 118,
@@ -365,7 +365,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 16,
     name: "Lucía Herrera",
-    specialties: ["Mentalidad ganadora", "Gestión emocional", "Competición"],
+    specialties: ["Competición", "Adultos", "Junior"],
     experience: 6,
     rating: 4.9,
     reviewsCount: 92,
@@ -387,7 +387,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 17,
     name: "Pablo Serrano",
-    specialties: ["Clases personalizadas", "Todos los niveles", "Mejora continua"],
+    specialties: ["Adultos", "Iniciación", "Junior"],
     experience: 10,
     rating: 4.7,
     reviewsCount: 167,
@@ -410,7 +410,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 18,
     name: "Isabel Navarro",
-    specialties: ["Pádel senior", "Movilidad", "Técnica adaptada"],
+    specialties: ["Senior", "Adultos"],
     experience: 7,
     rating: 4.8,
     reviewsCount: 88,
@@ -432,7 +432,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 19,
     name: "Raúl Campos",
-    specialties: ["Técnica de pared", "Juego creativo", "Improvisación"],
+    specialties: ["Adultos", "Junior"],
     experience: 8,
     rating: 4.7,
     reviewsCount: 110,
@@ -455,7 +455,7 @@ export const mockCoaches: Coach[] = [
   {
     id: 20,
     name: "Natalia Ortiz",
-    specialties: ["Coordinación", "Técnica de golpeo", "Clases divertidas"],
+    specialties: ["Infantil", "Junior", "Iniciación"],
     experience: 5,
     rating: 4.6,
     reviewsCount: 76,

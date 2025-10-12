@@ -16,9 +16,8 @@ export default function EntrenadoresPage() {
   const [priceRange, setPriceRange] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
   
-  // Extraer especialidades únicas
-  const allSpecialties = mockCoaches.flatMap(c => c.specialties)
-  const specialties = ['all', ...Array.from(new Set(allSpecialties))]
+  // Categorías de entrenadores por público objetivo
+  const specialties = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
 
   // Filtrar y ordenar entrenadores por distancia
   let filteredCoaches = mockCoaches.filter(coach => {
@@ -144,14 +143,14 @@ export default function EntrenadoresPage() {
               )}
             </div>
 
-            {/* Especialidad */}
+            {/* Público Objetivo */}
             <div className="relative">
               <select
                 value={selectedSpecialty}
                 onChange={(e) => setSelectedSpecialty(e.target.value)}
                 className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none bg-white text-neutral-900"
               >
-                <option value="all">Todas las especialidades</option>
+                <option value="all">Todos los públicos</option>
                 {specialties.slice(1).map(specialty => (
                   <option key={specialty} value={specialty}>{specialty}</option>
                 ))}
