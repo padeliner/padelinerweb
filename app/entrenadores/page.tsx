@@ -80,10 +80,10 @@ export default function EntrenadoresPage() {
               
               {/* Filtro de Distancia - Solo visible cuando hay ubicación */}
               {selectedLocation && (
-                <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <label className="block text-sm font-medium text-white mb-3">
-                    Distancia máxima: <span className="text-primary-200 font-bold">{maxDistance} km</span>
-                  </label>
+                <>
+                  <p className="text-sm text-white/90 mb-2 mt-4">
+                    Distancia máxima: <span className="font-semibold">{maxDistance} km</span>
+                  </p>
                   <input
                     type="range"
                     min="5"
@@ -91,12 +91,12 @@ export default function EntrenadoresPage() {
                     step="5"
                     value={maxDistance}
                     onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
                     style={{
                       background: `linear-gradient(to right, #fff 0%, #fff ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) 100%)`
                     }}
                   />
-                </div>
+                </>
               )}
             </div>
 
