@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { useAuth } from '@/hooks/useAuth'
 import { mockCoaches, Coach } from '@/lib/mock-data/coaches'
 import { 
   Star, 
@@ -57,8 +58,18 @@ const mockReviews = [
 
 export default function EntrenadorPage() {
   const params = useParams()
+  const router = useRouter()
+  const { isAuthenticated } = useAuth()
   const coachId = parseInt(params.id as string)
   const coach = mockCoaches.find(c => c.id === coachId)
+
+  const handleReservar = () => {
+    if (!isAuthenticated) {
+      router.push('/login')
+    } else {
+      router.push(`/reservar/${coachId}`)
+    }
+  }
 
   if (!coach) {
     return (
@@ -171,12 +182,13 @@ export default function EntrenadorPage() {
                 </div>
 
                 <div className="mb-6">
-                  <Link href={`/reservar/${coach.id}`} className="block mb-3">
-                    <button className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
-                      <Calendar className="w-5 h-5" />
-                      <span>Reservar Clase</span>
-                    </button>
-                  </Link>
+                  <button 
+                    onClick={handleReservar}
+                    className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl mb-3"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    <span>Reservar Clase</span>
+                  </button>
                   
                   <Link href="/mensajes" className="block">
                     <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">

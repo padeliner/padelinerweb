@@ -30,11 +30,11 @@ export default function RoleSelectionPage() {
       <div className="w-full max-w-md">
         {/* Back Button */}
         <Link 
-          href="/welcome"
+          href="/login"
           className="inline-flex items-center space-x-2 text-primary-600 hover:text-primary-700 mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="font-semibold">Atrás</span>
+          <span>Volver al login</span>
         </Link>
 
         {/* Header */}
