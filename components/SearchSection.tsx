@@ -164,19 +164,6 @@ export function SearchSection() {
                   </div>
                 </div>
 
-                {/* Desplazamiento */}
-                <div className="flex items-end">
-                  <label className="flex items-center space-x-2 cursor-pointer p-2.5 bg-neutral-50 rounded-lg w-full">
-                    <input
-                      type="checkbox"
-                      checked={showOnlyWithHomeService}
-                      onChange={(e) => setShowOnlyWithHomeService(e.target.checked)}
-                      className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-neutral-700">Con desplazamiento</span>
-                  </label>
-                </div>
-
                 {/* Precio */}
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -221,6 +208,19 @@ export function SearchSection() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Desplazamiento */}
+                <div className="flex items-end">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showOnlyWithHomeService}
+                      onChange={(e) => setShowOnlyWithHomeService(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-neutral-700">Con desplazamiento</span>
+                  </label>
                 </div>
               </>
             )}
