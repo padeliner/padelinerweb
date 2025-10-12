@@ -340,10 +340,10 @@ export const mockProducts: Product[] = [
 ]
 
 export const categories = [
-  { id: 'palas', name: 'Palas', icon: '🎾' },
-  { id: 'zapatillas', name: 'Zapatillas', icon: '👟' },
-  { id: 'ropa', name: 'Ropa', icon: '👕' },
-  { id: 'accesorios', name: 'Accesorios', icon: '🎒' }
+  { id: 'palas', name: 'Palas' },
+  { id: 'zapatillas', name: 'Zapatillas' },
+  { id: 'ropa', name: 'Ropa' },
+  { id: 'accesorios', name: 'Accesorios' }
 ]
 
 export const brands = ['Todas', 'Bullpadel', 'Adidas', 'Nox', 'Head', 'Babolat', 'Wilson', 'Nike', 'Asics']

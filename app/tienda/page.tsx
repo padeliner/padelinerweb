@@ -84,7 +84,7 @@ export default function TiendaPage() {
                   : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
-              🛍️ Todo
+              Todo
             </button>
             {categories.map(cat => (
               <button
@@ -96,7 +96,7 @@ export default function TiendaPage() {
                     : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                 }`}
               >
-                {cat.icon} {cat.name}
+                {cat.name}
               </button>
             ))}
           </div>
