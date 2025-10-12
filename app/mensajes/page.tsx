@@ -101,6 +101,9 @@ export default function MensajesPage() {
     conv.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Calcular total de mensajes no leídos
+  const totalUnreadMessages = mockConversations.reduce((total, conv) => total + conv.unreadCount, 0)
+
   const handleSendMessage = () => {
     if (messageText.trim() && selectedConversation) {
       // Aquí se enviaría el mensaje en la implementación real
@@ -111,7 +114,7 @@ export default function MensajesPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header />
+      <Header unreadMessagesCount={totalUnreadMessages} />
       
       <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full">
         {/* Conversations List */}
