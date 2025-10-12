@@ -135,9 +135,9 @@ export default function AcademiasPage() {
           </div>
 
           {/* Filters Grid */}
-          <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 items-end`}>
+          <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 md:items-end`}>
             {/* Público Objetivo */}
-            <div className="flex-1 min-w-0">
+            <div className="w-full md:flex-1 md:min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
                 Público objetivo
               </label>
@@ -157,7 +157,7 @@ export default function AcademiasPage() {
             </div>
 
             {/* Rango de Precio */}
-            <div className="flex-1 min-w-0">
+            <div className="w-full md:flex-1 md:min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
                 Precio: <span className="text-blue-600 font-semibold">{minPrice}€ - {maxPrice}€/mes</span>
               </label>
@@ -212,7 +212,7 @@ export default function AcademiasPage() {
                 setMinPrice(80)
                 setMaxPrice(150)
               }}
-              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+              className="w-full md:w-auto px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors"
             >
               Limpiar filtros
             </button>
