@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapPin, Locate, X } from 'lucide-react'
+import Script from 'next/script'
 
 interface LocationSearchProps {
   onLocationSelect: (location: LocationData) => void
@@ -23,8 +24,21 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
   const [suggestions, setSuggestions] = useState<LocationData[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Inicializar Google Places cuando esté disponible
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.google?.maps?.places) {
+      autocompleteServiceRef.current = new google.maps.places.AutocompleteService()
+      geocoderRef.current = new google.maps.Geocoder()
+      setIsGoogleLoaded(true)
+    }
+  }, [isGoogleLoaded])
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -34,64 +48,97 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
   }, [])
 
-  // Simular Google Places Autocomplete
-  // En producción, aquí usarías: Google Places Autocomplete API
-  const searchLocations = (query: string) => {
+  // Buscar ubicaciones usando Google Places API
+  const searchLocations = useCallback((query: string) => {
     if (query.length < 2) {
       setSuggestions([])
       return
     }
 
-    // Base de datos de ubicaciones comunes en España
-    const locations = [
-      // Ciudades principales
-      { address: 'Madrid', city: 'Madrid', country: 'España', lat: 40.4168, lng: -3.7038, formatted: 'Madrid, España' },
-      { address: 'Barcelona', city: 'Barcelona', country: 'España', lat: 41.3851, lng: 2.1734, formatted: 'Barcelona, España' },
-      { address: 'Valencia', city: 'Valencia', country: 'España', lat: 39.4699, lng: -0.3763, formatted: 'Valencia, España' },
-      { address: 'Sevilla', city: 'Sevilla', country: 'España', lat: 37.3891, lng: -5.9845, formatted: 'Sevilla, España' },
-      { address: 'Málaga', city: 'Málaga', country: 'España', lat: 36.7213, lng: -4.4214, formatted: 'Málaga, España' },
-      { address: 'Zaragoza', city: 'Zaragoza', country: 'España', lat: 41.6488, lng: -0.8891, formatted: 'Zaragoza, España' },
-      { address: 'Bilbao', city: 'Bilbao', country: 'España', lat: 43.2627, lng: -2.9253, formatted: 'Bilbao, España' },
-      { address: 'Alicante', city: 'Alicante', country: 'España', lat: 38.3452, lng: -0.4810, formatted: 'Alicante, España' },
-      { address: 'Murcia', city: 'Murcia', country: 'España', lat: 37.9922, lng: -1.1307, formatted: 'Murcia, España' },
-      { address: 'Palma de Mallorca', city: 'Palma', country: 'España', lat: 39.5696, lng: 2.6502, formatted: 'Palma de Mallorca, España' },
-      { address: 'Las Palmas', city: 'Las Palmas', country: 'España', lat: 28.1248, lng: -15.4300, formatted: 'Las Palmas de Gran Canaria, España' },
-      { address: 'Valladolid', city: 'Valladolid', country: 'España', lat: 41.6523, lng: -4.7245, formatted: 'Valladolid, España' },
-      { address: 'Córdoba', city: 'Córdoba', country: 'España', lat: 37.8882, lng: -4.7794, formatted: 'Córdoba, España' },
-      { address: 'Vigo', city: 'Vigo', country: 'España', lat: 42.2406, lng: -8.7207, formatted: 'Vigo, España' },
-      { address: 'Gijón', city: 'Gijón', country: 'España', lat: 43.5322, lng: -5.6611, formatted: 'Gijón, España' },
-      { address: 'Granada', city: 'Granada', country: 'España', lat: 37.1773, lng: -3.5986, formatted: 'Granada, España' },
-      { address: 'San Sebastián', city: 'San Sebastián', country: 'España', lat: 43.3183, lng: -1.9812, formatted: 'San Sebastián, España' },
-      { address: 'Marbella', city: 'Marbella', country: 'España', lat: 36.5101, lng: -4.8824, formatted: 'Marbella, Málaga, España' },
-      
-      // Barrios de Madrid
-      { address: 'Chamartín', city: 'Madrid', country: 'España', lat: 40.4653, lng: -3.6794, formatted: 'Chamartín, Madrid, España' },
-      { address: 'Salamanca', city: 'Madrid', country: 'España', lat: 40.4308, lng: -3.6777, formatted: 'Salamanca, Madrid, España' },
-      { address: 'Retiro', city: 'Madrid', country: 'España', lat: 40.4123, lng: -3.6839, formatted: 'Retiro, Madrid, España' },
-      
-      // Barrios de Barcelona
-      { address: 'Eixample', city: 'Barcelona', country: 'España', lat: 41.3904, lng: 2.1637, formatted: 'Eixample, Barcelona, España' },
-      { address: 'Gràcia', city: 'Barcelona', country: 'España', lat: 41.4036, lng: 2.1585, formatted: 'Gràcia, Barcelona, España' },
-      
-      // Otros países
-      { address: 'Lisboa', city: 'Lisboa', country: 'Portugal', lat: 38.7223, lng: -9.1393, formatted: 'Lisboa, Portugal' },
-      { address: 'Porto', city: 'Porto', country: 'Portugal', lat: 41.1579, lng: -8.6291, formatted: 'Porto, Portugal' },
-      { address: 'París', city: 'París', country: 'Francia', lat: 48.8566, lng: 2.3522, formatted: 'París, Francia' },
-      { address: 'Londres', city: 'Londres', country: 'Reino Unido', lat: 51.5074, lng: -0.1278, formatted: 'Londres, Reino Unido' },
-    ]
+    // Cancelar búsqueda anterior
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
 
-    const filtered = locations.filter(loc =>
-      loc.formatted.toLowerCase().includes(query.toLowerCase()) ||
-      loc.city.toLowerCase().includes(query.toLowerCase()) ||
-      loc.country.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 5)
+    // Debounce de 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      if (!autocompleteServiceRef.current || !geocoderRef.current) {
+        console.warn('Google Places API no está cargada aún')
+        return
+      }
 
-    setSuggestions(filtered)
-    setShowSuggestions(true)
-  }
+      const request: google.maps.places.AutocompletionRequest = {
+        input: query,
+        componentRestrictions: { country: 'es' }, // Solo España
+        types: ['(cities)'], // Ciudades, pueblos, localidades
+      }
+
+      autocompleteServiceRef.current.getPlacePredictions(request, (predictions, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+          setSuggestions([])
+          return
+        }
+
+        // Obtener detalles de cada lugar (coordenadas)
+        const locationPromises = predictions.map(prediction => 
+          new Promise<LocationData>((resolve) => {
+            if (!geocoderRef.current) return
+            
+            geocoderRef.current.geocode(
+              { placeId: prediction.place_id },
+              (results, status) => {
+                if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+                  const result = results[0]
+                  const location = result.geometry.location
+                  
+                  // Extraer componentes de la dirección
+                  const city = result.address_components.find(c => 
+                    c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+                  )?.long_name || ''
+                  
+                  const country = result.address_components.find(c => 
+                    c.types.includes('country')
+                  )?.long_name || 'España'
+
+                  resolve({
+                    address: prediction.description,
+                    city: city,
+                    country: country,
+                    lat: location.lat(),
+                    lng: location.lng(),
+                    formatted: prediction.description
+                  })
+                } else {
+                  // Fallback si falla el geocoding
+                  resolve({
+                    address: prediction.description,
+                    city: prediction.structured_formatting.main_text,
+                    country: 'España',
+                    lat: 0,
+                    lng: 0,
+                    formatted: prediction.description
+                  })
+                }
+              }
+            )
+          })
+        )
+
+        Promise.all(locationPromises).then(locations => {
+          setSuggestions(locations.slice(0, 5))
+          setShowSuggestions(true)
+        })
+      })
+    }, 300)
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -119,13 +166,45 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
         (position) => {
           const { latitude, longitude } = position.coords
           
-          // Simular reverse geocoding
-          // En producción usarías: Google Geocoding API
-          const nearestCity = findNearestCity(latitude, longitude)
-          
-          setInputValue(nearestCity.formatted)
-          onLocationSelect(nearestCity)
-          setIsLoadingLocation(false)
+          // Usar Google Geocoding API para reverse geocoding
+          if (!geocoderRef.current) {
+            alert('Google Maps aún no está cargado')
+            setIsLoadingLocation(false)
+            return
+          }
+
+          geocoderRef.current.geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => {
+              if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+                const result = results[0]
+                
+                // Extraer componentes
+                const city = result.address_components.find(c => 
+                  c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+                )?.long_name || ''
+                
+                const country = result.address_components.find(c => 
+                  c.types.includes('country')
+                )?.long_name || 'España'
+
+                const locationData: LocationData = {
+                  address: result.formatted_address,
+                  city: city,
+                  country: country,
+                  lat: latitude,
+                  lng: longitude,
+                  formatted: result.formatted_address
+                }
+                
+                setInputValue(locationData.formatted)
+                onLocationSelect(locationData)
+              } else {
+                alert('No se pudo determinar tu ubicación exacta')
+              }
+              setIsLoadingLocation(false)
+            }
+          )
         },
         (error) => {
           console.error('Error obteniendo ubicación:', error)
@@ -139,43 +218,16 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     }
   }
 
-  const findNearestCity = (lat: number, lng: number): LocationData => {
-    // Lista simplificada de ciudades con coordenadas
-    const cities = [
-      { address: 'Madrid', city: 'Madrid', country: 'España', lat: 40.4168, lng: -3.7038, formatted: 'Madrid, España' },
-      { address: 'Barcelona', city: 'Barcelona', country: 'España', lat: 41.3851, lng: 2.1734, formatted: 'Barcelona, España' },
-      { address: 'Valencia', city: 'Valencia', country: 'España', lat: 39.4699, lng: -0.3763, formatted: 'Valencia, España' },
-      { address: 'Sevilla', city: 'Sevilla', country: 'España', lat: 37.3891, lng: -5.9845, formatted: 'Sevilla, España' },
-    ]
-
-    // Calcular distancia más cercana
-    let nearest = cities[0]
-    let minDistance = getDistance(lat, lng, cities[0].lat, cities[0].lng)
-
-    cities.forEach(city => {
-      const distance = getDistance(lat, lng, city.lat, city.lng)
-      if (distance < minDistance) {
-        minDistance = distance
-        nearest = city
-      }
-    })
-
-    return nearest
-  }
-
-  const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371 // Radio de la Tierra en km
-    const dLat = (lat2 - lat1) * Math.PI / 180
-    const dLng = (lng2 - lng1) * Math.PI / 180
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng / 2) * Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-  }
-
   return (
-    <div ref={wrapperRef} className="relative w-full">
+    <>
+      {/* Cargar Google Maps API */}
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&language=es`}
+        onLoad={() => setIsGoogleLoaded(true)}
+        strategy="lazyOnload"
+      />
+      
+      <div ref={wrapperRef} className="relative w-full">
       <div className="relative">
         <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
         <input
@@ -209,26 +261,27 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
         </div>
       </div>
 
-      {/* Sugerencias */}
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white border-2 border-neutral-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
-          {suggestions.map((location, index) => (
-            <button
-              key={index}
-              onClick={() => handleSuggestionClick(location)}
-              className="w-full px-4 py-3 text-left hover:bg-neutral-50 transition-colors flex items-center space-x-3 border-b border-neutral-100 last:border-b-0"
-              type="button"
-            >
-              <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-neutral-900">{location.city}</p>
-                <p className="text-sm text-neutral-500">{location.formatted}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+        {/* Sugerencias */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute z-50 w-full mt-2 bg-white border-2 border-neutral-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
+            {suggestions.map((location, index) => (
+              <button
+                key={index}
+                onClick={() => handleSuggestionClick(location)}
+                className="w-full px-4 py-3 text-left hover:bg-neutral-50 transition-colors flex items-center space-x-3 border-b border-neutral-100 last:border-b-0"
+                type="button"
+              >
+                <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-neutral-900">{location.city}</p>
+                  <p className="text-sm text-neutral-500">{location.formatted}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 
