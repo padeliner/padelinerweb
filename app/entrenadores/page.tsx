@@ -13,7 +13,8 @@ export default function EntrenadoresPage() {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50) // km
   const [selectedSpecialty, setSelectedSpecialty] = useState('all')
-  const [priceRange, setPriceRange] = useState('all')
+  const [minPrice, setMinPrice] = useState(25)
+  const [maxPrice, setMaxPrice] = useState(75)
   const [showFilters, setShowFilters] = useState(false)
   
   // Categorías de entrenadores por público objetivo
@@ -25,10 +26,7 @@ export default function EntrenadoresPage() {
     
     const matchesSpecialty = selectedSpecialty === 'all' || 
                              coach.specialties.includes(selectedSpecialty)
-    const matchesPrice = priceRange === 'all' ||
-                        (priceRange === 'low' && coach.pricePerHour < 40) ||
-                        (priceRange === 'medium' && coach.pricePerHour >= 40 && coach.pricePerHour < 50) ||
-                        (priceRange === 'high' && coach.pricePerHour >= 50)
+    const matchesPrice = coach.pricePerHour >= minPrice && coach.pricePerHour <= maxPrice
     
     // Filtro por distancia
     let matchesDistance = true
@@ -158,19 +156,49 @@ export default function EntrenadoresPage() {
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
             </div>
 
-            {/* Precio */}
-            <div className="relative">
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Todos los precios</option>
-                <option value="low">Menos de 40€/h</option>
-                <option value="medium">40€ - 50€/h</option>
-                <option value="high">Más de 50€/h</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            {/* Rango de Precio */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Precio: {minPrice}€ - {maxPrice}€/h
+              </label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs text-neutral-500 w-12">Min:</span>
+                  <input
+                    type="range"
+                    min="25"
+                    max="75"
+                    step="5"
+                    value={minPrice}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value <= maxPrice) setMinPrice(value)
+                    }}
+                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #e5e7eb 0%, #e5e7eb ${(minPrice - 25) / 50 * 100}%, #f97316 ${(minPrice - 25) / 50 * 100}%, #f97316 100%)`
+                    }}
+                  />
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs text-neutral-500 w-12">Max:</span>
+                  <input
+                    type="range"
+                    min="25"
+                    max="75"
+                    step="5"
+                    value={maxPrice}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value >= minPrice) setMaxPrice(value)
+                    }}
+                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #f97316 0%, #f97316 ${(maxPrice - 25) / 50 * 100}%, #e5e7eb ${(maxPrice - 25) / 50 * 100}%, #e5e7eb 100%)`
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Reset Filters */}
@@ -180,7 +208,8 @@ export default function EntrenadoresPage() {
                 setSelectedLocation(null)
                 setMaxDistance(50)
                 setSelectedSpecialty('all')
-                setPriceRange('all')
+                setMinPrice(25)
+                setMaxPrice(75)
               }}
               className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
             >
@@ -202,7 +231,8 @@ export default function EntrenadoresPage() {
                   setSelectedLocation(null)
                   setMaxDistance(50)
                   setSelectedSpecialty('all')
-                  setPriceRange('all')
+                  setMinPrice(25)
+                  setMaxPrice(75)
                 }}
                 className="mt-4 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
               >

@@ -13,7 +13,8 @@ export default function ClubesPage() {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
   const [minCourts, setMinCourts] = useState('all')
-  const [priceRange, setPriceRange] = useState('all')
+  const [minPrice, setMinPrice] = useState(15)
+  const [maxPrice, setMaxPrice] = useState(35)
   const [showFilters, setShowFilters] = useState(false)
 
   // Filtrar y ordenar clubes por distancia
@@ -23,10 +24,7 @@ export default function ClubesPage() {
                           (minCourts === '4' && club.courtsCount >= 4) ||
                           (minCourts === '8' && club.courtsCount >= 8) ||
                           (minCourts === '10' && club.courtsCount >= 10)
-    const matchesPrice = priceRange === 'all' ||
-                        (priceRange === 'low' && club.pricePerHour < 23) ||
-                        (priceRange === 'medium' && club.pricePerHour >= 23 && club.pricePerHour < 27) ||
-                        (priceRange === 'high' && club.pricePerHour >= 27)
+    const matchesPrice = club.pricePerHour >= minPrice && club.pricePerHour <= maxPrice
     
     let matchesDistance = true
     if (selectedLocation) {
@@ -155,19 +153,49 @@ export default function ClubesPage() {
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
             </div>
 
-            {/* Precio */}
-            <div className="relative">
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Todos los precios</option>
-                <option value="low">Menos de 23€/h</option>
-                <option value="medium">23€ - 27€/h</option>
-                <option value="high">Más de 27€/h</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            {/* Rango de Precio */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Precio: {minPrice}€ - {maxPrice}€/h
+              </label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs text-neutral-500 w-12">Min:</span>
+                  <input
+                    type="range"
+                    min="15"
+                    max="35"
+                    step="2"
+                    value={minPrice}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value <= maxPrice) setMinPrice(value)
+                    }}
+                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #e5e7eb 0%, #e5e7eb ${(minPrice - 15) / 20 * 100}%, #16a34a ${(minPrice - 15) / 20 * 100}%, #16a34a 100%)`
+                    }}
+                  />
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs text-neutral-500 w-12">Max:</span>
+                  <input
+                    type="range"
+                    min="15"
+                    max="35"
+                    step="2"
+                    value={maxPrice}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value >= minPrice) setMaxPrice(value)
+                    }}
+                    className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #16a34a 0%, #16a34a ${(maxPrice - 15) / 20 * 100}%, #e5e7eb ${(maxPrice - 15) / 20 * 100}%, #e5e7eb 100%)`
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Reset Filters */}
@@ -177,7 +205,8 @@ export default function ClubesPage() {
                 setSelectedLocation(null)
                 setMaxDistance(50)
                 setMinCourts('all')
-                setPriceRange('all')
+                setMinPrice(15)
+                setMaxPrice(35)
               }}
               className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
             >
@@ -199,7 +228,8 @@ export default function ClubesPage() {
                   setSelectedLocation(null)
                   setMaxDistance(50)
                   setMinCourts('all')
-                  setPriceRange('all')
+                  setMinPrice(15)
+                  setMaxPrice(35)
                 }}
                 className="mt-4 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors"
               >
