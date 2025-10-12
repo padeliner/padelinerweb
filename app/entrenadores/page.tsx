@@ -162,41 +162,43 @@ export default function EntrenadoresPage() {
               <label className="block text-sm font-medium text-neutral-700 mb-2">
                 Precio: <span className="text-primary-600 font-semibold">{minPrice}€ - {maxPrice}€/h</span>
               </label>
-              <div className="relative pt-1 pb-1">
-                <div className="relative h-2 bg-neutral-200 rounded-lg">
-                  <div 
-                    className="absolute h-2 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg"
-                    style={{
-                      left: `${(minPrice - 25) / 50 * 100}%`,
-                      right: `${100 - (maxPrice - 25) / 50 * 100}%`
-                    }}
-                  />
-                  <input
-                    type="range"
-                    min="25"
-                    max="75"
-                    step="5"
-                    value={minPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      if (value <= maxPrice) setMinPrice(value)
-                    }}
-                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
-                    style={{ zIndex: minPrice > maxPrice - 10 ? 5 : 3 }}
-                  />
-                  <input
-                    type="range"
-                    min="25"
-                    max="75"
-                    step="5"
-                    value={maxPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      if (value >= minPrice) setMaxPrice(value)
-                    }}
-                    className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
-                    style={{ zIndex: 4 }}
-                  />
+              <div className="flex items-center h-[42px]">
+                <div className="relative w-full">
+                  <div className="relative h-2 bg-neutral-200 rounded-lg">
+                    <div 
+                      className="absolute h-2 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg"
+                      style={{
+                        left: `${(minPrice - 25) / 50 * 100}%`,
+                        right: `${100 - (maxPrice - 25) / 50 * 100}%`
+                      }}
+                    />
+                    <input
+                      type="range"
+                      min="25"
+                      max="75"
+                      step="5"
+                      value={minPrice}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (value <= maxPrice) setMinPrice(value)
+                      }}
+                      className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                      style={{ zIndex: minPrice > maxPrice - 10 ? 5 : 3 }}
+                    />
+                    <input
+                      type="range"
+                      min="25"
+                      max="75"
+                      step="5"
+                      value={maxPrice}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (value >= minPrice) setMaxPrice(value)
+                      }}
+                      className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                      style={{ zIndex: 4 }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
