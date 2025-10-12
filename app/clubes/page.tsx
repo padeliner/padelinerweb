@@ -12,19 +12,24 @@ export default function ClubesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
-  const [minCourts, setMinCourts] = useState('all')
+  const [selectedClassType, setSelectedClassType] = useState('all')
   const [minPrice, setMinPrice] = useState(15)
   const [maxPrice, setMaxPrice] = useState(35)
   const [showFilters, setShowFilters] = useState(false)
+  
+  // Tipos de clases por público objetivo
+  const classTypes = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
 
   // Filtrar y ordenar clubes por distancia
   let filteredClubs = mockClubs.filter(club => {
     const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCourts = minCourts === 'all' ||
-                          (minCourts === '4' && club.courtsCount >= 4) ||
-                          (minCourts === '8' && club.courtsCount >= 8) ||
-                          (minCourts === '10' && club.courtsCount >= 10)
-    const matchesPrice = club.pricePerHour >= minPrice && club.pricePerHour <= maxPrice
+    
+    const matchesClassType = selectedClassType === 'all' || 
+                             club.classTypes.some(type => 
+                               type.toLowerCase().includes(selectedClassType.toLowerCase())
+                             )
+    
+    const matchesPrice = club.pricePerClass >= minPrice && club.pricePerClass <= maxPrice
     
     let matchesDistance = true
     if (selectedLocation) {
@@ -37,7 +42,7 @@ export default function ClubesPage() {
       matchesDistance = distance <= maxDistance
     }
     
-    return matchesSearch && matchesCourts && matchesPrice && matchesDistance
+    return matchesSearch && matchesClassType && matchesPrice && matchesDistance
   })
 
   // Si hay ubicación seleccionada, ordenar por distancia
@@ -62,17 +67,17 @@ export default function ClubesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Encuentra tu Club de Pádel
+              Encuentra tu Club para Clases de Pádel
             </h1>
             <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-3xl mx-auto">
-              {mockClubs.length} clubes con las mejores instalaciones de España
+              {mockClubs.length} clubes con instructores profesionales para todos los niveles
             </p>
             
             {/* Location Search */}
             <div className="max-w-2xl mx-auto mb-6">
               <LocationSearch
                 onLocationSelect={setSelectedLocation}
-                placeholder="¿Dónde buscas club? (ej: Madrid, Barcelona...)"
+                placeholder="¿Dónde quieres tomar clases? (ej: Madrid, Barcelona...)"
               />
               
               {/* Filtro de Distancia - Solo visible cuando hay ubicación */}
@@ -134,21 +139,21 @@ export default function ClubesPage() {
 
           {/* Filters Grid */}
           <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 items-end`}>
-            {/* Número de pistas */}
+            {/* Público Objetivo */}
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Número de pistas
+                Público objetivo
               </label>
               <div className="relative">
                 <select
-                  value={minCourts}
-                  onChange={(e) => setMinCourts(e.target.value)}
+                  value={selectedClassType}
+                  onChange={(e) => setSelectedClassType(e.target.value)}
                   className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900 transition-colors"
                 >
-                  <option value="all">Cualquier tamaño</option>
-                  <option value="4">Mínimo 4 pistas</option>
-                  <option value="8">Mínimo 8 pistas</option>
-                  <option value="10">Mínimo 10 pistas</option>
+                  <option value="all">Todos los públicos</option>
+                  {classTypes.slice(1).map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
               </div>
@@ -157,7 +162,7 @@ export default function ClubesPage() {
             {/* Rango de Precio */}
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Precio: <span className="text-green-600 font-semibold">{minPrice}€ - {maxPrice}€/h</span>
+                Precio: <span className="text-green-600 font-semibold">{minPrice}€ - {maxPrice}€/clase</span>
               </label>
               <div className="flex items-center h-[42px]">
                 <div className="relative w-full">
@@ -206,7 +211,7 @@ export default function ClubesPage() {
                 setSearchTerm('')
                 setSelectedLocation(null)
                 setMaxDistance(50)
-                setMinCourts('all')
+                setSelectedClassType('all')
                 setMinPrice(15)
                 setMaxPrice(35)
               }}
@@ -229,7 +234,7 @@ export default function ClubesPage() {
                   setSearchTerm('')
                   setSelectedLocation(null)
                   setMaxDistance(50)
-                  setMinCourts('all')
+                  setSelectedClassType('all')
                   setMinPrice(15)
                   setMaxPrice(35)
                 }}
@@ -259,7 +264,7 @@ export default function ClubesPage() {
                       </div>
                     )}
                     <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-white rounded-lg shadow-lg">
-                      <p className="text-sm font-bold text-green-600">{club.pricePerHour}€/h</p>
+                      <p className="text-sm font-bold text-green-600">{club.pricePerClass}€/clase</p>
                     </div>
                   </div>
 
@@ -287,7 +292,7 @@ export default function ClubesPage() {
 
                     <div className="flex items-center text-sm text-neutral-600 mb-3">
                       <Users className="w-4 h-4 mr-1 flex-shrink-0" />
-                      <span>{club.courtsCount} pistas disponibles</span>
+                      <span>{club.instructorsCount} instructores profesionales</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
