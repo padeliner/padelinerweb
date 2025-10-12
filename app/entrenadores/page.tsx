@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
@@ -9,7 +9,7 @@ import { LocationSearch, LocationData, calculateDistance } from '@/components/Lo
 import { mockCoaches } from '@/lib/mock-data/coaches'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, CheckCircle } from 'lucide-react'
 
-export default function EntrenadoresPage() {
+function EntrenadoresContent() {
   const searchParams = useSearchParams()
   
   const [searchTerm, setSearchTerm] = useState('')
@@ -384,5 +384,13 @@ export default function EntrenadoresPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function EntrenadoresPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <EntrenadoresContent />
+    </Suspense>
   )
 }

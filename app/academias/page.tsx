@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
@@ -9,7 +9,7 @@ import { LocationSearch, LocationData, calculateDistance } from '@/components/Lo
 import { mockAcademies } from '@/lib/mock-data/academies'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, GraduationCap, Users } from 'lucide-react'
 
-export default function AcademiasPage() {
+function AcademiasContent() {
   const searchParams = useSearchParams()
   
   const [searchTerm, setSearchTerm] = useState('')
@@ -350,5 +350,13 @@ export default function AcademiasPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function AcademiasPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <AcademiasContent />
+    </Suspense>
   )
 }

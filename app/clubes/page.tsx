@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
@@ -9,7 +9,7 @@ import { LocationSearch, LocationData, calculateDistance } from '@/components/Lo
 import { mockClubs } from '@/lib/mock-data/clubs'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, Users } from 'lucide-react'
 
-export default function ClubesPage() {
+function ClubesContent() {
   const searchParams = useSearchParams()
   
   const [searchTerm, setSearchTerm] = useState('')
@@ -353,5 +353,13 @@ export default function ClubesPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function ClubesPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <ClubesContent />
+    </Suspense>
   )
 }
