@@ -12,16 +12,14 @@ export default function AcademiasPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
-  const [priceRange, setPriceRange] = useState('all')
+  const [minPrice, setMinPrice] = useState(80)
+  const [maxPrice, setMaxPrice] = useState(150)
   const [showFilters, setShowFilters] = useState(false)
 
   // Filtrar y ordenar academias por distancia
   let filteredAcademies = mockAcademies.filter(academy => {
     const matchesSearch = academy.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesPrice = priceRange === 'all' ||
-                        (priceRange === 'low' && academy.pricePerMonth < 100) ||
-                        (priceRange === 'medium' && academy.pricePerMonth >= 100 && academy.pricePerMonth < 130) ||
-                        (priceRange === 'high' && academy.pricePerMonth >= 130)
+    const matchesPrice = academy.pricePerMonth >= minPrice && academy.pricePerMonth <= maxPrice
     
     let matchesDistance = true
     if (selectedLocation) {
@@ -70,6 +68,27 @@ export default function AcademiasPage() {
                 onLocationSelect={setSelectedLocation}
                 placeholder="¿Dónde buscas academia? (ej: Madrid, Barcelona...)"
               />
+              
+              {/* Filtro de Distancia - Solo visible cuando hay ubicación */}
+              {selectedLocation && (
+                <>
+                  <p className="text-sm text-white/90 mb-2 mt-4">
+                    Distancia máxima: <span className="font-semibold">{maxDistance} km</span>
+                  </p>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    step="5"
+                    value={maxDistance}
+                    onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg"
+                    style={{
+                      background: `linear-gradient(to right, #fff 0%, #fff ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) ${(maxDistance - 5) / 95 * 100}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
+                </>
+              )}
             </div>
 
             {/* Search by Name */}
@@ -90,8 +109,8 @@ export default function AcademiasPage() {
       </section>
 
       <section className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-4 md:mb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-neutral-600">
               <span className="font-semibold text-neutral-900">{filteredAcademies.length}</span> academias encontradas
             </p>
@@ -105,56 +124,66 @@ export default function AcademiasPage() {
             </button>
           </div>
 
-          <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
-            {/* Distancia Máxima */}
-            <div>
+          {/* Filters Grid */}
+          <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 items-end`}>
+            {/* Rango de Precio */}
+            <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Distancia máxima: {maxDistance} km
+                Precio: <span className="text-blue-600 font-semibold">{minPrice}€ - {maxPrice}€/mes</span>
               </label>
-              <input
-                type="range"
-                min="5"
-                max="100"
-                step="5"
-                value={maxDistance}
-                onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                disabled={!selectedLocation}
-                className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: selectedLocation 
-                    ? `linear-gradient(to right, #2563eb 0%, #2563eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
-                    : '#e5e7eb'
-                }}
-              />
-              {!selectedLocation && (
-                <p className="text-xs text-neutral-500 mt-1">Selecciona una ubicación primero</p>
-              )}
+              <div className="flex items-center h-[42px]">
+                <div className="relative w-full">
+                  <div className="relative h-2 bg-neutral-200 rounded-lg">
+                    <div 
+                      className="absolute h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg"
+                      style={{
+                        left: `${(minPrice - 80) / 70 * 100}%`,
+                        right: `${100 - (maxPrice - 80) / 70 * 100}%`
+                      }}
+                    />
+                    <input
+                      type="range"
+                      min="80"
+                      max="150"
+                      step="10"
+                      value={minPrice}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (value <= maxPrice) setMinPrice(value)
+                      }}
+                      className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                      style={{ zIndex: minPrice > maxPrice - 10 ? 5 : 3 }}
+                    />
+                    <input
+                      type="range"
+                      min="80"
+                      max="150"
+                      step="10"
+                      value={maxPrice}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (value >= minPrice) setMaxPrice(value)
+                      }}
+                      className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                      style={{ zIndex: 4 }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="relative">
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-blue-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Todos los precios</option>
-                <option value="low">Menos de 100€/mes</option>
-                <option value="medium">100€ - 130€/mes</option>
-                <option value="high">Más de 130€/mes</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
-            </div>
-
+            {/* Botón Limpiar */}
             <button
               onClick={() => {
                 setSearchTerm('')
                 setSelectedLocation(null)
                 setMaxDistance(50)
-                setPriceRange('all')
+                setMinPrice(80)
+                setMaxPrice(150)
               }}
-              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
+              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
             >
-              Limpiar Filtros
+              Limpiar filtros
             </button>
           </div>
         </div>
@@ -170,7 +199,8 @@ export default function AcademiasPage() {
                   setSearchTerm('')
                   setSelectedLocation(null)
                   setMaxDistance(50)
-                  setPriceRange('all')
+                  setMinPrice(80)
+                  setMaxPrice(150)
                 }}
                 className="mt-4 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors"
               >
