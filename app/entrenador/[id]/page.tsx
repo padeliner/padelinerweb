@@ -1,10 +1,11 @@
 'use client'
 
-import { use } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { mockCoaches } from '@/lib/mock-data/coaches'
+import { mockCoaches, Coach } from '@/lib/mock-data/coaches'
 import { 
   Star, 
   MapPin, 
@@ -17,10 +18,6 @@ import {
   Calendar,
   Shield
 } from 'lucide-react'
-
-interface PageProps {
-  params: Promise<{ id: string }>
-}
 
 // Mock reviews
 const mockReviews = [
@@ -58,9 +55,9 @@ const mockReviews = [
   }
 ]
 
-export default function EntrenadorPage({ params }: PageProps) {
-  const resolvedParams = use(params)
-  const coachId = parseInt(resolvedParams.id)
+export default function EntrenadorPage() {
+  const params = useParams()
+  const coachId = parseInt(params.id as string)
   const coach = mockCoaches.find(c => c.id === coachId)
 
   if (!coach) {
