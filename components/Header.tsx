@@ -130,17 +130,26 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                     className="flex items-center space-x-2 px-2 py-2 hover:bg-neutral-100 rounded-full transition-all duration-200"
                     aria-label="Mi Perfil"
                   >
-                    {profile.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.full_name || 'Usuario'}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-primary-500"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
-                        {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
-                      </div>
-                    )}
+                    {(() => {
+                      // Prioridad: 1. avatar_url del perfil, 2. avatar de Google, 3. inicial
+                      const avatarUrl = profile.avatar_url || user?.user_metadata?.avatar_url || null
+                      
+                      if (avatarUrl) {
+                        return (
+                          <img
+                            src={avatarUrl}
+                            alt={profile.full_name || 'Usuario'}
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-primary-500"
+                          />
+                        )
+                      }
+                      
+                      return (
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
+                          {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                      )
+                    })()}
                     <span className="hidden sm:inline text-sm font-medium text-neutral-900">
                       {profile.full_name || 'Mi Perfil'}
                     </span>

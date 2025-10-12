@@ -182,17 +182,26 @@ export default function MiPerfilPage() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                 {/* Avatar */}
                 <div className="relative">
-                  {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.full_name || 'Usuario'}
-                      className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-xl"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white flex items-center justify-center text-primary-600 text-4xl sm:text-5xl font-bold border-4 border-white shadow-xl">
-                      {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
-                    </div>
-                  )}
+                  {(() => {
+                    // Prioridad: 1. avatar_url del perfil, 2. avatar de Google, 3. inicial
+                    const avatarUrl = profile.avatar_url || user?.user_metadata?.avatar_url || null
+                    
+                    if (avatarUrl) {
+                      return (
+                        <img
+                          src={avatarUrl}
+                          alt={profile.full_name || 'Usuario'}
+                          className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-xl"
+                        />
+                      )
+                    }
+                    
+                    return (
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white flex items-center justify-center text-primary-600 text-4xl sm:text-5xl font-bold border-4 border-white shadow-xl">
+                        {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )
+                  })()}
                 </div>
 
                 {/* Información básica */}

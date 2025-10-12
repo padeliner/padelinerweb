@@ -1,12 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, Briefcase } from 'lucide-react'
+import { Search, Briefcase, ArrowLeft } from 'lucide-react'
 
 export default function WelcomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-neutral-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Botón volver al inicio */}
+        <Link href="/" className="inline-flex items-center space-x-2 text-neutral-600 hover:text-primary-600 font-medium mb-8 transition-colors group">
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span>Volver al inicio</span>
+        </Link>
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-primary-600 mb-4 tracking-tight">
