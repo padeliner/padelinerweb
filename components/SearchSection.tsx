@@ -95,44 +95,49 @@ export function SearchSection() {
             })}
           </div>
 
-          {/* Location Search */}
-          <div className="mb-4">
-            <LocationSearch
-              onLocationSelect={setSelectedLocation}
-              placeholder="Buscar ubicación..."
-              value={selectedLocation?.formatted}
-            />
-            {selectedLocation && (
-              <div className="mt-2">
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Distancia máxima: <span className="text-primary-600 font-semibold">{maxDistance} km</span>
-                </label>
+          {/* Búsqueda por nombre y ubicación */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Campo de búsqueda por nombre */}
+            <div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input
-                  type="range"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value={maxDistance}
-                  onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                  className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+                  type="text"
+                  placeholder={`Buscar ${serviceType === 'entrenadores' ? 'entrenador' : serviceType === 'clubes' ? 'club' : 'academia'} por nombre...`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none"
                 />
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Campo de búsqueda por nombre */}
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
-              <input
-                type="text"
-                placeholder={`Buscar ${serviceType === 'entrenadores' ? 'entrenador' : serviceType === 'clubes' ? 'club' : 'academia'} por nombre...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none"
+            {/* Location Search */}
+            <div>
+              <LocationSearch
+                onLocationSelect={setSelectedLocation}
+                placeholder="Buscar ubicación..."
+                value={selectedLocation?.formatted}
               />
             </div>
           </div>
+
+          {/* Distancia máxima */}
+          {selectedLocation && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Distancia máxima: <span className="text-primary-600 font-semibold">{maxDistance} km</span>
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="100"
+                step="1"
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          )}
 
           {/* Filtros específicos por servicio */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
