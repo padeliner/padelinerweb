@@ -100,13 +100,13 @@ function EntrenadoresContent() {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16 md:py-24">
+      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-8 md:py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-6">
               Encuentra tu Entrenador de Pádel
             </h1>
-            <p className="text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary-100 mb-6 md:mb-8 max-w-3xl mx-auto">
               {mockCoaches.length} entrenadores profesionales esperando para ayudarte a mejorar tu juego
             </p>
             
@@ -142,13 +142,13 @@ function EntrenadoresContent() {
             {/* Search by Name */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <Search className="absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-neutral-400" />
                 <input
                   type="text"
                   placeholder="Buscar por nombre..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-300 text-lg"
+                  className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-300 text-base md:text-lg"
                 />
               </div>
             </div>
@@ -158,16 +158,16 @@ function EntrenadoresContent() {
 
       {/* Filters Section */}
       <section className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-neutral-600">
-              <span className="font-semibold text-neutral-900">{filteredCoaches.length}</span> entrenadores encontrados
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-5">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <p className="text-xs sm:text-sm text-neutral-600">
+              <span className="font-semibold text-neutral-900">{filteredCoaches.length}</span> encontrados
             </p>
             
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden flex items-center space-x-2 px-4 py-2 bg-primary-50 text-primary-700 rounded-lg font-semibold"
+              className="md:hidden flex items-center space-x-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-sm font-semibold"
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Filtros</span>
@@ -280,7 +280,7 @@ function EntrenadoresContent() {
       </section>
 
       {/* Coaches Grid */}
-      <section className="py-12">
+      <section className="py-6 md:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredCoaches.length === 0 ? (
             <div className="text-center py-16">
@@ -301,7 +301,7 @@ function EntrenadoresContent() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {filteredCoaches.map((coach) => (
                 <Link
                   key={coach.id}
@@ -309,7 +309,7 @@ function EntrenadoresContent() {
                   className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
                 >
                   {/* Image */}
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
                     <img
                       src={coach.imageUrl}
                       alt={coach.name}
@@ -326,8 +326,8 @@ function EntrenadoresContent() {
                   </div>
 
                   {/* Content */}
-                  <div className="p-5">
-                    <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
+                  <div className="p-4 md:p-5">
+                    <h3 className="text-lg md:text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
                       {coach.name}
                     </h3>
                     
