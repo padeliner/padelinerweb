@@ -170,15 +170,15 @@ export default function EntrenadorPage() {
                   <p className="text-4xl font-bold text-primary-600">{coach.pricePerHour}€</p>
                 </div>
 
-                <div className="space-y-3 mb-6">
-                  <Link href={`/reservar/${coach.id}`}>
+                <div className="mb-6">
+                  <Link href={`/reservar/${coach.id}`} className="block mb-3">
                     <button className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
                       <Calendar className="w-5 h-5" />
                       <span>Reservar Clase</span>
                     </button>
                   </Link>
                   
-                  <Link href="/mensajes">
+                  <Link href="/mensajes" className="block">
                     <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
                       <MessageCircle className="w-5 h-5" />
                       <span>Contactar</span>
