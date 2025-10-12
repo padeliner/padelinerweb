@@ -14,25 +14,29 @@ export function SearchSection() {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
   
+  // Campo de búsqueda por nombre
+  const [searchTerm, setSearchTerm] = useState('')
+  
   // Filtros para Entrenadores
   const [selectedSpecialty, setSelectedSpecialty] = useState('all')
   const [showOnlyWithHomeService, setShowOnlyWithHomeService] = useState(false)
-  const [trainerPriceRange, setTrainerPriceRange] = useState({ min: 25, max: 75 })
+  const [trainerMinPrice, setTrainerMinPrice] = useState(25)
+  const [trainerMaxPrice, setTrainerMaxPrice] = useState(75)
   
   // Filtros para Clubes
   const [selectedClassType, setSelectedClassType] = useState('all')
-  const [clubPriceRange, setClubPriceRange] = useState({ min: 15, max: 35 })
+  const [clubMinPrice, setClubMinPrice] = useState(15)
+  const [clubMaxPrice, setClubMaxPrice] = useState(35)
   
   // Filtros para Academias
   const [selectedProgram, setSelectedProgram] = useState('all')
-  const [selectedAgeRange, setSelectedAgeRange] = useState('all')
-  const [academyPriceRange, setAcademyPriceRange] = useState({ min: 60, max: 200 })
+  const [academyMinPrice, setAcademyMinPrice] = useState(80)
+  const [academyMaxPrice, setAcademyMaxPrice] = useState(150)
 
   // Datos de filtros
   const specialties = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
   const classTypes = ['all', 'Infantil (4-12 años)', 'Junior (13-17 años)', 'Adultos (18-55 años)', 'Senior (+55 años)', 'Iniciación', 'Avanzado']
-  const programs = ['all', 'Iniciación', 'Perfeccionamiento', 'Competición', 'Alto Rendimiento']
-  const ageRanges = ['all', '4-8 años', '9-12 años', '13-17 años', 'Adultos']
+  const programs = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
 
   const serviceConfig = {
     entrenadores: {
@@ -116,6 +120,20 @@ export function SearchSection() {
             )}
           </div>
 
+          {/* Campo de búsqueda por nombre */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <input
+                type="text"
+                placeholder={`Buscar ${serviceType === 'entrenadores' ? 'entrenador' : serviceType === 'clubes' ? 'club' : 'academia'} por nombre...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
           {/* Filtros específicos por servicio */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {/* ENTRENADORES */}
@@ -157,27 +175,46 @@ export function SearchSection() {
                 {/* Precio */}
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Precio: <span className="text-primary-600 font-semibold">{trainerPriceRange.min}€ - {trainerPriceRange.max}€/h</span>
+                    Precio: <span className="text-primary-600 font-semibold">{trainerMinPrice}€ - {trainerMaxPrice}€/h</span>
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="range"
-                      min="25"
-                      max="75"
-                      step="5"
-                      value={trainerPriceRange.min}
-                      onChange={(e) => setTrainerPriceRange({ ...trainerPriceRange, min: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <input
-                      type="range"
-                      min="25"
-                      max="75"
-                      step="5"
-                      value={trainerPriceRange.max}
-                      onChange={(e) => setTrainerPriceRange({ ...trainerPriceRange, max: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
+                  <div className="flex items-center h-[42px]">
+                    <div className="relative w-full">
+                      <div className="relative h-2 bg-neutral-200 rounded-lg">
+                        <div 
+                          className="absolute h-2 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg"
+                          style={{
+                            left: `${(trainerMinPrice - 25) / 50 * 100}%`,
+                            right: `${100 - (trainerMaxPrice - 25) / 50 * 100}%`
+                          }}
+                        />
+                        <input
+                          type="range"
+                          min="25"
+                          max="75"
+                          step="5"
+                          value={trainerMinPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value <= trainerMaxPrice) setTrainerMinPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: trainerMinPrice > trainerMaxPrice - 10 ? 5 : 3 }}
+                        />
+                        <input
+                          type="range"
+                          min="25"
+                          max="75"
+                          step="5"
+                          value={trainerMaxPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value >= trainerMinPrice) setTrainerMaxPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: 4 }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </>
@@ -209,27 +246,46 @@ export function SearchSection() {
                 {/* Precio */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Precio: <span className="text-green-600 font-semibold">{clubPriceRange.min}€ - {clubPriceRange.max}€/clase</span>
+                    Precio: <span className="text-green-600 font-semibold">{clubMinPrice}€ - {clubMaxPrice}€/clase</span>
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="range"
-                      min="15"
-                      max="35"
-                      step="2"
-                      value={clubPriceRange.min}
-                      onChange={(e) => setClubPriceRange({ ...clubPriceRange, min: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <input
-                      type="range"
-                      min="15"
-                      max="35"
-                      step="2"
-                      value={clubPriceRange.max}
-                      onChange={(e) => setClubPriceRange({ ...clubPriceRange, max: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
+                  <div className="flex items-center h-[42px]">
+                    <div className="relative w-full">
+                      <div className="relative h-2 bg-neutral-200 rounded-lg">
+                        <div 
+                          className="absolute h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-lg"
+                          style={{
+                            left: `${(clubMinPrice - 15) / 20 * 100}%`,
+                            right: `${100 - (clubMaxPrice - 15) / 20 * 100}%`
+                          }}
+                        />
+                        <input
+                          type="range"
+                          min="15"
+                          max="35"
+                          step="2"
+                          value={clubMinPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value <= clubMaxPrice) setClubMinPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-green-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: clubMinPrice > clubMaxPrice - 5 ? 5 : 3 }}
+                        />
+                        <input
+                          type="range"
+                          min="15"
+                          max="35"
+                          step="2"
+                          value={clubMaxPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value >= clubMinPrice) setClubMaxPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-green-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: 4 }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </>
@@ -238,10 +294,10 @@ export function SearchSection() {
             {/* ACADEMIAS */}
             {serviceType === 'academias' && (
               <>
-                {/* Tipo de Programa */}
+                {/* Público Objetivo */}
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Tipo de programa
+                    Público objetivo
                   </label>
                   <div className="relative">
                     <select
@@ -249,7 +305,7 @@ export function SearchSection() {
                       onChange={(e) => setSelectedProgram(e.target.value)}
                       className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-blue-500 focus:outline-none bg-white"
                     >
-                      <option value="all">Todos los programas</option>
+                      <option value="all">Todos los públicos</option>
                       {programs.slice(1).map(prog => (
                         <option key={prog} value={prog}>{prog}</option>
                       ))}
@@ -258,50 +314,49 @@ export function SearchSection() {
                   </div>
                 </div>
 
-                {/* Edad */}
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Edad
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedAgeRange}
-                      onChange={(e) => setSelectedAgeRange(e.target.value)}
-                      className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-blue-500 focus:outline-none bg-white"
-                    >
-                      <option value="all">Todas las edades</option>
-                      {ageRanges.slice(1).map(age => (
-                        <option key={age} value={age}>{age}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
-                  </div>
-                </div>
-
                 {/* Precio */}
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Precio: <span className="text-blue-600 font-semibold">{academyPriceRange.min}€ - {academyPriceRange.max}€/mes</span>
+                    Precio: <span className="text-blue-600 font-semibold">{academyMinPrice}€ - {academyMaxPrice}€/mes</span>
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="range"
-                      min="60"
-                      max="200"
-                      step="10"
-                      value={academyPriceRange.min}
-                      onChange={(e) => setAcademyPriceRange({ ...academyPriceRange, min: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <input
-                      type="range"
-                      min="60"
-                      max="200"
-                      step="10"
-                      value={academyPriceRange.max}
-                      onChange={(e) => setAcademyPriceRange({ ...academyPriceRange, max: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
-                    />
+                  <div className="flex items-center h-[42px]">
+                    <div className="relative w-full">
+                      <div className="relative h-2 bg-neutral-200 rounded-lg">
+                        <div 
+                          className="absolute h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg"
+                          style={{
+                            left: `${(academyMinPrice - 60) / 140 * 100}%`,
+                            right: `${100 - (academyMaxPrice - 60) / 140 * 100}%`
+                          }}
+                        />
+                        <input
+                          type="range"
+                          min="60"
+                          max="200"
+                          step="10"
+                          value={academyMinPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value <= academyMaxPrice) setAcademyMinPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: academyMinPrice > academyMaxPrice - 20 ? 5 : 3 }}
+                        />
+                        <input
+                          type="range"
+                          min="60"
+                          max="200"
+                          step="10"
+                          value={academyMaxPrice}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (value >= academyMinPrice) setAcademyMaxPrice(value)
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                          style={{ zIndex: 4 }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </>
