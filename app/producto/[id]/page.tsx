@@ -38,7 +38,7 @@ export default function ProductoPage() {
   if (!product) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <Header />
+        <Header hideMessages={true} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h1 className="text-2xl font-bold text-neutral-900 mb-4">Producto no encontrado</h1>
           <Link href="/tienda" className="text-orange-600 hover:text-orange-700 font-semibold">Volver a la tienda</Link>
@@ -58,6 +58,7 @@ export default function ProductoPage() {
         showCart={true}
         onCartClick={() => setIsCartOpen(true)}
         cartItemsCount={totalItems}
+        hideMessages={true}
       />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 

@@ -50,6 +50,7 @@ export default function TiendaPage() {
         showCart={true}
         onCartClick={() => setIsCartOpen(true)}
         cartItemsCount={totalItems}
+        hideMessages={true}
       />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       
