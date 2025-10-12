@@ -8,10 +8,26 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Padeliner - Encuentra tu entrenador de pádel perfecto',
-  description: 'Conecta con los mejores entrenadores de pádel cerca de ti. Reserva clases, mejora tu juego y equípate con lo mejor.',
-  keywords: 'pádel, entrenador, clases, reservar, padel, deporte',
-  authors: [{ name: 'Padeliner' }],
+  title: {
+    default: 'Padeliner - Plataforma Líder de Pádel en España',
+    template: '%s | Padeliner'
+  },
+  description: 'Descubre los mejores entrenadores, clubes y academias de pádel en España. Reserva clases, encuentra instalaciones y compra equipo profesional. +20 entrenadores certificados, +10 clubes premium.',
+  keywords: ['pádel', 'entrenador pádel', 'clases pádel', 'clubes pádel', 'academias pádel', 'tienda pádel', 'reservar pista pádel', 'material pádel', 'palas pádel', 'Madrid', 'Barcelona', 'España'],
+  authors: [{ name: 'Padeliner', url: 'https://www.padeliner.com' }],
+  creator: 'Padeliner',
+  publisher: 'Padeliner',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -20,10 +36,34 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: 'Padeliner - Encuentra tu entrenador de pádel',
-    description: 'La plataforma líder para conectar jugadores con entrenadores profesionales',
     type: 'website',
+    locale: 'es_ES',
+    url: 'https://www.padeliner.com',
+    siteName: 'Padeliner',
+    title: 'Padeliner - Plataforma Líder de Pádel en España',
+    description: 'Conecta con los mejores profesionales del pádel. Reserva clases, encuentra clubes y compra equipo de alta calidad.',
+    images: [
+      {
+        url: 'https://www.padeliner.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Padeliner - Plataforma de Pádel',
+      },
+    ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Padeliner - Plataforma Líder de Pádel en España',
+    description: 'Descubre entrenadores, clubes y academias de pádel cerca de ti. Reserva, juega y mejora tu nivel.',
+    images: ['https://www.padeliner.com/og-image.jpg'],
+  },
+  verification: {
+    google: 'verification_token', // Añadir token real de Google Search Console
+  },
+  alternates: {
+    canonical: 'https://www.padeliner.com',
+  },
+  category: 'sports',
 }
 
 export default function RootLayout({

@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.padeliner.com
+
+# Sitemaps
+Sitemap: https://www.padeliner.com/sitemap.xml
