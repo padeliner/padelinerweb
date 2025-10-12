@@ -222,7 +222,7 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     <>
       {/* Cargar Google Maps API */}
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&language=es&loading=async`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es`}
         onLoad={() => setIsGoogleLoaded(true)}
         strategy="lazyOnload"
       />
