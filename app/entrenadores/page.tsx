@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -9,14 +10,48 @@ import { mockCoaches } from '@/lib/mock-data/coaches'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, CheckCircle } from 'lucide-react'
 
 export default function EntrenadoresPage() {
+  const searchParams = useSearchParams()
+  
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
-  const [maxDistance, setMaxDistance] = useState(50) // km
+  const [maxDistance, setMaxDistance] = useState(50)
   const [selectedSpecialty, setSelectedSpecialty] = useState('all')
   const [minPrice, setMinPrice] = useState(25)
   const [maxPrice, setMaxPrice] = useState(75)
   const [showOnlyWithHomeService, setShowOnlyWithHomeService] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+
+  // Leer parámetros de la URL al cargar
+  useEffect(() => {
+    if (searchParams) {
+      const search = searchParams.get('search')
+      const lat = searchParams.get('lat')
+      const lng = searchParams.get('lng')
+      const location = searchParams.get('location')
+      const distance = searchParams.get('distance')
+      const specialty = searchParams.get('specialty')
+      const homeService = searchParams.get('homeService')
+      const minPriceParam = searchParams.get('minPrice')
+      const maxPriceParam = searchParams.get('maxPrice')
+
+      if (search) setSearchTerm(search)
+      if (lat && lng && location) {
+        setSelectedLocation({
+          address: location,
+          city: location,
+          country: '',
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          formatted: location
+        })
+      }
+      if (distance) setMaxDistance(parseInt(distance))
+      if (specialty) setSelectedSpecialty(specialty)
+      if (homeService === 'true') setShowOnlyWithHomeService(true)
+      if (minPriceParam) setMinPrice(parseInt(minPriceParam))
+      if (maxPriceParam) setMaxPrice(parseInt(maxPriceParam))
+    }
+  }, [searchParams])
   
   // Categorías de entrenadores por público objetivo
   const specialties = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']

@@ -59,7 +59,37 @@ export function SearchSection() {
   const currentService = serviceConfig[serviceType]
 
   const handleSearch = () => {
-    router.push(`/${serviceType}`)
+    // Construir URL con parámetros de búsqueda
+    const params = new URLSearchParams()
+    
+    // Parámetros comunes
+    if (searchTerm) params.append('search', searchTerm)
+    
+    if (selectedLocation) {
+      params.append('lat', selectedLocation.lat.toString())
+      params.append('lng', selectedLocation.lng.toString())
+      params.append('location', selectedLocation.formatted)
+      params.append('distance', maxDistance.toString())
+    }
+    
+    // Parámetros específicos por servicio
+    if (serviceType === 'entrenadores') {
+      if (selectedSpecialty !== 'all') params.append('specialty', selectedSpecialty)
+      if (showOnlyWithHomeService) params.append('homeService', 'true')
+      params.append('minPrice', trainerMinPrice.toString())
+      params.append('maxPrice', trainerMaxPrice.toString())
+    } else if (serviceType === 'clubes') {
+      if (selectedClassType !== 'all') params.append('classType', selectedClassType)
+      params.append('minPrice', clubMinPrice.toString())
+      params.append('maxPrice', clubMaxPrice.toString())
+    } else if (serviceType === 'academias') {
+      if (selectedProgram !== 'all') params.append('program', selectedProgram)
+      params.append('minPrice', academyMinPrice.toString())
+      params.append('maxPrice', academyMaxPrice.toString())
+    }
+    
+    const queryString = params.toString()
+    router.push(`/${serviceType}${queryString ? '?' + queryString : ''}`)
   }
 
   return (

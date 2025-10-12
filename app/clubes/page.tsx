@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -9,6 +10,8 @@ import { mockClubs } from '@/lib/mock-data/clubs'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, Users } from 'lucide-react'
 
 export default function ClubesPage() {
+  const searchParams = useSearchParams()
+  
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
@@ -16,6 +19,36 @@ export default function ClubesPage() {
   const [minPrice, setMinPrice] = useState(15)
   const [maxPrice, setMaxPrice] = useState(35)
   const [showFilters, setShowFilters] = useState(false)
+
+  // Leer parámetros de la URL al cargar
+  useEffect(() => {
+    if (searchParams) {
+      const search = searchParams.get('search')
+      const lat = searchParams.get('lat')
+      const lng = searchParams.get('lng')
+      const location = searchParams.get('location')
+      const distance = searchParams.get('distance')
+      const classType = searchParams.get('classType')
+      const minPriceParam = searchParams.get('minPrice')
+      const maxPriceParam = searchParams.get('maxPrice')
+
+      if (search) setSearchTerm(search)
+      if (lat && lng && location) {
+        setSelectedLocation({
+          address: location,
+          city: location,
+          country: '',
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          formatted: location
+        })
+      }
+      if (distance) setMaxDistance(parseInt(distance))
+      if (classType) setSelectedClassType(classType)
+      if (minPriceParam) setMinPrice(parseInt(minPriceParam))
+      if (maxPriceParam) setMaxPrice(parseInt(maxPriceParam))
+    }
+  }, [searchParams])
   
   // Tipos de clases por público objetivo
   const classTypes = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']

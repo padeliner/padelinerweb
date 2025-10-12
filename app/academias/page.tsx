@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -9,6 +10,8 @@ import { mockAcademies } from '@/lib/mock-data/academies'
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, GraduationCap, Users } from 'lucide-react'
 
 export default function AcademiasPage() {
+  const searchParams = useSearchParams()
+  
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
@@ -16,6 +19,36 @@ export default function AcademiasPage() {
   const [minPrice, setMinPrice] = useState(80)
   const [maxPrice, setMaxPrice] = useState(150)
   const [showFilters, setShowFilters] = useState(false)
+
+  // Leer parámetros de la URL al cargar
+  useEffect(() => {
+    if (searchParams) {
+      const search = searchParams.get('search')
+      const lat = searchParams.get('lat')
+      const lng = searchParams.get('lng')
+      const location = searchParams.get('location')
+      const distance = searchParams.get('distance')
+      const program = searchParams.get('program')
+      const minPriceParam = searchParams.get('minPrice')
+      const maxPriceParam = searchParams.get('maxPrice')
+
+      if (search) setSearchTerm(search)
+      if (lat && lng && location) {
+        setSelectedLocation({
+          address: location,
+          city: location,
+          country: '',
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          formatted: location
+        })
+      }
+      if (distance) setMaxDistance(parseInt(distance))
+      if (program) setSelectedProgram(program)
+      if (minPriceParam) setMinPrice(parseInt(minPriceParam))
+      if (maxPriceParam) setMaxPrice(parseInt(maxPriceParam))
+    }
+  }, [searchParams])
   
   // Categorías de programas por público objetivo
   const programs = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
