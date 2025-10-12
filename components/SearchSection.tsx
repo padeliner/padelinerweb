@@ -241,11 +241,11 @@ export function SearchSection() {
                 </div>
 
                 {/* Desplazamiento */}
-                <div className="ml-4">
-                  <label className="block text-sm font-medium text-neutral-700 mb-2 opacity-0 pointer-events-none">
+                <div className="md:ml-4">
+                  <label className="hidden md:block text-sm font-medium text-neutral-700 mb-2 opacity-0 pointer-events-none">
                     &nbsp;
                   </label>
-                  <div className="flex items-center h-[42px]">
+                  <div className="flex items-center md:h-[42px]">
                     <label className="flex items-center space-x-2 cursor-pointer">
                       <input
                         type="checkbox"
