@@ -33,11 +33,11 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-6">Para Alumnos</h3>
             <ul className="space-y-3">
-              <FooterLink href="#entrenadores">Buscar entrenadores</FooterLink>
-              <FooterLink href="#tienda">Tienda online</FooterLink>
-              <FooterLink href="#como-funciona">Cómo funciona</FooterLink>
-              <FooterLink href="#">Preguntas frecuentes</FooterLink>
-              <FooterLink href="#">Valoraciones</FooterLink>
+              <FooterLink href="/entrenadores">Buscar entrenadores</FooterLink>
+              <FooterLink href="/clubes">Buscar clubes</FooterLink>
+              <FooterLink href="/academias">Buscar academias</FooterLink>
+              <FooterLink href="/tienda">Tienda online</FooterLink>
+              <FooterLink href="/#como-funciona">Cómo funciona</FooterLink>
             </ul>
           </div>
 

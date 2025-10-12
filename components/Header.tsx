@@ -63,10 +63,10 @@ export function Header() {
             </Link>
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <NavLink href="#entrenadores">Entrenadores</NavLink>
-              <NavLink href="#tienda">Tienda</NavLink>
-              <NavLink href="#como-funciona">Cómo funciona</NavLink>
-              <NavLink href="#contacto">Contacto</NavLink>
+              <NavLink href="/entrenadores">Entrenadores</NavLink>
+              <NavLink href="/clubes">Clubes</NavLink>
+              <NavLink href="/academias">Academias</NavLink>
+              <NavLink href="/tienda">Tienda</NavLink>
             </div>
 
             {/* Right Side Actions */}
@@ -119,17 +119,17 @@ export function Header() {
           }`}
         >
           <div className="px-4 py-6 space-y-4">
-            <MobileNavLink href="#entrenadores" onClick={() => setIsOpen(false)}>
+            <MobileNavLink href="/entrenadores" onClick={() => setIsOpen(false)}>
               Entrenadores
             </MobileNavLink>
-            <MobileNavLink href="#tienda" onClick={() => setIsOpen(false)}>
+            <MobileNavLink href="/clubes" onClick={() => setIsOpen(false)}>
+              Clubes
+            </MobileNavLink>
+            <MobileNavLink href="/academias" onClick={() => setIsOpen(false)}>
+              Academias
+            </MobileNavLink>
+            <MobileNavLink href="/tienda" onClick={() => setIsOpen(false)}>
               Tienda
-            </MobileNavLink>
-            <MobileNavLink href="#como-funciona" onClick={() => setIsOpen(false)}>
-              Cómo funciona
-            </MobileNavLink>
-            <MobileNavLink href="#contacto" onClick={() => setIsOpen(false)}>
-              Contacto
             </MobileNavLink>
           </div>
         </div>
