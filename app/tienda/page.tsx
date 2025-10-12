@@ -4,10 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { CartDrawer } from '@/components/CartDrawer'
+import { useCart } from '@/contexts/CartContext'
 import { mockProducts, categories, brands } from '@/lib/mock-data/products'
 import { Search, Star, ChevronDown, SlidersHorizontal, ShoppingBag } from 'lucide-react'
 
 export default function TiendaPage() {
+  const { totalItems } = useCart()
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedBrand, setSelectedBrand] = useState('Todas')
@@ -42,7 +46,12 @@ export default function TiendaPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <Header />
+      <Header 
+        showCart={true}
+        onCartClick={() => setIsCartOpen(true)}
+        cartItemsCount={totalItems}
+      />
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-16 md:py-24">

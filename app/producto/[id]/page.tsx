@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { CartDrawer } from '@/components/CartDrawer'
+import { useCart } from '@/contexts/CartContext'
 import { mockProducts } from '@/lib/mock-data/products'
 import { Star, ArrowLeft, ShoppingCart, Heart, Share2, CheckCircle, Truck, Shield, RotateCcw } from 'lucide-react'
 
@@ -18,9 +20,20 @@ export default function ProductoPage() {
   const params = useParams()
   const productId = parseInt(params.id as string)
   const product = mockProducts.find(p => p.id === productId)
+  const { addToCart, totalItems } = useCart()
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [showAddedMessage, setShowAddedMessage] = useState(false)
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity)
+      setShowAddedMessage(true)
+      setTimeout(() => setShowAddedMessage(false), 3000)
+    }
+  }
 
   if (!product) {
     return (
@@ -41,7 +54,12 @@ export default function ProductoPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <Header />
+      <Header 
+        showCart={true}
+        onCartClick={() => setIsCartOpen(true)}
+        cartItemsCount={totalItems}
+      />
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Back Button */}
       <div className="bg-white border-b border-neutral-200">
@@ -173,8 +191,9 @@ export default function ProductoPage() {
 
                 <div className="flex space-x-3">
                   <button
+                    onClick={handleAddToCart}
                     disabled={!product.inStock}
-                    className={`flex-1 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all ${
+                    className={`flex-1 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2 transition-all relative ${
                       product.inStock
                         ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl'
                         : 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
@@ -182,6 +201,11 @@ export default function ProductoPage() {
                   >
                     <ShoppingCart className="w-5 h-5" />
                     <span>{product.inStock ? 'Añadir al carrito' : 'Agotado'}</span>
+                    {showAddedMessage && (
+                      <span className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm whitespace-nowrap animate-bounce">
+                        ✓ Añadido al carrito
+                      </span>
+                    )}
                   </button>
                   
                   <button

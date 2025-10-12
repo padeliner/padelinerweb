@@ -1,10 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X, Search, User, CircleDot } from 'lucide-react'
+import { Menu, X, Search, User, CircleDot, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 
-export function Header() {
+interface HeaderProps {
+  showCart?: boolean
+  onCartClick?: () => void
+  cartItemsCount?: number
+}
+
+export function Header({ showCart = false, onCartClick, cartItemsCount = 0 }: HeaderProps = {}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
@@ -78,6 +84,22 @@ export function Header() {
               >
                 <Search className="w-5 h-5 text-neutral-700" />
               </button>
+
+              {/* Cart Button (Only in shop pages) */}
+              {showCart && (
+                <button
+                  onClick={onCartClick}
+                  className="relative p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                  aria-label="Carrito"
+                >
+                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700" />
+                  {cartItemsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {cartItemsCount > 9 ? '9+' : cartItemsCount}
+                    </span>
+                  )}
+                </button>
+              )}
 
               {/* Acceder Button */}
               <Link href="/welcome">
