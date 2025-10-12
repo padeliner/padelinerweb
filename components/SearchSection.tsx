@@ -211,16 +211,21 @@ export function SearchSection() {
                 </div>
 
                 {/* Desplazamiento */}
-                <div className="flex items-center h-[42px] ml-4">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={showOnlyWithHomeService}
-                      onChange={(e) => setShowOnlyWithHomeService(e.target.checked)}
-                      className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-neutral-700">Con desplazamiento</span>
+                <div className="ml-4">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2 opacity-0 pointer-events-none">
+                    &nbsp;
                   </label>
+                  <div className="flex items-center h-[42px]">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showOnlyWithHomeService}
+                        onChange={(e) => setShowOnlyWithHomeService(e.target.checked)}
+                        className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500 cursor-pointer"
+                      />
+                      <span className="text-sm font-medium text-neutral-700">Con desplazamiento</span>
+                    </label>
+                  </div>
                 </div>
               </>
             )}
