@@ -95,8 +95,8 @@ export default function ClubesPage() {
 
       {/* Filters Section */}
       <section className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-4 md:mb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-neutral-600">
               <span className="font-semibold text-neutral-900">{filteredClubs.length}</span> clubes encontrados
             </p>
@@ -111,56 +111,35 @@ export default function ClubesPage() {
             </button>
           </div>
 
-          {/* Filters */}
-          <div className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
-            {/* Distancia Máxima */}
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Distancia máxima: {maxDistance} km
-              </label>
-              <input
-                type="range"
-                min="5"
-                max="100"
-                step="5"
-                value={maxDistance}
-                onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                disabled={!selectedLocation}
-                className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: selectedLocation 
-                    ? `linear-gradient(to right, #16a34a 0%, #16a34a ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
-                    : '#e5e7eb'
-                }}
-              />
-              {!selectedLocation && (
-                <p className="text-xs text-neutral-500 mt-1">Selecciona una ubicación primero</p>
-              )}
-            </div>
-
+          {/* Filters Grid */}
+          <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 items-end`}>
             {/* Número de pistas */}
-            <div className="relative">
-              <select
-                value={minCourts}
-                onChange={(e) => setMinCourts(e.target.value)}
-                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
-              >
-                <option value="all">Cualquier tamaño</option>
-                <option value="4">Mínimo 4 pistas</option>
-                <option value="8">Mínimo 8 pistas</option>
-                <option value="10">Mínimo 10 pistas</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Número de pistas
+              </label>
+              <div className="relative">
+                <select
+                  value={minCourts}
+                  onChange={(e) => setMinCourts(e.target.value)}
+                  className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900 transition-colors"
+                >
+                  <option value="all">Cualquier tamaño</option>
+                  <option value="4">Mínimo 4 pistas</option>
+                  <option value="8">Mínimo 8 pistas</option>
+                  <option value="10">Mínimo 10 pistas</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+              </div>
             </div>
 
             {/* Rango de Precio */}
-            <div>
+            <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Precio: {minPrice}€ - {maxPrice}€/h
+                Precio: <span className="text-green-600 font-semibold">{minPrice}€ - {maxPrice}€/h</span>
               </label>
-              <div className="relative pt-1">
+              <div className="relative pt-1 pb-1">
                 <div className="relative h-2 bg-neutral-200 rounded-lg">
-                  {/* Barra de progreso coloreada */}
                   <div 
                     className="absolute h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-lg"
                     style={{
@@ -168,7 +147,6 @@ export default function ClubesPage() {
                       right: `${100 - (maxPrice - 15) / 20 * 100}%`
                     }}
                   />
-                  {/* Input MIN */}
                   <input
                     type="range"
                     min="15"
@@ -182,7 +160,6 @@ export default function ClubesPage() {
                     className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-green-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
                     style={{ zIndex: minPrice > maxPrice - 5 ? 5 : 3 }}
                   />
-                  {/* Input MAX */}
                   <input
                     type="range"
                     min="15"
@@ -200,7 +177,34 @@ export default function ClubesPage() {
               </div>
             </div>
 
-            {/* Reset Filters */}
+            {/* Distancia Máxima */}
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Distancia: <span className="text-green-600 font-semibold">{maxDistance} km</span>
+              </label>
+              <div className="pb-1">
+                <input
+                  type="range"
+                  min="5"
+                  max="100"
+                  step="5"
+                  value={maxDistance}
+                  onChange={(e) => setMaxDistance(parseInt(e.target.value))}
+                  disabled={!selectedLocation}
+                  className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-green-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md disabled:[&::-webkit-slider-thumb]:border-neutral-300 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-green-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md disabled:[&::-moz-range-thumb]:border-neutral-300"
+                  style={{
+                    background: selectedLocation 
+                      ? `linear-gradient(to right, #16a34a 0%, #16a34a ${(maxDistance - 5) / 95 * 100}%, #e5e7eb ${(maxDistance - 5) / 95 * 100}%, #e5e7eb 100%)`
+                      : '#e5e7eb'
+                  }}
+                />
+                {!selectedLocation && (
+                  <p className="text-xs text-neutral-500 mt-1.5">Selecciona ubicación primero</p>
+                )}
+              </div>
+            </div>
+
+            {/* Botón Limpiar */}
             <button
               onClick={() => {
                 setSearchTerm('')
@@ -210,9 +214,9 @@ export default function ClubesPage() {
                 setMinPrice(15)
                 setMaxPrice(35)
               }}
-              className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
             >
-              Limpiar
+              Limpiar filtros
             </button>
           </div>
         </div>
