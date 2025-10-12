@@ -33,10 +33,9 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
 
   // Inicializar Google Places cuando esté disponible
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.google?.maps?.places) {
+    if (isGoogleLoaded && typeof window !== 'undefined' && window.google?.maps?.places) {
       autocompleteServiceRef.current = new google.maps.places.AutocompleteService()
       geocoderRef.current = new google.maps.Geocoder()
-      setIsGoogleLoaded(true)
     }
   }, [isGoogleLoaded])
 
@@ -223,8 +222,11 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
       {/* Cargar Google Maps API */}
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&loading=async&language=es`}
-        onLoad={() => setIsGoogleLoaded(true)}
-        strategy="lazyOnload"
+        onLoad={() => {
+          // Esperar un momento para asegurar que todo esté cargado
+          setTimeout(() => setIsGoogleLoaded(true), 100)
+        }}
+        strategy="afterInteractive"
       />
       
       <div ref={wrapperRef} className="relative w-full">
