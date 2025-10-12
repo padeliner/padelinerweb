@@ -211,7 +211,7 @@ export function SearchSection() {
                 </div>
 
                 {/* Desplazamiento */}
-                <div className="flex items-end">
+                <div className="flex items-center h-[42px] ml-4">
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"
