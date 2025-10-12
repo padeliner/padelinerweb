@@ -97,7 +97,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                 >
                   <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700" />
                   {unreadMessagesCount > 0 && (
-                    <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute bottom-0 right-0 w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                       {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                     </span>
                   )}
