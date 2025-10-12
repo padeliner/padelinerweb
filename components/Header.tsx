@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X, User, CircleDot, ShoppingCart, MessageCircle } from 'lucide-react'
+import { User, CircleDot, ShoppingCart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -20,7 +20,6 @@ interface HeaderProps {
 }
 
 export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hideMessages = false }: HeaderProps = {}) {
-  const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -164,44 +163,9 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                   </button>
                 </Link>
               )}
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-                aria-label="Menú"
-              >
-                {isOpen ? (
-                  <X className="w-6 h-6 text-neutral-700" />
-                ) : (
-                  <Menu className="w-6 h-6 text-neutral-700" />
-                )}
-              </button>
             </div>
           </div>
         </nav>
-
-        {/* Mobile Menu */}
-        <div
-          className={`md:hidden overflow-hidden bg-white border-t border-neutral-200 transition-all duration-300 ${
-            isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="px-4 py-6 space-y-4">
-            <MobileNavLink href="/entrenadores" onClick={() => setIsOpen(false)}>
-              Entrenadores
-            </MobileNavLink>
-            <MobileNavLink href="/clubes" onClick={() => setIsOpen(false)}>
-              Clubes
-            </MobileNavLink>
-            <MobileNavLink href="/academias" onClick={() => setIsOpen(false)}>
-              Academias
-            </MobileNavLink>
-            <MobileNavLink href="/tienda" onClick={() => setIsOpen(false)}>
-              Tienda
-            </MobileNavLink>
-          </div>
-        </div>
       </header>
 
       {/* Spacer */}
@@ -217,25 +181,6 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
         {children}
         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 group-hover:w-full transition-all duration-300" />
       </span>
-    </Link>
-  )
-}
-
-function MobileNavLink({ 
-  href, 
-  children, 
-  onClick 
-}: { 
-  href: string
-  children: React.ReactNode
-  onClick: () => void 
-}) {
-  return (
-    <Link href={href} onClick={onClick}>
-      <div className="flex items-center justify-between p-4 hover:bg-neutral-50 rounded-lg transition-colors">
-        <span className="text-lg font-medium text-neutral-900">{children}</span>
-        <span className="text-neutral-400">→</span>
-      </div>
     </Link>
   )
 }
