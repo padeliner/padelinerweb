@@ -12,13 +12,23 @@ export default function AcademiasPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
+  const [selectedProgram, setSelectedProgram] = useState('all')
   const [minPrice, setMinPrice] = useState(80)
   const [maxPrice, setMaxPrice] = useState(150)
   const [showFilters, setShowFilters] = useState(false)
+  
+  // Categorías de programas por público objetivo
+  const programs = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
 
   // Filtrar y ordenar academias por distancia
   let filteredAcademies = mockAcademies.filter(academy => {
     const matchesSearch = academy.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesProgram = selectedProgram === 'all' || 
+                           academy.programs.some(program => 
+                             program.toLowerCase().includes(selectedProgram.toLowerCase())
+                           )
+    
     const matchesPrice = academy.pricePerMonth >= minPrice && academy.pricePerMonth <= maxPrice
     
     let matchesDistance = true
@@ -32,7 +42,7 @@ export default function AcademiasPage() {
       matchesDistance = distance <= maxDistance
     }
     
-    return matchesSearch && matchesPrice && matchesDistance
+    return matchesSearch && matchesProgram && matchesPrice && matchesDistance
   })
 
   // Si hay ubicación seleccionada, ordenar por distancia
@@ -126,6 +136,26 @@ export default function AcademiasPage() {
 
           {/* Filters Grid */}
           <div className={`${showFilters ? 'flex' : 'hidden md:flex'} flex-col md:flex-row gap-4 items-end`}>
+            {/* Público Objetivo */}
+            <div className="flex-1 min-w-0">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Público objetivo
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedProgram}
+                  onChange={(e) => setSelectedProgram(e.target.value)}
+                  className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-blue-500 focus:outline-none bg-white text-neutral-900 transition-colors"
+                >
+                  <option value="all">Todos los públicos</option>
+                  {programs.slice(1).map(program => (
+                    <option key={program} value={program}>{program}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+              </div>
+            </div>
+
             {/* Rango de Precio */}
             <div className="flex-1 min-w-0">
               <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -178,6 +208,7 @@ export default function AcademiasPage() {
                 setSearchTerm('')
                 setSelectedLocation(null)
                 setMaxDistance(50)
+                setSelectedProgram('all')
                 setMinPrice(80)
                 setMaxPrice(150)
               }}
@@ -199,6 +230,7 @@ export default function AcademiasPage() {
                   setSearchTerm('')
                   setSelectedLocation(null)
                   setMaxDistance(50)
+                  setSelectedProgram('all')
                   setMinPrice(80)
                   setMaxPrice(150)
                 }}
