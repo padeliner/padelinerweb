@@ -1,0 +1,241 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { Header } from '@/components/Header'
+import { Footer } from '@/components/Footer'
+import { mockClubs } from '@/lib/mock-data/clubs'
+import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, Users } from 'lucide-react'
+
+export default function ClubesPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCity, setSelectedCity] = useState('all')
+  const [minCourts, setMinCourts] = useState('all')
+  const [priceRange, setPriceRange] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Extraer ciudades únicas
+  const cities = ['all', ...Array.from(new Set(mockClubs.map(c => c.city)))]
+
+  // Filtrar clubes
+  const filteredClubs = mockClubs.filter(club => {
+    const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         club.city.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCity = selectedCity === 'all' || club.city === selectedCity
+    const matchesCourts = minCourts === 'all' ||
+                          (minCourts === '4' && club.courtsCount >= 4) ||
+                          (minCourts === '8' && club.courtsCount >= 8) ||
+                          (minCourts === '10' && club.courtsCount >= 10)
+    const matchesPrice = priceRange === 'all' ||
+                        (priceRange === 'low' && club.pricePerHour < 23) ||
+                        (priceRange === 'medium' && club.pricePerHour >= 23 && club.pricePerHour < 27) ||
+                        (priceRange === 'high' && club.pricePerHour >= 27)
+    
+    return matchesSearch && matchesCity && matchesCourts && matchesPrice
+  })
+
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      <Header />
+      
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-green-600 to-green-800 text-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Encuentra tu Club de Pádel
+            </h1>
+            <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-3xl mx-auto">
+              {mockClubs.length} clubes con las mejores instalaciones de España
+            </p>
+            
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre o ciudad..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 rounded-xl text-neutral-900 focus:outline-none focus:ring-2 focus:ring-green-300 text-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Filters Section */}
+      <section className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between mb-4 md:mb-0">
+            <p className="text-sm text-neutral-600">
+              <span className="font-semibold text-neutral-900">{filteredClubs.length}</span> clubes encontrados
+            </p>
+            
+            {/* Mobile Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="md:hidden flex items-center space-x-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg font-semibold"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span>Filtros</span>
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
+            {/* Ciudad */}
+            <div className="relative">
+              <select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
+              >
+                <option value="all">Todas las ciudades</option>
+                {cities.slice(1).map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            </div>
+
+            {/* Número de pistas */}
+            <div className="relative">
+              <select
+                value={minCourts}
+                onChange={(e) => setMinCourts(e.target.value)}
+                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
+              >
+                <option value="all">Cualquier tamaño</option>
+                <option value="4">Mínimo 4 pistas</option>
+                <option value="8">Mínimo 8 pistas</option>
+                <option value="10">Mínimo 10 pistas</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            </div>
+
+            {/* Precio */}
+            <div className="relative">
+              <select
+                value={priceRange}
+                onChange={(e) => setPriceRange(e.target.value)}
+                className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-green-500 focus:outline-none bg-white text-neutral-900"
+              >
+                <option value="all">Todos los precios</option>
+                <option value="low">Menos de 23€/h</option>
+                <option value="medium">23€ - 27€/h</option>
+                <option value="high">Más de 27€/h</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+            </div>
+
+            {/* Reset Filters */}
+            <button
+              onClick={() => {
+                setSearchTerm('')
+                setSelectedCity('all')
+                setMinCourts('all')
+                setPriceRange('all')
+              }}
+              className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-lg transition-colors"
+            >
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Clubs Grid */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {filteredClubs.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-xl text-neutral-600">No se encontraron clubes con esos criterios</p>
+              <button
+                onClick={() => {
+                  setSearchTerm('')
+                  setSelectedCity('all')
+                  setMinCourts('all')
+                  setPriceRange('all')
+                }}
+                className="mt-4 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                Ver todos los clubes
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredClubs.map((club) => (
+                <Link
+                  key={club.id}
+                  href={`/club/${club.id}`}
+                  className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                >
+                  {/* Image */}
+                  <div className="relative h-56 overflow-hidden">
+                    <img
+                      src={club.imageUrl}
+                      alt={club.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    {club.isFeatured && (
+                      <div className="absolute top-3 left-3 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                        ⭐ DESTACADO
+                      </div>
+                    )}
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-white rounded-lg shadow-lg">
+                      <p className="text-sm font-bold text-green-600">{club.pricePerHour}€/h</p>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-green-600 transition-colors">
+                      {club.name}
+                    </h3>
+                    
+                    <div className="flex items-center space-x-1 mb-3">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-semibold text-neutral-900">{club.rating}</span>
+                      <span className="text-sm text-neutral-500">({club.reviewsCount})</span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-neutral-600 mb-3">
+                      <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                      <span className="truncate">{club.location}, {club.city}</span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-neutral-600 mb-3">
+                      <Users className="w-4 h-4 mr-1 flex-shrink-0" />
+                      <span>{club.courtsCount} pistas disponibles</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {club.amenities.slice(0, 3).map((amenity, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                      {club.amenities.length > 3 && (
+                        <span className="px-2.5 py-1 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-full">
+                          +{club.amenities.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  )
+}
