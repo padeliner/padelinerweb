@@ -120,10 +120,10 @@ export default function MensajesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="bg-white flex flex-col" style={{ height: '100dvh' }}>
       <Header />
       
-      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full">
+      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full min-h-0">
         {/* Conversations List */}
         <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
@@ -141,7 +141,7 @@ export default function MensajesPage() {
           </div>
 
           {/* Conversations */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
             {filteredConversations.map((conversation) => (
               <button
                 key={conversation.id}
@@ -205,27 +205,27 @@ export default function MensajesPage() {
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
               </div>
-              <div>
-                <h3 className="font-semibold text-neutral-900">{selectedConversation.name}</h3>
-                <p className="text-sm text-neutral-500">{selectedConversation.role}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-neutral-900 truncate">{selectedConversation.name}</h3>
+                <p className="text-sm text-neutral-500 truncate">{selectedConversation.role}</p>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
               {selectedConversation.messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.senderId === 1 ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                    className={`max-w-[75%] md:max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
                       message.senderId === 1
                         ? 'bg-primary-500 text-white'
                         : 'bg-neutral-100 text-neutral-900'
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm break-words">{message.text}</p>
                     <div className="flex items-center justify-end space-x-1 mt-1">
                       <span className={`text-xs ${message.senderId === 1 ? 'text-primary-100' : 'text-neutral-500'}`}>
                         {message.timestamp}
@@ -244,7 +244,7 @@ export default function MensajesPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-neutral-200">
+            <div className="p-3 md:p-4 border-t border-neutral-200 bg-white safe-area-bottom">
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -252,11 +252,12 @@ export default function MensajesPage() {
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-3 md:px-4 py-2.5 md:py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
+                  style={{ fontSize: '16px' }}
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors"
+                  className="px-4 md:px-6 py-2.5 md:py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors flex-shrink-0"
                 >
                   Enviar
                 </button>
@@ -273,7 +274,10 @@ export default function MensajesPage() {
         )}
       </div>
 
-      <Footer />
+      {/* Footer - Oculto en móvil cuando hay chat abierto */}
+      <div className={`${showChatOnMobile ? 'hidden' : 'block md:block'}`}>
+        <Footer />
+      </div>
     </div>
   )
 }
