@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/contexts/CartContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieBanner } from '@/components/CookieBanner'
 import { ChatBot } from '@/components/ChatBot'
@@ -79,13 +80,15 @@ export default function RootLayout({
   return (
     <html lang="es" className={inter.variable}>
       <body className="antialiased pb-16 md:pb-0">
-        <CartProvider>
-          {children}
-          <BottomNav />
-          <CookieBanner />
-          <ChatBot />
-          <AppDownloadPopup />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <BottomNav />
+            <CookieBanner />
+            <ChatBot />
+            <AppDownloadPopup />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )
