@@ -23,8 +23,13 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-50 safe-area-bottom">
-      <div className="grid grid-cols-5 h-16">
+    <nav 
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-50"
+      style={{
+        paddingBottom: 'max(8px, env(safe-area-inset-bottom))'
+      }}
+    >
+      <div className="grid grid-cols-5 h-14">
         {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
@@ -33,14 +38,14 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${
                 active
                   ? 'text-primary-600'
                   : 'text-neutral-500 hover:text-neutral-700'
               }`}
             >
-              <Icon className={`w-6 h-6 ${active ? 'stroke-[2.5]' : 'stroke-2'}`} />
-              <span className={`text-xs font-medium ${active ? 'font-semibold' : ''}`}>
+              <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              <span className={`text-[10px] leading-tight font-medium ${active ? 'font-semibold' : ''}`}>
                 {item.label}
               </span>
             </Link>
