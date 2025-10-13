@@ -58,9 +58,9 @@ export function AppDownloadPopup() {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10001] w-[90%] max-w-md"
+            className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
           >
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-md relative">
               {/* Close Button */}
               <button
                 onClick={handleClose}
