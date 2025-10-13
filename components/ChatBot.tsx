@@ -159,7 +159,7 @@ export function ChatBot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 md:bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+          className="fixed bottom-20 md:bottom-6 right-6 z-[50] w-14 h-14 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
           aria-label="Abrir chat"
         >
           <MessageCircle className="w-6 h-6" />
@@ -170,7 +170,7 @@ export function ChatBot() {
       {/* Chat Window */}
       {isOpen && (
         <div 
-          className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-[9999] w-full md:w-96 md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200"
+          className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-[9998] w-full md:w-96 md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200"
           style={ isMobile ? { 
             height: '100dvh',
             maxHeight: '100dvh'

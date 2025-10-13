@@ -1,10 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Search, ChevronDown, Dumbbell, Building2, GraduationCap } from 'lucide-react'
+import { Search, ChevronDown, Dumbbell, Building2, GraduationCap, Calendar } from 'lucide-react'
 import { LocationSearch, LocationData } from '@/components/LocationSearch'
+import { TimeSelector } from '@/components/TimeSelector'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { es } from 'date-fns/locale'
+import 'react-datepicker/dist/react-datepicker.css'
+import '../app/datepicker-custom.css'
+
+// Registrar locale español con lunes como primer día
+registerLocale('es', es)
 
 type ServiceType = 'entrenadores' | 'clubes' | 'academias'
 
@@ -13,6 +21,28 @@ export function SearchSection() {
   const [serviceType, setServiceType] = useState<ServiceType>('entrenadores')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [maxDistance, setMaxDistance] = useState(50)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Configurar colores del calendario según el tipo de servicio
+  useEffect(() => {
+    const colors = {
+      entrenadores: { primary: '#16a34a', dark: '#15803d' },
+      academias: { primary: '#2563eb', dark: '#1d4ed8' },
+      clubes: { primary: '#16a34a', dark: '#15803d' }
+    }
+    
+    const color = colors[serviceType]
+    document.documentElement.style.setProperty('--datepicker-primary', color.primary)
+    document.documentElement.style.setProperty('--datepicker-primary-dark', color.dark)
+  }, [serviceType])
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   
   // Campo de búsqueda por nombre
   const [searchTerm, setSearchTerm] = useState('')
@@ -32,6 +62,10 @@ export function SearchSection() {
   const [selectedProgram, setSelectedProgram] = useState('all')
   const [academyMinPrice, setAcademyMinPrice] = useState(80)
   const [academyMaxPrice, setAcademyMaxPrice] = useState(150)
+
+  // Filtros de día y hora (comunes para todos)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedHour, setSelectedHour] = useState('all')
 
   // Datos de filtros
   const specialties = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
@@ -70,6 +104,14 @@ export function SearchSection() {
       params.append('lng', selectedLocation.lng.toString())
       params.append('location', selectedLocation.formatted)
       params.append('distance', maxDistance.toString())
+    }
+
+    // Filtros de día y hora
+    if (selectedDate) {
+      params.append('date', selectedDate.toISOString())
+    }
+    if (selectedHour !== 'all') {
+      params.append('hour', selectedHour)
     }
     
     // Parámetros específicos por servicio
@@ -401,6 +443,44 @@ export function SearchSection() {
                 </div>
               </>
             )}
+          </div>
+
+          {/* Filtros de Día y Hora (comunes para todos) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Fecha (Calendario) */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Fecha
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 z-10 pointer-events-none" />
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Selecciona una fecha"
+                  minDate={new Date()}
+                  locale="es"
+                  calendarStartDay={1}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none bg-white cursor-pointer"
+                  calendarClassName="shadow-xl"
+                  isClearable
+                  withPortal={isMobile}
+                  portalId="date-picker-portal"
+                />
+              </div>
+            </div>
+
+            {/* Hora */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Hora
+              </label>
+              <TimeSelector
+                value={selectedHour}
+                onChange={setSelectedHour}
+              />
+            </div>
           </div>
 
           {/* Search Button */}

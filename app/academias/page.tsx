@@ -7,7 +7,15 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { LocationSearch, LocationData, calculateDistance } from '@/components/LocationSearch'
 import { mockAcademies } from '@/lib/mock-data/academies'
-import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, GraduationCap, Users } from 'lucide-react'
+import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, GraduationCap, Users, Calendar } from 'lucide-react'
+import { TimeSelector } from '@/components/TimeSelector'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { es } from 'date-fns/locale'
+import 'react-datepicker/dist/react-datepicker.css'
+import '../datepicker-custom.css'
+
+// Registrar locale español con lunes como primer día
+registerLocale('es', es)
 
 function AcademiasContent() {
   const searchParams = useSearchParams()
@@ -19,6 +27,23 @@ function AcademiasContent() {
   const [minPrice, setMinPrice] = useState(80)
   const [maxPrice, setMaxPrice] = useState(150)
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedHour, setSelectedHour] = useState('all')
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Configurar colores del calendario (azul)
+  useEffect(() => {
+    document.documentElement.style.setProperty('--datepicker-primary', '#2563eb')
+    document.documentElement.style.setProperty('--datepicker-primary-dark', '#1d4ed8')
+  }, [])
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Leer parámetros de la URL al cargar
   useEffect(() => {
@@ -235,6 +260,41 @@ function AcademiasContent() {
               </div>
             </div>
 
+            {/* Fecha (Calendario) */}
+            <div className="w-full md:flex-1 md:min-w-0">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Fecha
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400 z-10 pointer-events-none" />
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Selecciona una fecha"
+                  minDate={new Date()}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none bg-white cursor-pointer"
+                  calendarClassName="shadow-xl"
+                  locale="es"
+                  calendarStartDay={1}
+                  isClearable
+                  withPortal={isMobile}
+                  portalId="date-picker-portal"
+                />
+              </div>
+            </div>
+
+            {/* Hora */}
+            <div className="w-full md:flex-1 md:min-w-0">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Hora
+              </label>
+              <TimeSelector
+                value={selectedHour}
+                onChange={setSelectedHour}
+              />
+            </div>
+
             {/* Botón Limpiar */}
             <button
               onClick={() => {
@@ -244,6 +304,8 @@ function AcademiasContent() {
                 setSelectedProgram('all')
                 setMinPrice(80)
                 setMaxPrice(150)
+                setSelectedDate(null)
+                setSelectedHour('all')
               }}
               className="w-full md:w-auto px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium rounded-lg transition-colors"
             >

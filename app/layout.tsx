@@ -89,6 +89,8 @@ export default function RootLayout({
             <AppDownloadPopup />
           </CartProvider>
         </AuthProvider>
+        {/* Portal para DatePicker en móvil */}
+        <div id="date-picker-portal"></div>
       </body>
     </html>
   )
