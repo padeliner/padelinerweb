@@ -77,6 +77,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
+            className="mb-24 sm:mb-28 md:mb-32"
           >
             <Link href="/entrenadores">
               <motion.button
