@@ -48,7 +48,11 @@ TU COMPORTAMIENTO:
 1. Sé amable, profesional y cercano
 2. Responde en español de forma clara y concisa
 3. Si te preguntan por entrenadores en una ubicación, responde que has encontrado entrenadores y usa el código especial: [SEARCH_COACHES:ubicación]
-4. Si detectas que el usuario quiere hablar con una persona real, soporte humano, o tiene un problema que no puedes resolver, usa el código: [HUMAN_SUPPORT_NEEDED]
+4. Si detectas que el usuario quiere hablar con una persona real, soporte humano, o tiene un problema que no puedes resolver:
+   - PRIMERO pregunta: "Para que nuestro equipo pueda contactarte, ¿podrías proporcionarme tu email o número de WhatsApp?"
+   - ESPERA su respuesta con los datos de contacto
+   - DESPUÉS usa el código: [HUMAN_SUPPORT_NEEDED:datos_de_contacto]
+   Ejemplo: Si el usuario dice "mi email es juan@example.com", responde: "Perfecto, nuestro equipo se pondrá en contacto contigo pronto. [HUMAN_SUPPORT_NEEDED:juan@example.com]"
 5. Responde preguntas sobre precios, comisiones, pagos, registro
 6. NO inventes información que no esté aquí
 
@@ -131,17 +135,20 @@ export async function POST(request: NextRequest) {
       responseText = responseText.replace(/\[SEARCH_COACHES:.+?\]/g, '').trim()
     }
 
-    // Detectar necesidad de soporte humano
-    if (responseText.includes('[HUMAN_SUPPORT_NEEDED]')) {
+    // Detectar necesidad de soporte humano con datos de contacto
+    const supportMatch = responseText.match(/\[HUMAN_SUPPORT_NEEDED:(.+?)\]/)
+    if (supportMatch) {
       needsHumanSupport = true
-      responseText = responseText.replace('[HUMAN_SUPPORT_NEEDED]', '').trim()
+      const contactInfo = supportMatch[1]
+      responseText = responseText.replace(/\[HUMAN_SUPPORT_NEEDED:.+?\]/, '').trim()
 
-      // Enviar email al equipo de soporte
+      // Enviar email al equipo de soporte con la info de contacto
       await sendSupportEmail({
         conversationId,
         userId,
-        userEmail,
+        userEmail: userEmail || contactInfo, // Usa el contactInfo si no hay userEmail
         userName,
+        contactInfo, // Info adicional que proporcionó el usuario
         conversationHistory: [...conversationHistory, { role: 'user', content: message }],
         lastMessage: message
       })
@@ -187,18 +194,23 @@ async function sendSupportEmail(data: {
   userId?: string
   userEmail?: string
   userName: string
+  contactInfo?: string
   conversationHistory: any[]
   lastMessage: string
 }) {
   try {
+    const { Resend } = await import('resend')
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
     // Formatear la conversación
     const conversationText = data.conversationHistory
       .map(msg => `${msg.role === 'user' ? '👤 Usuario' : '🤖 Asistente'}: ${msg.content}`)
       .join('\n\n')
 
-    const emailBody = {
-      to: 'soporte@padeliner.com', // Cambia esto a tu email real
-      subject: `🚨 Solicitud de Soporte - Conversación ${data.conversationId}`,
+    const emailData = await resend.emails.send({
+      from: 'Chatbot Padeliner <chatbot@padeliner.com>',
+      to: 'padeliner@gmail.com',
+      subject: `🚨 Solicitud de Soporte - ${data.conversationId}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #00C853 0%, #00A843 100%); padding: 20px; border-radius: 10px 10px 0 0;">
@@ -220,6 +232,12 @@ async function sendSupportEmail(data: {
               <tr>
                 <td style="padding: 8px; background: white; border: 1px solid #e0e0e0;"><strong>Email:</strong></td>
                 <td style="padding: 8px; background: white; border: 1px solid #e0e0e0;">${data.userEmail}</td>
+              </tr>
+              ` : ''}
+              ${data.contactInfo ? `
+              <tr>
+                <td style="padding: 8px; background: white; border: 1px solid #e0e0e0;"><strong>Contacto proporcionado:</strong></td>
+                <td style="padding: 8px; background: white; border: 1px solid #e0e0e0;"><strong>${data.contactInfo}</strong></td>
               </tr>
               ` : ''}
               ${data.userId ? `
@@ -250,18 +268,9 @@ ${conversationText}
           </div>
         </div>
       `
-    }
+    })
 
-    // Aquí deberías integrar tu servicio de email (Resend, SendGrid, etc.)
-    // Por ahora, lo logueamos en consola
-    console.log('📧 Email de soporte generado:', emailBody)
-    
-    // Ejemplo con Resend (descomenta y configura cuando tengas la API key):
-    /*
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send(emailBody)
-    */
-
+    console.log('✅ Email de soporte enviado:', emailData)
     return true
   } catch (error) {
     console.error('Error sending support email:', error)
