@@ -5,6 +5,7 @@ import { CartProvider } from '@/contexts/CartContext'
 import { BottomNav } from '@/components/BottomNav'
 import { CookieBanner } from '@/components/CookieBanner'
 import { ChatBot } from '@/components/ChatBot'
+import { AppDownloadPopup } from '@/components/AppDownloadPopup'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -83,6 +84,7 @@ export default function RootLayout({
           <BottomNav />
           <CookieBanner />
           <ChatBot />
+          <AppDownloadPopup />
         </CartProvider>
       </body>
     </html>
