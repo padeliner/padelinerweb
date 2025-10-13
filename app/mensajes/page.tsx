@@ -120,10 +120,10 @@ export default function MensajesPage() {
   }
 
   return (
-    <div className="bg-white flex flex-col" style={{ height: '100dvh' }}>
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
       
-      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full min-h-0">
+      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full">
         {/* Conversations List */}
         <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
@@ -141,7 +141,7 @@ export default function MensajesPage() {
           </div>
 
           {/* Conversations */}
-          <div className="flex-1 overflow-y-auto min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex-1 overflow-y-auto">
             {filteredConversations.map((conversation) => (
               <button
                 key={conversation.id}
@@ -184,9 +184,9 @@ export default function MensajesPage() {
 
         {/* Chat Area */}
         {selectedConversation ? (
-          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 z-50 bg-white' : 'hidden md:flex'}`}>
             {/* Chat Header */}
-            <div className="p-4 border-b border-neutral-200 flex items-center space-x-3">
+            <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0">
               {/* Back Button - Solo móvil */}
               <button
                 onClick={handleBackToList}
@@ -195,7 +195,7 @@ export default function MensajesPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-neutral-700" />
               </button>
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <img
                   src={selectedConversation.avatar}
                   alt={selectedConversation.name}
@@ -212,7 +212,7 @@ export default function MensajesPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {selectedConversation.messages.map((message) => (
                 <div
                   key={message.id}
@@ -244,7 +244,7 @@ export default function MensajesPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-3 md:p-4 border-t border-neutral-200 bg-white safe-area-bottom">
+            <div className="p-4 border-t border-neutral-200 bg-white flex-shrink-0">
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -252,12 +252,11 @@ export default function MensajesPage() {
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 px-3 md:px-4 py-2.5 md:py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
-                  style={{ fontSize: '16px' }}
+                  className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="px-4 md:px-6 py-2.5 md:py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors flex-shrink-0"
+                  className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors"
                 >
                   Enviar
                 </button>
@@ -274,10 +273,7 @@ export default function MensajesPage() {
         )}
       </div>
 
-      {/* Footer - Oculto en móvil cuando hay chat abierto */}
-      <div className={`${showChatOnMobile ? 'hidden' : 'block md:block'}`}>
-        <Footer />
-      </div>
+      <Footer />
     </div>
   )
 }
