@@ -184,7 +184,7 @@ export default function MensajesPage() {
 
         {/* Chat Area */}
         {selectedConversation ? (
-          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 z-50 bg-white' : 'hidden md:flex'}`}>
+          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 z-[9999] bg-white' : 'hidden md:flex'}`}>
             {/* Chat Header */}
             <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0">
               {/* Back Button - Solo móvil */}
