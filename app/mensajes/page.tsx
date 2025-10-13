@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { Search, MessageCircle, Clock, CheckCheck, Circle } from 'lucide-react'
+import { Search, MessageCircle, Clock, CheckCheck, Circle, ArrowLeft } from 'lucide-react'
 
 interface Message {
   id: number
@@ -96,10 +96,20 @@ export default function MensajesPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(mockConversations[0])
   const [searchTerm, setSearchTerm] = useState('')
   const [messageText, setMessageText] = useState('')
+  const [showChatOnMobile, setShowChatOnMobile] = useState(false)
 
   const filteredConversations = mockConversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleSelectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation)
+    setShowChatOnMobile(true)
+  }
+
+  const handleBackToList = () => {
+    setShowChatOnMobile(false)
+  }
 
   const handleSendMessage = () => {
     if (messageText.trim() && selectedConversation) {
@@ -115,7 +125,7 @@ export default function MensajesPage() {
       
       <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full">
         {/* Conversations List */}
-        <div className="w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white">
+        <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
           <div className="p-4 border-b border-neutral-200">
             <div className="relative">
@@ -135,7 +145,7 @@ export default function MensajesPage() {
             {filteredConversations.map((conversation) => (
               <button
                 key={conversation.id}
-                onClick={() => setSelectedConversation(conversation)}
+                onClick={() => handleSelectConversation(conversation)}
                 className={`w-full p-4 flex items-start space-x-3 hover:bg-neutral-50 transition-colors border-b border-neutral-100 ${
                   selectedConversation?.id === conversation.id ? 'bg-primary-50' : ''
                 }`}
@@ -174,9 +184,17 @@ export default function MensajesPage() {
 
         {/* Chat Area */}
         {selectedConversation ? (
-          <div className="flex-1 flex flex-col hidden md:flex">
+          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex' : 'hidden md:flex'}`}>
             {/* Chat Header */}
             <div className="p-4 border-b border-neutral-200 flex items-center space-x-3">
+              {/* Back Button - Solo móvil */}
+              <button
+                onClick={handleBackToList}
+                className="md:hidden p-2 hover:bg-neutral-100 rounded-full transition-colors -ml-2"
+                aria-label="Volver"
+              >
+                <ArrowLeft className="w-5 h-5 text-neutral-700" />
+              </button>
               <div className="relative">
                 <img
                   src={selectedConversation.avatar}
