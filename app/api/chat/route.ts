@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { mockCoaches } from '@/lib/mock-data/coaches'
 
+// Verificar que existe la API key
+if (!process.env.GEMINI_API_KEY) {
+  console.error('❌ GEMINI_API_KEY no está configurada')
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 // System prompt para el chatbot
@@ -58,8 +63,29 @@ export async function POST(request: NextRequest) {
   try {
     const { message, conversationId, userId, userEmail, userName, conversationHistory } = await request.json()
 
-    // Inicializar Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    // Verificar API key
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'tu_gemini_api_key_aqui') {
+      console.error('❌ API key no configurada correctamente')
+      return NextResponse.json(
+        { 
+          message: 'Lo siento, el chatbot no está configurado correctamente. Por favor, contacta con soporte@padeliner.com',
+          coaches: null,
+          needsHumanSupport: false
+        },
+        { status: 500 }
+      )
+    }
+
+    // Usar gemini-1.5-flash (modelo más rápido y económico del tier gratuito)
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048,
+      },
+    })
 
     // Construir historial de conversación para contexto
     const chatHistory = conversationHistory.map((msg: any) => ({
@@ -133,11 +159,26 @@ export async function POST(request: NextRequest) {
       needsHumanSupport
     })
 
-  } catch (error) {
-    console.error('Error in chat API:', error)
+  } catch (error: any) {
+    console.error('❌ Error in chat API:', error)
+    
+    // Manejar diferentes tipos de errores
+    let errorMessage = 'Lo siento, ha ocurrido un error. Por favor, intenta de nuevo.'
+    
+    if (error?.message?.includes('API key')) {
+      errorMessage = 'Error de configuración. Por favor, contacta con soporte@padeliner.com'
+      console.error('❌ Error de API key:', error.message)
+    } else if (error?.message?.includes('quota')) {
+      errorMessage = 'El servicio está temporalmente ocupado. Por favor, intenta en unos minutos.'
+      console.error('❌ Error de cuota excedida')
+    } else if (error?.message?.includes('SAFETY')) {
+      errorMessage = 'No puedo responder a eso. ¿Puedo ayudarte con algo más sobre Padeliner?'
+      console.error('❌ Contenido bloqueado por filtros de seguridad')
+    }
+    
     return NextResponse.json(
       { 
-        message: 'Lo siento, ha ocurrido un error. Por favor, intenta de nuevo o contacta con soporte@padeliner.com',
+        message: errorMessage,
         coaches: null,
         needsHumanSupport: false
       },

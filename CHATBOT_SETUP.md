@@ -2,28 +2,44 @@
 
 ## 📦 Instalación de dependencias
 
-Ejecuta este comando para instalar el SDK de Google Generative AI:
+✅ **YA INSTALADO** - El paquete ya está en el proyecto:
 
 ```bash
-npm install @google/generative-ai
+@google/generative-ai@0.21.0
 ```
 
-## 🔑 Configuración de API Keys
+## 🔑 Configuración de API Keys (IMPORTANTE)
 
-### 1. Obtener API Key de Gemini
+### 1. Obtener API Key de Gemini (100% GRATIS)
 
-1. Ve a [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Inicia sesión con tu cuenta de Google
-3. Clic en "Get API Key" o "Create API Key"
-4. Copia tu API key
+3. Clic en **"Get API key"** → **"Create API key in new project"**
+4. Copia tu API key (empieza con `AIza...`)
 
 ### 2. Configurar Variables de Entorno
 
-Crea o actualiza tu archivo `.env.local` con:
+Edita tu archivo `.env.local` y reemplaza la key:
 
 ```env
-GEMINI_API_KEY=tu_api_key_aqui
+GEMINI_API_KEY=AIzaSy...tu_key_real_aqui
 ```
+
+### 3. Reiniciar el servidor
+
+```bash
+npm run dev
+```
+
+## 🚀 Modelo Usado
+
+**gemini-1.5-flash** (Recomendado)
+- ⚡ Más rápido y económico
+- 💰 Tier gratuito: 15 req/min, 1500 req/día
+- 🎯 Ideal para chatbots
+- 📝 Soporte para 1M tokens de contexto
+
+Ver detalles en: [GEMINI_SETUP.md](./GEMINI_SETUP.md)
 
 ## ✨ Características del ChatBot
 
