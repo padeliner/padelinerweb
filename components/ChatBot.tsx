@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Loader2, User, Bot, Star, MapPin, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type Message = {
   id: string
@@ -215,7 +217,93 @@ export function ChatBot() {
                         ? 'bg-primary-500 text-white'
                         : 'bg-white text-neutral-900 border border-neutral-200'
                     }`}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <div className={`text-sm prose prose-sm max-w-none ${
+                        message.role === 'user' 
+                          ? 'prose-invert' 
+                          : 'prose-neutral'
+                      }`}>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                          // Párrafos
+                          p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                          // Negritas
+                          strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+                          // Cursivas
+                          em: ({ node, ...props }) => <em className="italic" {...props} />,
+                          // Enlaces
+                          a: ({ node, ...props }) => (
+                            <a 
+                              className={`underline hover:no-underline ${
+                                message.role === 'user' ? 'text-white' : 'text-primary-600'
+                              }`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              {...props}
+                            />
+                          ),
+                          // Listas desordenadas
+                          ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
+                          // Listas ordenadas
+                          ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
+                          // Items de lista
+                          li: ({ node, ...props }) => <li className="ml-2" {...props} />,
+                          // Código inline
+                          code: ({ node, inline, ...props }: any) => 
+                            inline ? (
+                              <code 
+                                className={`px-1.5 py-0.5 rounded text-xs font-mono ${
+                                  message.role === 'user' 
+                                    ? 'bg-white/20' 
+                                    : 'bg-neutral-100 text-primary-600'
+                                }`}
+                                {...props}
+                              />
+                            ) : (
+                              <code 
+                                className={`block px-3 py-2 rounded-lg text-xs font-mono overflow-x-auto ${
+                                  message.role === 'user' 
+                                    ? 'bg-white/20' 
+                                    : 'bg-neutral-100'
+                                }`}
+                                {...props}
+                              />
+                            ),
+                          // Bloques de código
+                          pre: ({ node, ...props }) => (
+                            <pre className="mb-2 overflow-x-auto" {...props} />
+                          ),
+                          // Encabezados
+                          h1: ({ node, ...props }) => <h1 className="text-lg font-bold mb-2 mt-2" {...props} />,
+                          h2: ({ node, ...props }) => <h2 className="text-base font-bold mb-2 mt-2" {...props} />,
+                          h3: ({ node, ...props }) => <h3 className="text-sm font-bold mb-1 mt-1" {...props} />,
+                          // Citas
+                          blockquote: ({ node, ...props }) => (
+                            <blockquote 
+                              className={`border-l-4 pl-3 py-1 my-2 italic ${
+                                message.role === 'user' 
+                                  ? 'border-white/40' 
+                                  : 'border-primary-300'
+                              }`}
+                              {...props}
+                            />
+                          ),
+                          // Separadores
+                          hr: ({ node, ...props }) => (
+                            <hr 
+                              className={`my-3 border-t ${
+                                message.role === 'user' 
+                                  ? 'border-white/20' 
+                                  : 'border-neutral-200'
+                              }`}
+                              {...props}
+                            />
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                      </div>
                     </div>
 
                     {/* Coach Cards */}
