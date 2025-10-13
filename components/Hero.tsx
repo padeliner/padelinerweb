@@ -9,7 +9,7 @@ export function Hero() {
     <section className="relative min-h-[600px] sm:min-h-[700px] lg:min-h-[800px] flex items-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/30 via-primary-500/20 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/30 to-transparent z-10" />
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
