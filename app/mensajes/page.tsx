@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { Search, MessageCircle, Clock, CheckCheck, Circle, ArrowLeft, Send } from 'lucide-react'
@@ -97,10 +97,24 @@ export default function MensajesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [messageText, setMessageText] = useState('')
   const [showChatOnMobile, setShowChatOnMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const filteredConversations = mockConversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation)
@@ -120,6 +134,15 @@ export default function MensajesPage() {
       }
     }
   }, [showChatOnMobile])
+
+  // Manejar el enfoque del input para scroll automático en móvil
+  const handleInputFocus = () => {
+    if (isMobile) {
+      setTimeout(() => {
+        scrollToBottom()
+      }, 300) // Espera a que el teclado aparezca
+    }
+  }
 
   const handleSendMessage = () => {
     if (messageText.trim() && selectedConversation) {
@@ -257,6 +280,8 @@ export default function MensajesPage() {
                   </div>
                 </div>
               ))}
+
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Message Input */}
@@ -269,6 +294,7 @@ export default function MensajesPage() {
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onFocus={handleInputFocus}
                     className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none"
                     style={{ fontSize: '16px' }}
                     autoComplete="off"
