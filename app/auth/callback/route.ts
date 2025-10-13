@@ -103,8 +103,9 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redirigir al home
-  console.log('➡️  Redirigiendo a: /')
+  // Leer redirect URL de query params
+  const redirectUrl = requestUrl.searchParams.get('redirect') || '/'
+  console.log('➡️  Redirigiendo a:', redirectUrl)
   console.log('========================================')
-  return NextResponse.redirect(new URL('/', requestUrl.origin))
+  return NextResponse.redirect(new URL(redirectUrl, requestUrl.origin))
 }

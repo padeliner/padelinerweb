@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, LogIn, ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -9,6 +9,9 @@ import { USER_ROLES } from '@/lib/constants'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect') || '/'
+  
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -39,7 +42,7 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        router.push('/dashboard')
+        router.push(redirectUrl)
       }
     } catch (err) {
       setError('Hubo un problema al iniciar sesión')
@@ -50,10 +53,15 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
+      // Pasar redirect URL en el callback
+      const callbackUrl = redirectUrl !== '/' 
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`
+        : `${window.location.origin}/auth/callback`
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         },
       })
 
@@ -178,7 +186,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <span className="text-neutral-600">¿No tienes cuenta? </span>
             <Link
-              href="/register"
+              href={redirectUrl !== '/' ? `/register?redirect=${encodeURIComponent(redirectUrl)}` : '/register'}
               className="text-primary-600 hover:text-primary-700 font-semibold transition-colors"
             >
               Crear cuenta

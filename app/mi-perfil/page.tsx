@@ -29,7 +29,7 @@ export default function MiPerfilPage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/welcome')
+      router.push('/login')
     }
     
     if (profile) {

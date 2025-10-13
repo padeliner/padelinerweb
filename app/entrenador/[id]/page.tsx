@@ -65,7 +65,8 @@ export default function EntrenadorPage() {
 
   const handleReservar = () => {
     if (!isAuthenticated) {
-      router.push('/login')
+      // Guardar la URL de destino para redirigir después del login
+      router.push(`/login?redirect=/reservar/${coachId}`)
     } else {
       router.push(`/reservar/${coachId}`)
     }
