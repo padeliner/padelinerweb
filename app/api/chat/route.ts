@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    let responseText = response.text
+    let responseText = response.text || ''
 
     // Detectar intenciones
     let coaches = null
