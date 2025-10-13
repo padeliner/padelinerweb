@@ -9,11 +9,11 @@ export function Hero() {
     <section className="relative min-h-[600px] sm:min-h-[700px] lg:min-h-[800px] flex items-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 via-primary-500/10 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/30 via-primary-500/20 to-transparent z-10" />
         <div 
-          className="w-full h-full bg-cover bg-center"
+          className="w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url("https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070")',
+            backgroundImage: 'url("/hero-padel.jpg")',
           }}
         />
       </div>
