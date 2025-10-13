@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { Search, MessageCircle, Clock, CheckCheck, Circle, ArrowLeft } from 'lucide-react'
+import { Search, MessageCircle, Clock, CheckCheck, Circle, ArrowLeft, Send } from 'lucide-react'
 
 interface Message {
   id: number
@@ -111,6 +111,16 @@ export default function MensajesPage() {
     setShowChatOnMobile(false)
   }
 
+  // Prevenir scroll del body cuando el chat está abierto en móvil
+  useEffect(() => {
+    if (showChatOnMobile && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = 'unset'
+      }
+    }
+  }, [showChatOnMobile])
+
   const handleSendMessage = () => {
     if (messageText.trim() && selectedConversation) {
       // Aquí se enviaría el mensaje en la implementación real
@@ -184,9 +194,15 @@ export default function MensajesPage() {
 
         {/* Chat Area */}
         {selectedConversation ? (
-          <div className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 z-[9999] bg-white' : 'hidden md:flex'}`}>
+          <div 
+            className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 md:relative z-[9999] md:z-auto bg-white' : 'hidden md:flex'}`}
+            style={showChatOnMobile ? { 
+              height: '100dvh',
+              maxHeight: '100dvh'
+            } : undefined}
+          >
             {/* Chat Header */}
-            <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0">
+            <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0 bg-white">
               {/* Back Button - Solo móvil */}
               <button
                 onClick={handleBackToList}
@@ -212,7 +228,7 @@ export default function MensajesPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
               {selectedConversation.messages.map((message) => (
                 <div
                   key={message.id}
@@ -244,22 +260,31 @@ export default function MensajesPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-neutral-200 bg-white flex-shrink-0">
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Escribe un mensaje..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors"
-                >
-                  Enviar
-                </button>
+            <div className="border-t border-neutral-200 bg-white safe-area-bottom flex-shrink-0">
+              <div className="p-3 md:p-4 max-w-full">
+                <div className="flex items-end gap-2 w-full">
+                  <input
+                    type="text"
+                    placeholder="Escribe un mensaje..."
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none"
+                    style={{ fontSize: '16px' }}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!messageText.trim()}
+                    className="flex-shrink-0 w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 bg-primary-500 hover:bg-primary-600 active:scale-95 disabled:bg-neutral-300 text-white font-semibold rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed touch-manipulation"
+                  >
+                    <span className="hidden md:inline">Enviar</span>
+                    <Send className="w-5 h-5 md:hidden" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
