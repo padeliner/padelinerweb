@@ -37,6 +37,26 @@ export function ChatBot() {
     scrollToBottom()
   }, [messages])
 
+  // Prevenir scroll del body cuando el chat está abierto en móvil
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = 'unset'
+      }
+    }
+  }, [isOpen])
+
+  // Scroll automático cuando el input obtiene focus (móvil)
+  useEffect(() => {
+    if (isOpen) {
+      const timeout = setTimeout(() => {
+        scrollToBottom()
+      }, 300)
+      return () => clearTimeout(timeout)
+    }
+  }, [isOpen])
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return
 
@@ -129,7 +149,7 @@ export function ChatBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-20 md:bottom-6 right-6 z-40 w-[95vw] md:w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-neutral-200">
+        <div className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-40 w-full md:w-96 h-full md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -150,7 +170,7 @@ export function ChatBot() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-neutral-50">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-neutral-50" style={{ WebkitOverflowScrolling: 'touch' }}>
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -241,7 +261,7 @@ export function ChatBot() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-neutral-200 p-4 bg-white">
+          <div className="border-t border-neutral-200 p-3 md:p-4 bg-white safe-area-bottom">
             <div className="flex items-end space-x-2">
               <textarea
                 value={input}
@@ -250,17 +270,18 @@ export function ChatBot() {
                 placeholder="Escribe tu mensaje..."
                 rows={1}
                 disabled={isLoading}
-                className="flex-1 resize-none rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none px-4 py-3 text-sm disabled:bg-neutral-50 disabled:cursor-not-allowed max-h-32"
+                className="flex-1 resize-none rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none px-4 py-3 text-base md:text-sm disabled:bg-neutral-50 disabled:cursor-not-allowed max-h-32 min-h-[44px]"
+                style={{ fontSize: '16px' }} // Previene zoom en iOS
               />
               <button
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading}
-                className="flex-shrink-0 w-10 h-10 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-colors disabled:cursor-not-allowed"
+                className="flex-shrink-0 w-11 h-11 md:w-10 md:h-10 bg-primary-500 hover:bg-primary-600 active:scale-95 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed touch-manipulation"
               >
                 <Send className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-xs text-neutral-500 mt-2 text-center">
+            <p className="text-xs text-neutral-500 mt-2 text-center hidden md:block">
               Powered by Gemini AI
             </p>
           </div>
