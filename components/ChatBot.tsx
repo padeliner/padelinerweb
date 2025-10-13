@@ -26,8 +26,17 @@ export function ChatBot() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [conversationId] = useState(() => `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
+  const [isMobile, setIsMobile] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { user, profile } = useAuth()
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -56,6 +65,15 @@ export function ChatBot() {
       return () => clearTimeout(timeout)
     }
   }, [isOpen])
+
+  // Manejar el enfoque del input para scroll automático en móvil
+  const handleInputFocus = () => {
+    if (isMobile) {
+      setTimeout(() => {
+        scrollToBottom()
+      }, 300) // Espera a que el teclado aparezca
+    }
+  }
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return
@@ -149,7 +167,13 @@ export function ChatBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-[9999] w-full md:w-96 h-full md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200">
+        <div 
+          className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-[9999] w-full md:w-96 md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200"
+          style={ isMobile ? { 
+            height: '100dvh',
+            maxHeight: '100dvh'
+          } : undefined}
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -306,11 +330,16 @@ export function ChatBot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
+                onFocus={handleInputFocus}
                 placeholder="Escribe tu mensaje..."
                 rows={1}
                 disabled={isLoading}
                 className="flex-1 resize-none rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none px-4 py-3 text-base md:text-sm disabled:bg-neutral-50 disabled:cursor-not-allowed max-h-32 min-h-[44px]"
                 style={{ fontSize: '16px' }} // Previene zoom en iOS
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
               />
               <button
                 onClick={sendMessage}
