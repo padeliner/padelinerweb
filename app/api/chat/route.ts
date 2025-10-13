@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { mockCoaches } from '@/lib/mock-data/coaches'
 
 // Verificar que existe la API key
@@ -7,7 +7,10 @@ if (!process.env.GEMINI_API_KEY) {
   console.error('❌ GEMINI_API_KEY no está configurada')
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+// Inicializar el cliente de Gemini (obtiene la key automáticamente de GEMINI_API_KEY)
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
+})
 
 // System prompt para el chatbot
 const SYSTEM_PROMPT = `Eres un asistente virtual experto de Padeliner, una plataforma líder de reservas de clases de pádel en España.
@@ -76,42 +79,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Usar gemini-1.5-flash (modelo más rápido y económico del tier gratuito)
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
+    // Construir el contexto completo
+    let fullPrompt = SYSTEM_PROMPT + '\n\n'
+    
+    // Añadir historial de conversación
+    if (conversationHistory && conversationHistory.length > 0) {
+      fullPrompt += 'Conversación previa:\n'
+      conversationHistory.forEach((msg: any) => {
+        fullPrompt += `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}\n`
+      })
+      fullPrompt += '\n'
+    }
+    
+    fullPrompt += `Usuario: ${message}\nAsistente:`
+
+    // Generar respuesta con el nuevo SDK
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash', // Modelo más moderno y rápido (GRATIS)
+      contents: fullPrompt,
+      config: {
         temperature: 0.7,
         topP: 0.95,
         topK: 40,
         maxOutputTokens: 2048,
-      },
+      }
     })
 
-    // Construir historial de conversación para contexto
-    const chatHistory = conversationHistory.map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }))
-
-    // Iniciar chat con historial
-    const chat = model.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: SYSTEM_PROMPT }]
-        },
-        {
-          role: 'model',
-          parts: [{ text: 'Entendido. Soy el asistente virtual de Padeliner y seguiré estas directrices para ayudar a los usuarios.' }]
-        },
-        ...chatHistory
-      ],
-    })
-
-    // Enviar mensaje
-    const result = await chat.sendMessage(message)
-    const response = await result.response
-    let responseText = response.text()
+    let responseText = response.text
 
     // Detectar intenciones
     let coaches = null
