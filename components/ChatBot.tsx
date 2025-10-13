@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Loader2, User, Bot, ExternalLink } from 'lucide-react'
+import { MessageCircle, X, Send, Loader2, User, Bot, Star, MapPin, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 
@@ -149,7 +149,7 @@ export function ChatBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-40 w-full md:w-96 h-full md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200">
+        <div className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto z-[9999] w-full md:w-96 h-full md:h-[600px] bg-white md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border md:border-neutral-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -196,39 +196,78 @@ export function ChatBot() {
 
                     {/* Coach Cards */}
                     {message.coaches && message.coaches.length > 0 && (
-                      <div className="mt-2 space-y-2">
+                      <div className="mt-2 space-y-3">
                         {message.coaches.map((coach) => (
                           <Link
                             key={coach.id}
                             href={`/entrenador/${coach.id}`}
                             onClick={() => setIsOpen(false)}
-                            className="block bg-white border-2 border-neutral-200 hover:border-primary-500 rounded-xl p-3 transition-colors group"
+                            className="block bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group"
                           >
-                            <div className="flex items-start space-x-3">
+                            {/* Image */}
+                            <div className="relative h-32 overflow-hidden">
                               <img
-                                src={coach.avatar}
+                                src={coach.imageUrl}
                                 alt={coach.name}
-                                className="w-12 h-12 rounded-lg object-cover"
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Entrenador'
+                                }}
                               />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                  <h4 className="font-semibold text-neutral-900 text-sm truncate">
-                                    {coach.name}
-                                  </h4>
-                                  <ExternalLink className="w-4 h-4 text-neutral-400 group-hover:text-primary-500 flex-shrink-0" />
+                              {coach.isFeatured && (
+                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full flex items-center">
+                                  <Star className="w-3 h-3 mr-1 fill-yellow-900" />
+                                  DESTACADO
                                 </div>
-                                <p className="text-xs text-neutral-600 mt-1">
-                                  📍 {coach.location}
-                                </p>
-                                <div className="flex items-center justify-between mt-2">
-                                  <div className="flex items-center space-x-1">
-                                    <span className="text-yellow-500">⭐</span>
-                                    <span className="text-xs font-semibold">{coach.rating}</span>
-                                  </div>
-                                  <span className="text-sm font-bold text-primary-600">
-                                    {coach.pricePerHour}€/h
+                              )}
+                              <div className="absolute bottom-2 right-2 px-2 py-1 bg-white rounded-lg shadow-lg">
+                                <p className="text-xs font-bold text-primary-600">{coach.pricePerHour}€/h</p>
+                              </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-3">
+                              <h4 className="text-sm font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
+                                {coach.name}
+                              </h4>
+                              
+                              <div className="flex items-center space-x-1 mb-2">
+                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                <span className="text-xs font-semibold text-neutral-900">{coach.rating}</span>
+                                <span className="text-xs text-neutral-500">({coach.reviewsCount})</span>
+                              </div>
+
+                              <div className="flex items-center text-xs text-neutral-600 mb-2">
+                                <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                                <span className="truncate">{coach.city}</span>
+                              </div>
+
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {coach.specialties.slice(0, 2).map((specialty: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-medium rounded-full"
+                                  >
+                                    {specialty}
                                   </span>
-                                </div>
+                                ))}
+                                {coach.specialties.length > 2 && (
+                                  <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-full">
+                                    +{coach.specialties.length - 2}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center justify-between text-xs">
+                                <p className="text-neutral-500">
+                                  {coach.experience} años exp.
+                                </p>
+                                {coach.offersHomeService && (
+                                  <div className="flex items-center text-green-600">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    <span className="font-medium">Desplazamiento</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </Link>
