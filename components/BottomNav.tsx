@@ -9,9 +9,9 @@ export function BottomNav() {
 
   const navItems = [
     { href: '/', icon: Home, label: 'Inicio' },
-    { href: '/entrenadores', icon: Dumbbell, label: 'Entrenadores' },
-    { href: '/academias', icon: GraduationCap, label: 'Academias' },
-    { href: '/clubes', icon: Building2, label: 'Clubes' },
+    { href: '/entrenadores', icon: Dumbbell, label: 'Entrenador' },
+    { href: '/academias', icon: GraduationCap, label: 'Academia' },
+    { href: '/clubes', icon: Building2, label: 'Club' },
     { href: '/tienda', icon: ShoppingBag, label: 'Tienda' },
   ]
 
