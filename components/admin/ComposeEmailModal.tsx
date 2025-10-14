@@ -81,7 +81,7 @@ export function ComposeEmailModal({ onSend, onClose }: ComposeEmailModalProps) {
         replyTo: formData.replyTo,
       })
     } catch (error) {
-      console.error('Error:', error)
+      // Error
     } finally {
       setLoading(false)
     }

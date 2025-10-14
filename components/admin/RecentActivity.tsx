@@ -38,7 +38,7 @@ export function RecentActivity() {
 
         setActivities(formattedActivities)
       } catch (error) {
-        console.error('Error fetching activities:', error)
+        // Error fetching activities
       } finally {
         setLoading(false)
       }

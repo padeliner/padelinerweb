@@ -4,7 +4,7 @@ import { mockCoaches } from '@/lib/mock-data/coaches'
 
 // Verificar que existe la API key
 if (!process.env.GEMINI_API_KEY) {
-  console.error('❌ GEMINI_API_KEY no está configurada')
+  // GEMINI_API_KEY no está configurada
 }
 
 // Inicializar el cliente de Gemini (obtiene la key automáticamente de GEMINI_API_KEY)
@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
 
     // Verificar API key
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'tu_gemini_api_key_aqui') {
-      console.error('❌ API key no configurada correctamente')
       return NextResponse.json(
         { 
           message: 'Lo siento, el chatbot no está configurado correctamente. Por favor, contacta con soporte@padeliner.com',
@@ -161,20 +160,15 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('❌ Error in chat API:', error)
-    
     // Manejar diferentes tipos de errores
     let errorMessage = 'Lo siento, ha ocurrido un error. Por favor, intenta de nuevo.'
     
     if (error?.message?.includes('API key')) {
       errorMessage = 'Error de configuración. Por favor, contacta con soporte@padeliner.com'
-      console.error('❌ Error de API key:', error.message)
     } else if (error?.message?.includes('quota')) {
       errorMessage = 'El servicio está temporalmente ocupado. Por favor, intenta en unos minutos.'
-      console.error('❌ Error de cuota excedida')
     } else if (error?.message?.includes('SAFETY')) {
       errorMessage = 'No puedo responder a eso. ¿Puedo ayudarte con algo más sobre Padeliner?'
-      console.error('❌ Contenido bloqueado por filtros de seguridad')
     }
     
     return NextResponse.json(
@@ -270,10 +264,8 @@ ${conversationText}
       `
     })
 
-    console.log('✅ Email de soporte enviado:', emailData)
     return true
   } catch (error) {
-    console.error('Error sending support email:', error)
     return false
   }
 }

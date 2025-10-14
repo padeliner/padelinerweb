@@ -67,7 +67,6 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
     // Debounce de 300ms
     searchTimeoutRef.current = setTimeout(async () => {
       if (!isGoogleLoaded) {
-        console.warn('Google Places API no está cargada aún')
         return
       }
 
@@ -142,7 +141,6 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
         setSuggestions(locations)
         setShowSuggestions(true)
       } catch (error) {
-        console.error('Error fetching autocomplete suggestions:', error)
         setSuggestions([])
       }
     }, 300)
@@ -217,14 +215,12 @@ export function LocationSearch({ onLocationSelect, placeholder = 'Buscar ubicaci
               alert('No se pudo determinar tu ubicación exacta')
             }
           } catch (error) {
-            console.error('Error con geocoding:', error)
             alert('No se pudo determinar tu ubicación exacta')
           }
           
           setIsLoadingLocation(false)
         },
         (error) => {
-          console.error('Error obteniendo ubicación:', error)
           alert('No se pudo obtener tu ubicación. Por favor, activa la ubicación en tu navegador.')
           setIsLoadingLocation(false)
         }

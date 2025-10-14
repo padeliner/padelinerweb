@@ -21,6 +21,8 @@ import {
   Mail,
   Headphones,
   Ticket,
+  BookOpen,
+  MessageCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -73,7 +75,12 @@ const navigationItems = [
   {
     name: 'Moderación',
     href: '/admin/moderacion',
-    icon: Shield,
+    icon: MessageCircle,
+  },
+  {
+    name: 'Blog',
+    href: '/admin/blog',
+    icon: BookOpen,
   },
   {
     name: 'Configuración',

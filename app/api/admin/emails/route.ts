@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
 
     // Si hay error de DB, devolver array vacío (tabla no existe aún)
     if (dbError) {
-      console.warn('Tabla admin_emails no existe o no está configurada:', dbError)
       return NextResponse.json({
         emails: [],
         total: 0,
@@ -57,7 +56,6 @@ export async function GET(request: NextRequest) {
       offset,
     })
   } catch (error) {
-    console.error('Error en API de emails:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

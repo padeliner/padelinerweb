@@ -147,7 +147,6 @@ export default function MensajesPage() {
   const handleSendMessage = () => {
     if (messageText.trim() && selectedConversation) {
       // Aquí se enviaría el mensaje en la implementación real
-      console.log('Enviando mensaje:', messageText)
       setMessageText('')
     }
   }

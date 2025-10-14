@@ -16,8 +16,6 @@ export async function POST(request: NextRequest) {
       headers,
     } = body
 
-    console.log('Email recibido:', { from, to, subject })
-
     // Guardar en base de datos
     const supabase = await createClient()
     
@@ -35,14 +33,12 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error guardando email:', error)
       return NextResponse.json({ error: 'Error guardando email' }, { status: 500 })
     }
 
     // Responder a Cloudflare que se recibió correctamente
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error en webhook:', error)
     return NextResponse.json({ error: 'Error procesando email' }, { status: 500 })
   }
 }

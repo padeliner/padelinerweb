@@ -50,9 +50,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Enviando email desde:', from)
-    console.log('Destinatarios:', cleanedEmails)
-
     // Enviar email con Resend
     const { data, error } = await resend.emails.send({
       from: `Padeliner <${from}>`,
@@ -63,7 +60,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error('Error enviando email:', error)
       return NextResponse.json(
         { error: 'Error al enviar el email', details: error },
         { status: 500 }
@@ -85,11 +81,10 @@ export async function POST(request: NextRequest) {
         })
 
       if (dbError) {
-        console.warn('No se pudo guardar en DB (tabla no existe):', dbError.message)
+        // No se pudo guardar en DB (tabla no existe)
       }
     } catch (dbErr) {
-      console.warn('Error guardando email en DB:', dbErr)
-      // No retornamos error porque el email sí se envió
+      // Error guardando email en DB - no retornamos error porque el email sí se envió
     }
 
     return NextResponse.json({
@@ -98,7 +93,6 @@ export async function POST(request: NextRequest) {
       message: 'Email enviado correctamente',
     })
   } catch (error) {
-    console.error('Error en API de emails:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

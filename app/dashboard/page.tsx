@@ -27,7 +27,6 @@ export default function DashboardPage() {
           .single()
 
         if (error || !userData) {
-          console.error('Error obteniendo rol:', error)
           router.push('/login')
           return
         }
@@ -56,7 +55,6 @@ export default function DashboardPage() {
             router.push('/dashboard/alumno')
         }
       } catch (error) {
-        console.error('Error en redirect:', error)
         router.push('/login')
       }
     }

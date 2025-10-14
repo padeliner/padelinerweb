@@ -57,7 +57,6 @@ export function EmailInboxTab() {
         setEmails(data.emails || [])
       }
     } catch (error) {
-      console.error('Error cargando inbox:', error)
       // Si falla, usar mock
       setEmails(mockInbox)
     } finally {

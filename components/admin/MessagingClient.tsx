@@ -139,7 +139,7 @@ export function MessagingClient() {
         setEmails(data.emails)
       }
     } catch (error) {
-      console.error('Error cargando emails:', error)
+      // Error cargando emails
     } finally {
       setLoading(false)
     }
@@ -173,7 +173,6 @@ export function MessagingClient() {
       
       alert('✅ Email enviado correctamente')
     } catch (error) {
-      console.error('Error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Error al enviar el email'
       alert(`❌ ${errorMessage}`)
     }

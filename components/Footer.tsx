@@ -48,7 +48,7 @@ export function Footer() {
               <FooterLink href="/sobre-nosotros">Sobre nosotros</FooterLink>
               <FooterLink href="/contacto">Contacto</FooterLink>
               <FooterLink href="#">Trabaja con nosotros</FooterLink>
-              <FooterLink href="#">Blog</FooterLink>
+              <FooterLink href="/blog">Blog</FooterLink>
               <FooterLink href="#">Prensa</FooterLink>
             </ul>
           </div>

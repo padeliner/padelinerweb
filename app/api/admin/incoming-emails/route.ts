@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
       .limit(100)
 
     if (dbError) {
-      console.warn('Error obteniendo emails recibidos:', dbError)
       return NextResponse.json({
         emails: [],
         note: 'La tabla incoming_emails no está configurada',
@@ -48,7 +47,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ emails: transformedEmails })
   } catch (error) {
-    console.error('Error en API de incoming emails:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

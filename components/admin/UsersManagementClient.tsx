@@ -72,7 +72,6 @@ export function UsersManagementClient({ initialUsers, stats: initialStats }: Pro
       setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u))
       alert('Rol actualizado correctamente')
     } catch (error) {
-      console.error('Error:', error)
       alert('Error al actualizar el rol')
     } finally {
       setLoading(false)
@@ -110,7 +109,6 @@ export function UsersManagementClient({ initialUsers, stats: initialStats }: Pro
 
       alert(`Usuario ${action === 'activar' ? 'activado' : 'suspendido'} correctamente`)
     } catch (error) {
-      console.error('Error:', error)
       alert('Error al cambiar el estado del usuario')
     } finally {
       setLoading(false)

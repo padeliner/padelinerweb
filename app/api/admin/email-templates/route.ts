@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (dbError) {
-      console.warn('Error obteniendo plantillas:', dbError)
       return NextResponse.json({
         templates: [],
         note: 'La tabla email_templates no está configurada',
@@ -36,7 +35,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ templates: templates || [] })
   } catch (error) {
-    console.error('Error en API de plantillas:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -88,7 +86,6 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (dbError) {
-      console.error('Error creando plantilla:', dbError)
       return NextResponse.json(
         { error: 'Error al crear plantilla', details: dbError },
         { status: 500 }
@@ -101,7 +98,6 @@ export async function POST(request: NextRequest) {
       message: 'Plantilla creada correctamente',
     })
   } catch (error) {
-    console.error('Error en API de plantillas:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

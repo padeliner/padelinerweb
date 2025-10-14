@@ -32,7 +32,7 @@ export function EmailTemplatesTab() {
         setTemplates(data.templates || [])
       }
     } catch (error) {
-      console.error('Error cargando plantillas:', error)
+      // Error cargando plantillas
     } finally {
       setLoading(false)
     }

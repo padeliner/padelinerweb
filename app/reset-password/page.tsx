@@ -24,10 +24,6 @@ function ResetPasswordContent() {
         const refreshToken = hashParams.get('refresh_token')
         const type = hashParams.get('type')
 
-        console.log('🔑 Token de acceso:', accessToken ? 'presente' : 'ausente')
-        console.log('🔄 Refresh token:', refreshToken ? 'presente' : 'ausente')
-        console.log('📝 Tipo:', type)
-
         if (!accessToken || type !== 'recovery') {
           setError('Link de recuperación inválido o expirado')
           return
@@ -40,15 +36,12 @@ function ResetPasswordContent() {
         })
 
         if (sessionError) {
-          console.error('❌ Error estableciendo sesión:', sessionError)
           setError('Link de recuperación inválido o expirado')
           return
         }
 
-        console.log('✅ Sesión establecida correctamente')
         setTokenVerified(true)
       } catch (err) {
-        console.error('❌ Error verificando token:', err)
         setError('Hubo un problema al verificar el link de recuperación')
       }
     }

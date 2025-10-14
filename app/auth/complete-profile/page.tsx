@@ -21,17 +21,8 @@ export default function CompleteProfilePage() {
 
         // Verificar si hay un rol pendiente (de OAuth flow)
         const pendingRole = localStorage.getItem('pending_role')
-        
-        console.log('========================================')
-        console.log('👤 Usuario:', user.email)
-        console.log('🔑 User ID:', user.id)
-        console.log('🎭 Rol pendiente (localStorage):', pendingRole)
-        console.log('📋 Metadata actual:', user.user_metadata)
-        console.log('========================================')
 
         if (pendingRole) {
-          console.log('⏳ Aplicando rol pendiente:', pendingRole)
-          
           // PASO 1: Actualizar el metadata del usuario
           const { error: updateMetadataError } = await supabase.auth.updateUser({
             data: {
@@ -41,9 +32,7 @@ export default function CompleteProfilePage() {
           })
           
           if (updateMetadataError) {
-            console.error('❌ Error actualizando metadata:', updateMetadataError)
-          } else {
-            console.log('✅ Metadata actualizado con rol:', pendingRole)
+            // Error actualizando metadata
           }
 
           // PASO 2: Esperar un momento para que se procese
@@ -55,17 +44,13 @@ export default function CompleteProfilePage() {
             .select('*')
             .eq('id', user.id)
             .maybeSingle()
-
-          console.log('📊 Usuario existente en DB:', existingUser)
           
           if (fetchError && fetchError.code !== 'PGRST116') {
-            console.error('❌ Error consultando usuario:', fetchError)
+            // Error consultando usuario
           }
 
           if (existingUser) {
             // Usuario YA existe - ACTUALIZAR el rol (el trigger lo creó con rol incorrecto)
-            console.log('🔄 Usuario existe con rol:', existingUser.role, '→ Actualizando a:', pendingRole)
-            
             const { error: updateError } = await supabase
               .from('users')
               .update({ 
@@ -76,14 +61,10 @@ export default function CompleteProfilePage() {
               .eq('id', user.id)
             
             if (updateError) {
-              console.error('❌ Error actualizando perfil:', updateError)
-            } else {
-              console.log('✅✅✅ Perfil actualizado correctamente a rol:', pendingRole)
+              // Error actualizando perfil
             }
           } else {
             // Usuario NO existe - CREAR con el rol correcto
-            console.log('➕ Usuario no existe, creando con rol:', pendingRole)
-            
             const { error: insertError } = await supabase
               .from('users')
               .insert({
@@ -96,26 +77,12 @@ export default function CompleteProfilePage() {
               })
             
             if (insertError) {
-              console.error('❌ Error creando perfil:', insertError)
-            } else {
-              console.log('✅✅✅ Perfil creado correctamente con rol:', pendingRole)
+              // Error creando perfil
             }
           }
           
-          // PASO 4: Verificar que el rol se guardó correctamente
-          const { data: finalUser } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', user.id)
-            .single()
-          
-          console.log('🎯 Rol final en DB:', finalUser?.role)
-          console.log('========================================')
-          
           // Limpiar el rol pendiente
           localStorage.removeItem('pending_role')
-        } else {
-          console.log('⚠️ No hay rol pendiente en localStorage')
         }
         
         // Pequeño delay para que se apliquen los cambios
@@ -124,8 +91,7 @@ export default function CompleteProfilePage() {
         // Redirigir al home
         router.push('/')
       } catch (error) {
-        console.error('❌ Error completando perfil:', error)
-        // Redirigir de todos modos
+        // Error completando perfil - redirigir de todos modos
         router.push('/')
       } finally {
         setProcessing(false)

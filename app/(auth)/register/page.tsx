@@ -68,7 +68,6 @@ export default function RegisterPage() {
 
       if (data.user) {
         // El trigger de Supabase creará el perfil automáticamente
-        console.log('✅ Usuario registrado, el trigger creará el perfil')
         setSuccess(true)
       }
     } catch (err) {
@@ -82,12 +81,10 @@ export default function RegisterPage() {
     try {
       // Guardar el rol de alumno
       const role = USER_ROLES.STUDENT
-      console.log('🎭 Rol seleccionado:', role)
       localStorage.setItem('pending_role', role)
       
       // Pasar el rol como query parameter
       const callbackUrl = `${window.location.origin}/auth/callback?role=${role}`
-      console.log('🔗 Callback URL con rol:', callbackUrl)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

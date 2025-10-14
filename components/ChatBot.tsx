@@ -133,7 +133,6 @@ export function ChatBot() {
         }, 1000)
       }
     } catch (error) {
-      console.error('Error sending message:', error)
       const errorMessage: Message = {
         id: `error_${Date.now()}`,
         role: 'assistant',

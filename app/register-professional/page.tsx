@@ -96,7 +96,6 @@ function RegisterProfessionalContent() {
 
       if (data.user) {
         // El trigger de Supabase creará el perfil automáticamente con el rol correcto
-        console.log('✅ Usuario registrado con rol:', selectedRole)
         setSuccess(true)
       }
     } catch (err) {
@@ -109,15 +108,12 @@ function RegisterProfessionalContent() {
   const handleGoogleRegister = async () => {
     try {
       // Guardar el rol en localStorage Y en el callback URL
-      console.log('🎭 Rol seleccionado:', selectedRole)
       localStorage.setItem('pending_role', selectedRole)
       
       // Obtener el origin correcto
       const currentOrigin = typeof window !== 'undefined' ? window.location.origin : ''
       // IMPORTANTE: Pasar el rol como query parameter
       const callbackUrl = `${currentOrigin}/auth/callback?role=${selectedRole}`
-      
-      console.log('🔗 Callback URL con rol:', callbackUrl)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -131,11 +127,9 @@ function RegisterProfessionalContent() {
       })
 
       if (error) {
-        console.error('❌ Error OAuth:', error)
         throw error
       }
     } catch (err) {
-      console.error('❌ Error en Google Register:', err)
       setError('Error al registrarse con Google')
     }
   }

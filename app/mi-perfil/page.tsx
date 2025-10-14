@@ -82,7 +82,7 @@ export default function MiPerfilPage() {
         },
       ])
     } catch (error) {
-      console.error('Error loading reservations:', error)
+      // Error loading reservations
     } finally {
       setLoadingReservations(false)
     }
@@ -109,7 +109,6 @@ export default function MiPerfilPage() {
       setIsEditing(false)
       window.location.reload() // Recargar para actualizar el perfil
     } catch (error) {
-      console.error('Error updating profile:', error)
       alert('Error al actualizar el perfil')
     } finally {
       setSaving(false)
@@ -148,7 +147,6 @@ export default function MiPerfilPage() {
       alert('Tu cuenta ha sido eliminada correctamente')
       router.push('/')
     } catch (error) {
-      console.error('Error deleting account:', error)
       alert('Error al eliminar la cuenta. Por favor, contacta con soporte.')
     } finally {
       setDeleting(false)
