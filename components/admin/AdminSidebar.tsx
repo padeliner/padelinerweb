@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Users,
   Award,
-  MessageSquare,
   CreditCard,
   ShoppingBag,
   Calendar,
@@ -14,7 +13,6 @@ import {
   Star,
   Shield,
   Bell,
-  BarChart3,
   Settings,
   FileText,
   Home,
@@ -22,7 +20,6 @@ import {
   DollarSign,
   Mail,
   Headphones,
-  CheckCircle,
   Ticket,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -77,21 +74,6 @@ const navigationItems = [
     name: 'Moderación',
     href: '/admin/moderacion',
     icon: Shield,
-  },
-  {
-    name: 'Chat',
-    href: '/admin/chat',
-    icon: MessageSquare,
-  },
-  {
-    name: 'Verificaciones',
-    href: '/admin/verificaciones',
-    icon: CheckCircle,
-  },
-  {
-    name: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3,
   },
   {
     name: 'Configuración',
