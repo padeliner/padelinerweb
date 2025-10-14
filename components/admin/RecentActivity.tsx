@@ -28,7 +28,7 @@ export function RecentActivity() {
           .order('created_at', { ascending: false })
           .limit(10)
 
-        const formattedActivities: Activity[] = (recentUsers || []).map(user => ({
+        const formattedActivities: Activity[] = (recentUsers || []).map((user: any) => ({
           id: user.id,
           type: 'user_registered',
           description: `${user.full_name || 'Usuario'} se registró como ${user.role}`,
