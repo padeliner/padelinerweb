@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
 
     const subjectLabel = SUBJECT_LABELS[subject] || subject
 
-    // Send email to internal team (will be received via inbound webhook)
+    // Send email to internal team
     await resend.emails.send({
-      from: 'Formulario de Contacto <contacto@mail.padeliner.com>',
-      to: 'info@padeliner.com', // This will trigger the inbound webhook
+      from: 'Formulario de Contacto <contacto@padeliner.com>',
+      to: process.env.CAREERS_EMAIL || 'padeliner@gmail.com',
       subject: `[Contacto Web] ${subjectLabel} - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: 'Soporte <soporte@mail.padeliner.com>',
+      from: 'Soporte <soporte@padeliner.com>',
       to: email,
       subject: 'Hemos recibido tu mensaje - Padeliner',
       html: `
