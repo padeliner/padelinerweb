@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
 
     // Send email
     await resend.emails.send({
-      from: 'Padeliner <noreply@padeliner.com>',
+      from: `${userProfile.full_name} <soporte@padeliner.com>`,
       to: toEmail,
       subject: subject || 'Re: Tu consulta',
-      replyTo: userProfile.email || 'hola@padeliner.com',
+      replyTo: 'soporte@padeliner.com',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #059669; color: white; padding: 20px; text-align: center;">
