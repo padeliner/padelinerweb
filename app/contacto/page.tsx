@@ -15,15 +15,38 @@ export default function ContactoPage() {
     message: ''
   })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    // Aquí iría la lógica para enviar el formulario
-    setTimeout(() => {
-      setSubmitted(false)
+    setSubmitting(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al enviar el mensaje')
+      }
+
+      setSubmitted(true)
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-    }, 3000)
+      
+      setTimeout(() => {
+        setSubmitted(false)
+      }, 5000)
+    } catch (error: any) {
+      setError(error.message || 'Error al enviar el mensaje. Inténtalo de nuevo.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -154,121 +177,139 @@ export default function ContactoPage() {
                     </p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    {error && (
+                      <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg text-red-800 text-sm">
+                        {error}
+                      </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label htmlFor="name" className="block text-sm font-semibold text-neutral-900 mb-2">
+                            Nombre completo *
+                          </label>
+                          <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
+                            placeholder="Tu nombre"
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="email" className="block text-sm font-semibold text-neutral-900 mb-2">
+                            Email *
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
+                            placeholder="tu@email.com"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label htmlFor="phone" className="block text-sm font-semibold text-neutral-900 mb-2">
+                            Teléfono
+                          </label>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
+                            placeholder="+34 600 000 000"
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="subject" className="block text-sm font-semibold text-neutral-900 mb-2">
+                            Asunto *
+                          </label>
+                          <select
+                            id="subject"
+                            name="subject"
+                            required
+                            value={formData.subject}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
+                          >
+                            <option value="">Selecciona un asunto</option>
+                            <option value="general">Consulta general</option>
+                            <option value="entrenador">Información sobre entrenadores</option>
+                            <option value="club">Información sobre clubes</option>
+                            <option value="academia">Información sobre academias</option>
+                            <option value="tienda">Consulta sobre tienda</option>
+                            <option value="soporte">Soporte técnico</option>
+                            <option value="colaboracion">Propuesta de colaboración</option>
+                          </select>
+                        </div>
+                      </div>
+
                       <div>
-                        <label htmlFor="name" className="block text-sm font-semibold text-neutral-900 mb-2">
-                          Nombre completo *
+                        <label htmlFor="message" className="block text-sm font-semibold text-neutral-900 mb-2">
+                          Mensaje *
                         </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
+                        <textarea
+                          id="message"
+                          name="message"
                           required
-                          value={formData.name}
+                          rows={6}
+                          value={formData.message}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
-                          placeholder="Tu nombre"
+                          className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors resize-none"
+                          placeholder="Escribe tu mensaje aquí..."
                         />
                       </div>
 
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-semibold text-neutral-900 mb-2">
-                          Email *
-                        </label>
+                      <div className="flex items-start space-x-3">
                         <input
-                          type="email"
-                          id="email"
-                          name="email"
+                          type="checkbox"
+                          id="privacy"
                           required
-                          value={formData.email}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
-                          placeholder="tu@email.com"
+                          className="mt-1"
                         />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="phone" className="block text-sm font-semibold text-neutral-900 mb-2">
-                          Teléfono
+                        <label htmlFor="privacy" className="text-sm text-neutral-600">
+                          Acepto la{' '}
+                          <a href="/politica-privacidad" className="text-primary-600 hover:text-primary-700 font-semibold">
+                            política de privacidad
+                          </a>{' '}
+                          y el tratamiento de mis datos personales.
                         </label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
-                          placeholder="+34 600 000 000"
-                        />
                       </div>
 
-                      <div>
-                        <label htmlFor="subject" className="block text-sm font-semibold text-neutral-900 mb-2">
-                          Asunto *
-                        </label>
-                        <select
-                          id="subject"
-                          name="subject"
-                          required
-                          value={formData.subject}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors"
-                        >
-                          <option value="">Selecciona un asunto</option>
-                          <option value="general">Consulta general</option>
-                          <option value="entrenador">Información sobre entrenadores</option>
-                          <option value="club">Información sobre clubes</option>
-                          <option value="academia">Información sobre academias</option>
-                          <option value="tienda">Consulta sobre tienda</option>
-                          <option value="soporte">Soporte técnico</option>
-                          <option value="colaboracion">Propuesta de colaboración</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-semibold text-neutral-900 mb-2">
-                        Mensaje *
-                      </label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        required
-                        rows={6}
-                        value={formData.message}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors resize-none"
-                        placeholder="Escribe tu mensaje aquí..."
-                      />
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <input
-                        type="checkbox"
-                        id="privacy"
-                        required
-                        className="mt-1"
-                      />
-                      <label htmlFor="privacy" className="text-sm text-neutral-600">
-                        Acepto la{' '}
-                        <a href="/politica-privacidad" className="text-primary-600 hover:text-primary-700 font-semibold">
-                          política de privacidad
-                        </a>{' '}
-                        y el tratamiento de mis datos personales.
-                      </label>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg"
-                    >
-                      <Send className="w-5 h-5" />
-                      <span>Enviar Mensaje</span>
-                    </button>
-                  </form>
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {submitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <span>Enviando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5" />
+                            <span>Enviar Mensaje</span>
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </div>
                 )}
               </motion.div>
             </div>

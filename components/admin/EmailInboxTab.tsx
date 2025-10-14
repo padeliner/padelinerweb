@@ -51,12 +51,23 @@ export function EmailInboxTab() {
   const loadInbox = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/incoming-emails')
+      const response = await fetch('/api/admin/inbox')
       if (response.ok) {
         const data = await response.json()
-        setEmails(data.emails || [])
+        // Mapear a nuestro formato
+        const mapped = data.emails?.map((email: any) => ({
+          id: email.id,
+          from: email.from_name ? `${email.from_name} <${email.from_email}>` : email.from_email,
+          subject: email.subject || '(Sin asunto)',
+          body: email.text_content || email.html_content || '',
+          received_at: email.created_at,
+          is_read: email.read,
+          is_starred: false,
+        })) || []
+        setEmails(mapped)
       }
     } catch (error) {
+      console.error('Error loading inbox:', error)
       // Si falla, usar mock
       setEmails(mockInbox)
     } finally {
@@ -79,23 +90,24 @@ export function EmailInboxTab() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-blue-50 dark-admin:bg-blue-900/20 border border-blue-200 dark-admin:border-blue-800 rounded-lg p-4">
+      <div className="bg-green-50 dark-admin:bg-green-900/20 border border-green-200 dark-admin:border-green-800 rounded-lg p-4">
         <div className="flex items-start space-x-3">
-          <Mail className="w-5 h-5 text-blue-600 dark-admin:text-blue-400 mt-0.5" />
+          <Mail className="w-5 h-5 text-green-600 dark-admin:text-green-400 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-medium text-blue-900 dark-admin:text-blue-300 mb-1">
-              Configuración de Inbox
+            <h3 className="font-medium text-green-900 dark-admin:text-green-300 mb-1">
+              ✅ Sistema de Inbox Activo
             </h3>
-            <p className="text-sm text-blue-700 dark-admin:text-blue-400">
-              Para recibir emails necesitas configurar:
+            <p className="text-sm text-green-700 dark-admin:text-green-400">
+              Recibe emails en cualquier dirección @padeliner.com:
             </p>
-            <ul className="text-sm text-blue-700 dark-admin:text-blue-400 mt-2 ml-4 list-disc space-y-1">
-              <li>MX records en tu dominio (padeliner.com)</li>
-              <li>Webhook para procesar emails entrantes (SendGrid, Mailgun, etc.)</li>
-              <li>Tabla en DB para almacenar emails recibidos</li>
+            <ul className="text-sm text-green-700 dark-admin:text-green-400 mt-2 ml-4 list-disc space-y-1">
+              <li><strong>info@padeliner.com</strong> - Información general</li>
+              <li><strong>soporte@padeliner.com</strong> - Soporte técnico</li>
+              <li><strong>hola@padeliner.com</strong> - Contacto</li>
+              <li>...o cualquier otra dirección de tu dominio</li>
             </ul>
-            <p className="text-sm text-blue-600 dark-admin:text-blue-300 mt-2">
-              Por ahora, se muestran emails de ejemplo.
+            <p className="text-sm text-green-600 dark-admin:text-green-300 mt-2">
+              Los emails se categorizan automáticamente según el destinatario.
             </p>
           </div>
         </div>

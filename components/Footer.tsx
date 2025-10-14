@@ -47,9 +47,9 @@ export function Footer() {
             <ul className="space-y-3">
               <FooterLink href="/sobre-nosotros">Sobre nosotros</FooterLink>
               <FooterLink href="/contacto">Contacto</FooterLink>
-              <FooterLink href="#">Trabaja con nosotros</FooterLink>
+              <FooterLink href="/trabaja-con-nosotros">Trabaja con nosotros</FooterLink>
               <FooterLink href="/blog">Blog</FooterLink>
-              <FooterLink href="#">Prensa</FooterLink>
+              <FooterLink href="/prensa">Prensa</FooterLink>
             </ul>
           </div>
 
