@@ -1,12 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
+/**
+ * Cliente de Supabase para Client Components
+ * 
+ * IMPORTANTE: Este es el ÚNICO archivo que debes importar en Client Components.
+ * 
+ * Usa cookies para almacenar la sesión (compatible con Server Components)
+ * 
+ * Para Server Components usa: @/utils/supabase/server
+ */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+import { createClient } from '@/utils/supabase/client'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-})
+// Instancia única del cliente
+export const supabase = createClient()
