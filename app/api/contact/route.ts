@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Send email to internal team (will be received via inbound webhook)
     await resend.emails.send({
-      from: 'Formulario de Contacto <contacto@padeliner.com>',
+      from: 'Formulario de Contacto <contacto@mail.padeliner.com>',
       to: 'info@padeliner.com', // This will trigger the inbound webhook
       subject: `[Contacto Web] ${subjectLabel} - ${name}`,
       html: `
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0;">Información del Contacto</h3>
             <p><strong>Nombre:</strong> ${name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Email:</strong> ${email}</p>
             <p><strong>Teléfono:</strong> ${phone || 'No proporcionado'}</p>
             <p><strong>Asunto:</strong> ${subjectLabel}</p>
           </div>
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: 'Soporte <soporte@padeliner.com>',
+      from: 'Soporte <soporte@mail.padeliner.com>',
       to: email,
       subject: 'Hemos recibido tu mensaje - Padeliner',
       html: `
