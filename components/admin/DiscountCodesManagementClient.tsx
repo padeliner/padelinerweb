@@ -125,7 +125,7 @@ export function DiscountCodesManagementClient() {
       } else if (filterStatus === 'inactive') {
         matchesStatus = !code.is_active
       } else if (filterStatus === 'expired') {
-        matchesStatus = code.end_date && new Date(code.end_date) < now
+        matchesStatus = !!(code.end_date && new Date(code.end_date) < now)
       }
 
       return matchesSearch && matchesType && matchesStatus
