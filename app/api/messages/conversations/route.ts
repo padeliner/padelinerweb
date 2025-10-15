@@ -13,21 +13,15 @@ export async function GET(request: NextRequest) {
 
     // Obtener conversaciones donde el usuario es participante
     const { data: conversations, error } = await supabase
-      .from('conversations')
+      .from('direct_conversations')
       .select(`
         *,
-        conversation_participants!inner(
+        direct_conversation_participants!inner(
           user_id,
           last_read_at
-        ),
-        conversation_messages(
-          id,
-          content,
-          created_at,
-          sender_id
         )
       `)
-      .eq('conversation_participants.user_id', user.id)
+      .eq('direct_conversation_participants.user_id', user.id)
       .order('updated_at', { ascending: false })
 
     if (error) throw error
@@ -37,7 +31,7 @@ export async function GET(request: NextRequest) {
       (conversations || []).map(async (conv) => {
         // Obtener el otro participante (no el usuario actual)
         const { data: participants } = await supabase
-          .from('conversation_participants')
+          .from('direct_conversation_participants')
           .select(`
             user_id,
             users!inner(id, full_name, avatar_url, role)
@@ -50,7 +44,7 @@ export async function GET(request: NextRequest) {
 
         // Obtener último mensaje
         const { data: lastMessages } = await supabase
-          .from('conversation_messages')
+          .from('direct_messages')
           .select('*')
           .eq('conversation_id', conv.id)
           .order('created_at', { ascending: false })
@@ -59,12 +53,12 @@ export async function GET(request: NextRequest) {
         const lastMessage = lastMessages?.[0]
 
         // Contar mensajes no leídos
-        const lastReadAt = conv.conversation_participants.find(
+        const lastReadAt = conv.direct_conversation_participants.find(
           (p: any) => p.user_id === user.id
         )?.last_read_at
 
         const { count: unreadCount } = await supabase
-          .from('conversation_messages')
+          .from('direct_messages')
           .select('*', { count: 'exact', head: true })
           .eq('conversation_id', conv.id)
           .neq('sender_id', user.id)

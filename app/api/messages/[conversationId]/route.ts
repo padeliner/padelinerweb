@@ -18,7 +18,7 @@ export async function GET(
 
     // Verificar que el usuario es participante de la conversación
     const { data: participant } = await supabase
-      .from('conversation_participants')
+      .from('direct_conversation_participants')
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', user.id)
@@ -30,7 +30,7 @@ export async function GET(
 
     // Obtener mensajes
     const { data: messages, error } = await supabase
-      .from('conversation_messages')
+      .from('direct_messages')
       .select(`
         *,
         sender:users!sender_id(
@@ -46,7 +46,7 @@ export async function GET(
 
     // Marcar mensajes como leídos
     await supabase
-      .from('conversation_participants')
+      .from('direct_conversation_participants')
       .update({ last_read_at: new Date().toISOString() })
       .eq('conversation_id', conversationId)
       .eq('user_id', user.id)
@@ -85,7 +85,7 @@ export async function POST(
 
     // Verificar que el usuario es participante
     const { data: participant } = await supabase
-      .from('conversation_participants')
+      .from('direct_conversation_participants')
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', user.id)
@@ -97,7 +97,7 @@ export async function POST(
 
     // Insertar mensaje
     const { data: message, error } = await supabase
-      .from('conversation_messages')
+      .from('direct_messages')
       .insert({
         conversation_id: conversationId,
         sender_id: user.id,
@@ -117,7 +117,7 @@ export async function POST(
 
     // Actualizar timestamp de la conversación
     await supabase
-      .from('conversations')
+      .from('direct_conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', conversationId)
 

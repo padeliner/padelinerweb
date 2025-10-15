@@ -2,17 +2,17 @@
 -- CREATE EXAMPLE TRAINERS - Alvaro y Guillermo
 -- ================================================================
 
--- Actualizar el rol de Alvaro a trainer
+-- Actualizar el rol de Alvaro a entrenador
 UPDATE users
 SET 
-  role = 'trainer',
+  role = 'entrenador',
   updated_at = NOW()
 WHERE id = '900d2812-8c39-4b08-a967-344c494f6b81';
 
--- Actualizar el rol de Guillermo a trainer  
+-- Actualizar el rol de Guillermo a entrenador
 UPDATE users
 SET 
-  role = 'trainer',
+  role = 'entrenador',
   updated_at = NOW()
 WHERE id = '5f9abcfe-bcdf-4566-b271-3beac38060c5';
 
@@ -54,7 +54,7 @@ INSERT INTO coaches (
     'thursday', ARRAY['09:00-13:00', '17:00-21:00'],
     'friday', ARRAY['09:00-13:00', '17:00-21:00'],
     'saturday', ARRAY['10:00-14:00'],
-    'sunday', ARRAY[]
+    'sunday', ARRAY[]::text[]
   ),
   ARRAY['Entrenador Nacional RPT', 'Monitor Nivel 2'],
   ARRAY['Español', 'Inglés'],

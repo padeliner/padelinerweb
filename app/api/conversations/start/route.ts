@@ -29,9 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar si ya existe una conversación entre estos 2 usuarios
-    // Primero obtener conversaciones del usuario actual
     const { data: userConversations } = await supabase
-      .from('conversation_participants')
+      .from('direct_conversation_participants')
       .select('conversation_id')
       .eq('user_id', user.id)
 
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
       
       // Buscar si alguna de esas conversaciones también tiene al target user
       const { data: sharedConversations } = await supabase
-        .from('conversation_participants')
+        .from('direct_conversation_participants')
         .select('conversation_id')
         .eq('user_id', targetUserId)
         .in('conversation_id', conversationIds)
@@ -57,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Crear nueva conversación
     const { data: newConversation, error: convError } = await supabase
-      .from('conversations')
+      .from('direct_conversations')
       .insert({
         created_by: user.id
       })
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Añadir participantes
     const { error: participantsError } = await supabase
-      .from('conversation_participants')
+      .from('direct_conversation_participants')
       .insert([
         {
           conversation_id: newConversation.id,
