@@ -173,17 +173,10 @@ function MensajesPageContent() {
             }, 1000)
           }
           
-          // Auto-scroll si el usuario no está scrolleando arriba
+          // Auto-scroll solo si el usuario está cerca del bottom
           setTimeout(() => {
-            const element = messagesEndRef.current
-            if (element) {
-              const parent = element.parentElement
-              if (parent) {
-                const isNearBottom = parent.scrollHeight - parent.scrollTop - parent.clientHeight < 200
-                if (isNearBottom) {
-                  scrollToBottom()
-                }
-              }
+            if (isNearBottom()) {
+              scrollToBottom(true) // smooth scroll
             }
           }, 100)
         }
@@ -336,14 +329,37 @@ function MensajesPageContent() {
     }
   }
 
-  const scrollToBottom = () => {
-    // Hacer scroll solo en el contenedor de mensajes, no en toda la página
+  const scrollToBottom = (smooth = false) => {
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.parentElement
       if (container) {
-        container.scrollTop = container.scrollHeight
+        // Solo hacer scroll si el contenido es mayor que el viewport
+        const shouldScroll = container.scrollHeight > container.clientHeight
+        
+        if (shouldScroll) {
+          if (smooth) {
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth'
+            })
+          } else {
+            container.scrollTop = container.scrollHeight
+          }
+        }
       }
     }
+  }
+  
+  const isNearBottom = () => {
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement
+      if (container) {
+        const threshold = 200
+        const position = container.scrollHeight - container.scrollTop - container.clientHeight
+        return position < threshold
+      }
+    }
+    return true
   }
 
   // Marcar mensaje como entregado
@@ -580,6 +596,7 @@ function MensajesPageContent() {
               ${showChatOnMobile ? 'flex fixed inset-0 z-[9999]' : 'hidden'}
               md:flex md:relative md:z-auto
             `}
+            style={showChatOnMobile ? { height: '100dvh' } : undefined}
           >
             {/* Chat Header */}
             <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0 bg-white">
@@ -608,7 +625,13 @@ function MensajesPageContent() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div 
+              className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0"
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain'
+              }}
+            >
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full text-neutral-500">
                   <div className="flex flex-col items-center space-y-3">
@@ -673,7 +696,12 @@ function MensajesPageContent() {
             </div>
 
             {/* Message Input */}
-            <div className="border-t border-neutral-200 bg-white safe-area-bottom flex-shrink-0">
+            <div 
+              className="border-t border-neutral-200 bg-white flex-shrink-0"
+              style={{
+                paddingBottom: 'max(env(safe-area-inset-bottom), 8px)'
+              }}
+            >
               <div className="p-3 md:p-4 max-w-full">
                 <div className="flex items-end gap-2 w-full">
                   <input
