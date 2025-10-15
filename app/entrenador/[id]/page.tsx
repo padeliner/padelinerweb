@@ -56,10 +56,11 @@ const mockReviews = [
   }
 ]
 
-export default function EntrenadorPage() {
+export default function EntrenadorDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { isAuthenticated } = useAuth()
+  const [contacting, setContacting] = useState(false)
   const coachId = parseInt(params.id as string)
   const coach = mockCoaches.find(c => c.id === coachId)
 
@@ -69,6 +70,41 @@ export default function EntrenadorPage() {
       router.push(`/login?redirect=/reservar/${coachId}`)
     } else {
       router.push(`/reservar/${coachId}`)
+    }
+  }
+
+  const handleContactar = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/entrenador/${coachId}`)
+      return
+    }
+
+    if (!coach?.userId) {
+      alert('Error: No se puede contactar con este entrenador')
+      return
+    }
+
+    setContacting(true)
+    try {
+      const res = await fetch('/api/conversations/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserId: coach.userId })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        // Redirigir a mensajes con la conversación abierta
+        router.push(`/mensajes`)
+      } else {
+        alert('Error al iniciar conversación')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al iniciar conversación')
+    } finally {
+      setContacting(false)
     }
   }
 
@@ -191,12 +227,14 @@ export default function EntrenadorPage() {
                     <span>Reservar Clase</span>
                   </button>
                   
-                  <Link href="/mensajes" className="block">
-                    <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
-                      <MessageCircle className="w-5 h-5" />
-                      <span>Contactar</span>
-                    </button>
-                  </Link>
+                  <button 
+                    onClick={handleContactar}
+                    disabled={contacting}
+                    className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>{contacting ? 'Abriendo chat...' : 'Contactar'}</span>
+                  </button>
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 space-y-3 text-sm">

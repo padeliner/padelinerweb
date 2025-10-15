@@ -18,6 +18,7 @@ export interface Coach {
   images: string[]
   isFeatured: boolean
   offersHomeService: boolean // Disponibilidad de desplazamiento
+  userId?: string // ID del usuario en Supabase para chat
 }
 
 export const mockCoaches: Coach[] = [
@@ -494,5 +495,55 @@ export const mockCoaches: Coach[] = [
     ],
     isFeatured: false,
     offersHomeService: true
+  },
+  {
+    id: 21,
+    name: "Alvaro Vinilo",
+    specialties: ["Adultos", "Competición", "Técnica avanzada"],
+    experience: 8,
+    rating: 4.8,
+    reviewsCount: 24,
+    pricePerHour: 45,
+    location: "Valencia Padel Center",
+    city: "Valencia",
+    lat: 39.4699,
+    lng: -0.3763,
+    imageUrl: "https://ui-avatars.com/api/?name=Alvaro+Vinilo&size=400&background=16a34a&color=fff&bold=true",
+    bio: "Entrenador profesional con más de 8 años de experiencia en pádel. Especializado en técnica y táctica para jugadores de nivel intermedio y avanzado. ¡Mejora tu juego conmigo!",
+    certifications: ["Entrenador Nacional RPT", "Monitor Nivel 2"],
+    languages: ["Español", "Inglés"],
+    availability: ["Lunes a Viernes: 9:00-21:00", "Sábados: 10:00-14:00"],
+    images: [
+      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800",
+      "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800"
+    ],
+    isFeatured: true,
+    offersHomeService: true,
+    userId: "900d2812-8c39-4b08-a967-344c494f6b81"
+  },
+  {
+    id: 22,
+    name: "Guillermo Llombart",
+    specialties: ["Junior", "Adultos", "Iniciación", "Táctica"],
+    experience: 10,
+    rating: 4.9,
+    reviewsCount: 32,
+    pricePerHour: 50,
+    location: "Valencia Padel Academy",
+    city: "Valencia",
+    lat: 39.4699,
+    lng: -0.3763,
+    imageUrl: "https://ui-avatars.com/api/?name=Guillermo+Llombart&size=400&background=16a34a&color=fff&bold=true",
+    bio: "Entrenador con amplia experiencia en formación de jugadores junior y adultos. Metodología moderna y enfoque personalizado. ¡Lleva tu pádel al siguiente nivel!",
+    certifications: ["Entrenador Nacional RPT", "Monitor Nivel 3", "Preparador Físico"],
+    languages: ["Español", "Inglés"],
+    availability: ["Lunes a Viernes: 8:00-22:00", "Sábados: 9:00-13:00", "Domingos: 9:00-13:00"],
+    images: [
+      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800",
+      "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
+    ],
+    isFeatured: true,
+    offersHomeService: true,
+    userId: "5f9abcfe-bcdf-4566-b271-3beac38060c5"
   }
 ]
