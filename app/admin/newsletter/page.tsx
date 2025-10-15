@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { Send, Users, Mail, TrendingUp, Plus, Edit, Trash2, Eye } from 'lucide-react'
+import CreateCampaignModal from '@/components/admin/newsletter/CreateCampaignModal'
 
 export default function NewsletterPage() {
   const [activeTab, setActiveTab] = useState<'subscribers' | 'campaigns'>('subscribers')
   const [subscribers, setSubscribers] = useState<any[]>([])
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const [stats, setStats] = useState({
     totalSubscribers: 0,
     activeSubscribers: 0,
@@ -61,7 +63,10 @@ export default function NewsletterPage() {
           <h1 className="text-3xl font-bold text-neutral-900">Newsletter</h1>
           <p className="text-neutral-600 mt-1">Gestiona tus suscriptores y campañas de email</p>
         </div>
-        <button className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+        >
           <Plus className="w-5 h-5" />
           <span>Nueva Campaña</span>
         </button>
@@ -238,6 +243,16 @@ export default function NewsletterPage() {
           </div>
         )}
       </div>
+
+      {/* Create Campaign Modal */}
+      <CreateCampaignModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          loadData()
+          setActiveTab('campaigns')
+        }}
+      />
     </div>
   )
 }

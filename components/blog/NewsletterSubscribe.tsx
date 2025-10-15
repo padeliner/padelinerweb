@@ -22,21 +22,24 @@ export function NewsletterSubscribe() {
         return
       }
 
-      // Aquí puedes integrar con tu servicio de email
-      // Por ahora solo simulamos
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // TODO: Integrar con Resend, Mailchimp, etc.
-      // const response = await fetch('/api/newsletter/subscribe', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email })
-      // })
+      // Suscribir a través de la API
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'blog' })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Error al suscribirse')
+        return
+      }
 
       setSubscribed(true)
       setEmail('')
       
-      // Opcional: Enviar evento de analytics
+      // Enviar evento de analytics
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'newsletter_subscribe', {
           method: 'blog_footer'
