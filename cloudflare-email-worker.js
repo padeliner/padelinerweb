@@ -43,8 +43,8 @@ export default {
 
       console.log('Sending to webhook:', emailData)
 
-      // Enviar a tu webhook de Supabase
-      const webhookResponse = await fetch('https://padeliner.com/api/webhooks/inbound-email', {
+      // Enviar a tu webhook de Supabase (V2 - Conversaciones)
+      const webhookResponse = await fetch('https://padeliner.com/api/webhooks/inbound-email/v2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
