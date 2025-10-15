@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { Search, MessageCircle, ArrowLeft, Send, Loader2 } from 'lucide-react'
+import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
@@ -14,6 +14,8 @@ interface Message {
   sender_id: string
   content: string
   created_at: string
+  delivered_at?: string | null
+  read_at?: string | null
   sender?: {
     id: string
     full_name: string
@@ -44,7 +46,9 @@ export default function MensajesPage() {
   const [showChatOnMobile, setShowChatOnMobile] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
   const filteredConversations = conversations.filter(conv =>
@@ -115,6 +119,8 @@ export default function MensajesPage() {
   useEffect(() => {
     if (!selectedConversationId) return
 
+    console.log('Suscribiendo a mensajes en tiempo real...')
+
     // Canal de Realtime para nuevos mensajes
     const channel = supabase
       .channel(`messages:${selectedConversationId}`)
@@ -136,6 +142,11 @@ export default function MensajesPage() {
             return [...prev, newMessage]
           })
           
+          // Marcar como entregado si no somos el remitente
+          if (newMessage.sender_id !== userId) {
+            markAsDelivered(newMessage.id)
+          }
+          
           // Auto-scroll si el usuario no está scrolleando arriba
           setTimeout(() => {
             const element = messagesEndRef.current
@@ -151,12 +162,76 @@ export default function MensajesPage() {
           }, 100)
         }
       )
-      .subscribe()
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${selectedConversationId}`
+        },
+        (payload: any) => {
+          console.log('Mensaje actualizado (checks):', payload)
+          const updatedMessage = payload.new as Message
+          
+          // Actualizar el mensaje con los checks
+          setMessages(prev => prev.map(m => 
+            m.id === updatedMessage.id ? updatedMessage : m
+          ))
+        }
+      )
+      .subscribe((status: any) => {
+        console.log('Estado suscripción mensajes:', status)
+      })
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [selectedConversationId])
+  }, [selectedConversationId, userId])
+
+  // Suscribirse a typing indicators
+  useEffect(() => {
+    if (!selectedConversationId || !userId) return
+
+    const typingChannel = supabase
+      .channel(`typing:${selectedConversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'direct_typing_indicators',
+          filter: `conversation_id=eq.${selectedConversationId}`
+        },
+        (payload: any) => {
+          console.log('Typing indicator:', payload)
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const indicator = payload.new
+            // Solo mostrar si NO es el usuario actual
+            if (indicator.user_id !== userId) {
+              setIsOtherUserTyping(true)
+            }
+          } else if (payload.eventType === 'DELETE') {
+            setIsOtherUserTyping(false)
+          }
+        }
+      )
+      .subscribe((status: any) => {
+        console.log('Estado suscripción typing:', status)
+      })
+
+    return () => {
+      supabase.removeChannel(typingChannel)
+      setIsOtherUserTyping(false)
+    }
+  }, [selectedConversationId, userId])
+
+  // Marcar mensajes como leídos cuando se abre la conversación
+  useEffect(() => {
+    if (selectedConversationId && userId) {
+      markConversationAsRead()
+    }
+  }, [selectedConversationId, userId])
 
   const loadMessages = async (conversationId: string) => {
     try {
@@ -171,6 +246,74 @@ export default function MensajesPage() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // Marcar mensaje como entregado
+  const markAsDelivered = async (messageId: string) => {
+    try {
+      await supabase
+        .from('direct_messages')
+        .update({ delivered_at: new Date().toISOString() })
+        .eq('id', messageId)
+        .is('delivered_at', null)
+    } catch (error) {
+      console.error('Error marking as delivered:', error)
+    }
+  }
+
+  // Marcar conversación como leída
+  const markConversationAsRead = async () => {
+    if (!selectedConversationId) return
+    
+    try {
+      await fetch(`/api/messages/${selectedConversationId}/mark-read`, {
+        method: 'POST'
+      })
+    } catch (error) {
+      console.error('Error marking as read:', error)
+    }
+  }
+
+  // Enviar indicador de escritura
+  const sendTypingIndicator = async (isTyping: boolean) => {
+    if (!selectedConversationId) return
+    
+    try {
+      await fetch(`/api/messages/${selectedConversationId}/typing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isTyping })
+      })
+    } catch (error) {
+      console.error('Error sending typing indicator:', error)
+    }
+  }
+
+  // Manejar cambio en el input (typing indicator)
+  const handleMessageTextChange = (text: string) => {
+    setMessageText(text)
+
+    // Enviar "está escribiendo"
+    if (text.trim() && !typingTimeoutRef.current) {
+      sendTypingIndicator(true)
+    }
+
+    // Limpiar timeout anterior
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    // Si hay texto, programar "dejó de escribir" en 3 segundos
+    if (text.trim()) {
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTypingIndicator(false)
+        typingTimeoutRef.current = null
+      }, 3000)
+    } else {
+      // Si borra todo, enviar inmediatamente "dejó de escribir"
+      sendTypingIndicator(false)
+      typingTimeoutRef.current = null
+    }
   }
 
   const handleSelectConversation = (conversationId: string) => {
@@ -198,6 +341,13 @@ export default function MensajesPage() {
 
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedConversationId || sending) return
+
+    // Detener indicador de escritura
+    sendTypingIndicator(false)
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+      typingTimeoutRef.current = null
+    }
 
     setSending(true)
     try {
@@ -366,10 +516,35 @@ export default function MensajesPage() {
                         <span className={`text-xs ${message.sender_id === userId ? 'text-primary-100' : 'text-neutral-500'}`}>
                           {format(new Date(message.created_at), 'HH:mm')}
                         </span>
+                        {/* Checks de WhatsApp - Solo para mensajes propios */}
+                        {message.sender_id === userId && (
+                          <span className="flex-shrink-0">
+                            {message.read_at ? (
+                              <CheckCheck className="w-4 h-4 text-blue-400" />
+                            ) : message.delivered_at ? (
+                              <CheckCheck className="w-4 h-4 text-primary-100" />
+                            ) : (
+                              <Check className="w-4 h-4 text-primary-100" />
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                 ))
+              )}
+
+              {/* Indicador de "escribiendo..." */}
+              {isOtherUserTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-neutral-100 px-4 py-2 rounded-2xl">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
               )}
 
               <div ref={messagesEndRef} />
@@ -383,7 +558,7 @@ export default function MensajesPage() {
                     type="text"
                     placeholder="Escribe un mensaje..."
                     value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => handleMessageTextChange(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
                     disabled={sending}
                     className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
