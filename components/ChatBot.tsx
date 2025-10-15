@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Loader2, User, Bot, Star, MapPin, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -16,6 +17,7 @@ type Message = {
 }
 
 export function ChatBot() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -31,6 +33,11 @@ export function ChatBot() {
   const [isMobile, setIsMobile] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { user, profile } = useAuth()
+
+  // No mostrar en la página de mensajes
+  if (pathname === '/mensajes') {
+    return null
+  }
 
   // Detectar si es móvil
   useEffect(() => {
