@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react'
 import { User, CircleDot, ShoppingCart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-
-// Mock data simplificado - en producción esto vendría de una API/estado global
-const getUnreadMessagesCount = () => {
-  // Simulamos el conteo de mensajes no leídos
-  // En producción esto vendría de tu estado global o API
-  return 2 // Carlos Martínez tiene 2 mensajes sin leer
-}
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 interface HeaderProps {
   showCart?: boolean
@@ -27,8 +21,8 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
   // Autenticación
   const { user, profile, isAuthenticated } = useAuth()
   
-  // Obtener mensajes no leídos
-  const unreadMessagesCount = getUnreadMessagesCount()
+  // Obtener mensajes no leídos REALES con actualización automática
+  const { unreadCount: unreadMessagesCount } = useUnreadMessages()
 
   useEffect(() => {
     const handleScroll = () => {

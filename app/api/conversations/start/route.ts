@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
+    const adminSupabase = createAdminClient()
 
     // Obtener usuario actual
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    console.log('=== CONVERSATION START DEBUG ===')
+    console.log('User from auth:', user ? { id: user.id, email: user.email } : 'NULL')
+    console.log('User error:', userError)
+    
     if (!user) {
+      console.error('No user found in session')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { targetUserId } = await request.json()
+    console.log('Target user ID:', targetUserId)
 
     if (!targetUserId) {
       return NextResponse.json({ error: 'Target user ID required' }, { status: 400 })
@@ -54,8 +63,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Crear nueva conversación
-    const { data: newConversation, error: convError } = await supabase
+    // Crear nueva conversación (usando admin client para bypassear RLS)
+    console.log('Attempting to create conversation...')
+    console.log('Insert data:', { created_by: user.id })
+    
+    const { data: newConversation, error: convError } = await adminSupabase
       .from('direct_conversations')
       .insert({
         created_by: user.id
@@ -63,10 +75,16 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (convError) throw convError
+    console.log('Conversation created:', newConversation)
+    console.log('Conversation error:', convError)
+    
+    if (convError) {
+      console.error('FAILED TO CREATE CONVERSATION:', JSON.stringify(convError, null, 2))
+      throw convError
+    }
 
-    // Añadir participantes
-    const { error: participantsError } = await supabase
+    // Añadir participantes (usando admin client)
+    const { error: participantsError } = await adminSupabase
       .from('direct_conversation_participants')
       .insert([
         {
