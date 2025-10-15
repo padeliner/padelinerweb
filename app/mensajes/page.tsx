@@ -489,21 +489,37 @@ function MensajesPageContent() {
     if (typeof window === 'undefined' || !window.visualViewport) return
     
     const handleViewportResize = () => {
-      if (window.innerWidth < 768) {
+      if (window.innerWidth < 768 && selectedConversationId) {
         const viewport = window.visualViewport
         if (viewport) {
-          // Calcular altura del teclado
-          const keyboardHeight = window.innerHeight - viewport.height
-          console.log('⌨️ Teclado detectado:', {
+          // Usar directamente la altura del viewport visible
+          const viewportHeight = viewport.height
+          const prevHeight = keyboardHeight
+          
+          console.log('⌨️ Viewport cambiado:', {
             windowHeight: window.innerHeight,
             viewportHeight: viewport.height,
-            keyboardHeight,
-            offsetTop: viewport.offsetTop
+            offsetTop: viewport.offsetTop,
+            prevHeight,
+            keyboardAppeared: prevHeight === 0 && viewportHeight < window.innerHeight
           })
-          setKeyboardHeight(keyboardHeight)
+          
+          setKeyboardHeight(viewportHeight)
+          
+          // Si el teclado acaba de aparecer (viewport se redujo), hacer scroll al final
+          if (prevHeight === 0 && viewportHeight < window.innerHeight) {
+            setTimeout(() => {
+              scrollToBottom(false)
+            }, 100)
+          }
         }
+      } else {
+        setKeyboardHeight(0)
       }
     }
+    
+    // Llamar inmediatamente para configurar altura inicial
+    handleViewportResize()
 
     window.visualViewport?.addEventListener('resize', handleViewportResize)
     window.visualViewport?.addEventListener('scroll', handleViewportResize)
@@ -512,7 +528,7 @@ function MensajesPageContent() {
       window.visualViewport?.removeEventListener('resize', handleViewportResize)
       window.visualViewport?.removeEventListener('scroll', handleViewportResize)
     }
-  }, [])
+  }, [selectedConversationId, keyboardHeight])
 
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedConversationId || sending) return
@@ -644,7 +660,14 @@ function MensajesPageContent() {
               ${showChatOnMobile ? 'flex fixed inset-0 z-[9999]' : 'hidden'}
               md:flex md:relative md:z-auto
             `}
-            style={showChatOnMobile ? { height: '100dvh' } : undefined}
+            style={
+              showChatOnMobile 
+                ? { 
+                    height: keyboardHeight > 0 ? `${keyboardHeight}px` : '100dvh',
+                    maxHeight: keyboardHeight > 0 ? `${keyboardHeight}px` : '100dvh'
+                  } 
+                : undefined
+            }
           >
             {/* Chat Header */}
             <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0 bg-white">
@@ -743,24 +766,11 @@ function MensajesPageContent() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Spacer cuando input está en fixed (Android keyboard) */}
-            {keyboardHeight > 0 && window.innerWidth < 768 && (
-              <div style={{ height: '80px' }} />
-            )}
-
             {/* Message Input */}
             <div 
               className="border-t border-neutral-200 bg-white flex-shrink-0"
               style={{
-                paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
-                // Android keyboard fix: posicionar input sobre el teclado
-                ...(keyboardHeight > 0 && window.innerWidth < 768 ? {
-                  position: 'fixed' as const,
-                  bottom: `${keyboardHeight}px`,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1000
-                } : {})
+                paddingBottom: 'max(env(safe-area-inset-bottom), 8px)'
               }}
             >
               <div className="p-3 md:p-4 max-w-full">
@@ -773,14 +783,11 @@ function MensajesPageContent() {
                     onChange={(e) => handleMessageTextChange(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
                     onFocus={() => {
-                      // Android: asegurar que input sea visible cuando se hace focus
+                      // Hacer scroll al final cuando se hace focus (mostrar último mensaje)
                       if (window.innerWidth < 768) {
                         setTimeout(() => {
-                          messageInputRef.current?.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'nearest'
-                          })
-                        }, 300)
+                          scrollToBottom(false)
+                        }, 200)
                       }
                     }}
                     disabled={sending}
