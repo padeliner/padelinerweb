@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Send email to internal team (email address NOT exposed in frontend)
     await resend.emails.send({
-      from: 'Recursos Humanos <empleo@send.padeliner.com>',
+      from: 'Recursos Humanos <no-reply@padeliner.com>',
       to: process.env.CAREERS_EMAIL || 'padeliner@gmail.com',
       subject: `Nueva Solicitud de Empleo: ${position} - ${fullName}`,
       html: `
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to applicant
     await resend.emails.send({
-      from: 'Recursos Humanos <empleo@send.padeliner.com>',
+      from: 'Recursos Humanos Padeliner <no-reply@padeliner.com>',
       to: email,
       subject: 'Solicitud Recibida - Padeliner',
       html: `

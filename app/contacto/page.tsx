@@ -23,6 +23,8 @@ export default function ContactoPage() {
     setSubmitting(true)
     setError('')
 
+    console.log('📧 Enviando formulario...', formData)
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -30,7 +32,10 @@ export default function ContactoPage() {
         body: JSON.stringify(formData)
       })
 
+      console.log('📬 Response status:', response.status)
+
       const data = await response.json()
+      console.log('📬 Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Error al enviar el mensaje')
@@ -43,6 +48,7 @@ export default function ContactoPage() {
         setSubmitted(false)
       }, 5000)
     } catch (error: any) {
+      console.error('❌ Error:', error)
       setError(error.message || 'Error al enviar el mensaje. Inténtalo de nuevo.')
     } finally {
       setSubmitting(false)
