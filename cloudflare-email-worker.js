@@ -180,12 +180,33 @@ function parseEmail(raw) {
 }
 
 /**
- * Decodifica quoted-printable encoding
+ * Decodifica quoted-printable encoding con soporte UTF-8
  */
 function decodeQuotedPrintable(str) {
-  return str
-    .replace(/=\r?\n/g, '') // Soft line breaks
-    .replace(/=([0-9A-F]{2})/gi, (match, hex) => {
-      return String.fromCharCode(parseInt(hex, 16))
-    })
+  // Remover soft line breaks
+  str = str.replace(/=\r?\n/g, '')
+  
+  // Convertir hex a bytes
+  const bytes = []
+  let i = 0
+  while (i < str.length) {
+    if (str[i] === '=' && i + 2 < str.length) {
+      const hex = str.substr(i + 1, 2)
+      if (/^[0-9A-F]{2}$/i.test(hex)) {
+        bytes.push(parseInt(hex, 16))
+        i += 3
+        continue
+      }
+    }
+    bytes.push(str.charCodeAt(i))
+    i++
+  }
+  
+  // Decodificar como UTF-8
+  try {
+    return new TextDecoder('utf-8').decode(new Uint8Array(bytes))
+  } catch (e) {
+    // Fallback
+    return String.fromCharCode(...bytes)
+  }
 }

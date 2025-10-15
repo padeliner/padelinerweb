@@ -157,66 +157,99 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
   return (
     <div className="flex-1 flex flex-col bg-white">
       {/* Header */}
-      <div className="border-b p-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-1">
-              {conversation.subject}
-            </h2>
-            <div className="flex items-center space-x-4 text-sm text-neutral-600">
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span>{conversation.contact_name || conversation.contact_email}</span>
+      <div className="border-b bg-white">
+        <div className="p-6">
+          {/* Subject */}
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            {conversation.subject}
+          </h2>
+
+          {/* Contact Info Card */}
+          <div className="bg-neutral-50 rounded-lg p-4 mb-4">
+            <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-3">Información del Contacto</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center space-x-2 text-sm mb-2">
+                  <User className="w-4 h-4 text-neutral-400" />
+                  <div>
+                    <span className="text-xs text-neutral-500">Nombre</span>
+                    <p className="font-medium text-neutral-900">
+                      {conversation.contact_name || 'Sin nombre'}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4" />
-                <span>{conversation.contact_email}</span>
+              <div>
+                <div className="flex items-center space-x-2 text-sm mb-2">
+                  <Mail className="w-4 h-4 text-neutral-400" />
+                  <div>
+                    <span className="text-xs text-neutral-500">Email</span>
+                    <p className="font-medium text-neutral-900">{conversation.contact_email}</p>
+                  </div>
+                </div>
               </div>
               {conversation.contact_phone && (
-                <div className="flex items-center space-x-2">
-                  <Phone className="w-4 h-4" />
-                  <span>{conversation.contact_phone}</span>
+                <div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Phone className="w-4 h-4 text-neutral-400" />
+                    <div>
+                      <span className="text-xs text-neutral-500">Teléfono</span>
+                      <p className="font-medium text-neutral-900">{conversation.contact_phone}</p>
+                    </div>
+                  </div>
                 </div>
               )}
+              <div>
+                <div className="flex items-center space-x-2 text-sm">
+                  <Clock className="w-4 h-4 text-neutral-400" />
+                  <div>
+                    <span className="text-xs text-neutral-500">Primer mensaje</span>
+                    <p className="font-medium text-neutral-900">
+                      {formatDistanceToNow(new Date(conversation.first_message_at), { addSuffix: true, locale: es })}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Status Selector */}
-          <select
-            value={conversation.status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${currentStatus?.color}`}
-          >
-            {statusOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-
-          {/* Priority Selector */}
-          <select
-            value={conversation.priority}
-            onChange={(e) => handlePriorityChange(e.target.value)}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${currentPriority?.color}`}
-          >
-            {priorityOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-
-          {/* Team Badge */}
-          {conversation.team && (
-            <span 
-              className="px-3 py-1.5 rounded text-sm font-medium"
-              style={{ 
-                backgroundColor: `${conversation.team.color}20`,
-                color: conversation.team.color 
-              }}
+          {/* Actions */}
+          <div className="flex items-center space-x-2">
+            {/* Status Selector */}
+            <select
+              value={conversation.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className={`px-3 py-1.5 rounded text-sm font-medium ${currentStatus?.color}`}
             >
-              {conversation.team.name}
-            </span>
-          )}
+              {statusOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+
+            {/* Priority Selector */}
+            <select
+              value={conversation.priority}
+              onChange={(e) => handlePriorityChange(e.target.value)}
+              className={`px-3 py-1.5 rounded text-sm font-medium ${currentPriority?.color}`}
+            >
+              {priorityOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+
+            {/* Team Badge */}
+            {conversation.team && (
+              <span 
+                className="px-3 py-1.5 rounded text-sm font-medium"
+                style={{ 
+                  backgroundColor: `${conversation.team.color}20`,
+                  color: conversation.team.color 
+                }}
+              >
+                {conversation.team.name}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -228,34 +261,51 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
           <div className="text-center text-neutral-500">No hay mensajes</div>
         ) : (
           messages.map(message => (
-            <div key={message.id} className={`${message.is_internal ? 'bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded' : ''}`}>
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-neutral-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-neutral-900">
-                        {message.from_name || message.from_email}
-                      </span>
-                      {message.is_internal && (
-                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">
-                          Nota Interna
+            <div key={message.id} className={`rounded-lg border ${message.is_internal ? 'bg-yellow-50 border-yellow-300' : 'bg-white border-neutral-200'}`}>
+              <div className="p-4">
+                {/* Message Header */}
+                <div className="flex items-center justify-between mb-3 pb-3 border-b border-neutral-200">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      message.is_from_customer ? 'bg-blue-100' : 'bg-green-100'
+                    }`}>
+                      <User className={`w-5 h-5 ${
+                        message.is_from_customer ? 'text-blue-600' : 'text-green-600'
+                      }`} />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-semibold text-neutral-900">
+                          {message.from_name || 'Cliente'}
                         </span>
+                        {message.is_internal && (
+                          <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-medium">
+                            🔒 Nota Interna
+                          </span>
+                        )}
+                        {message.is_from_customer && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+                            Cliente
+                          </span>
+                        )}
+                      </div>
+                      {!message.is_internal && (
+                        <span className="text-xs text-neutral-500">{message.from_email}</span>
                       )}
                     </div>
-                    <span className="text-xs text-neutral-500">
-                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: es })}
-                    </span>
                   </div>
-                  <div className="text-sm text-neutral-700">
-                    {message.html_content ? (
-                      <div dangerouslySetInnerHTML={{ __html: message.html_content }} />
-                    ) : (
-                      <div className="whitespace-pre-wrap">{message.content}</div>
-                    )}
-                  </div>
+                  <span className="text-xs text-neutral-500">
+                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: es })}
+                  </span>
+                </div>
+
+                {/* Message Content */}
+                <div className="prose prose-sm max-w-none">
+                  {message.html_content ? (
+                    <div dangerouslySetInnerHTML={{ __html: message.html_content }} />
+                  ) : (
+                    <div className="whitespace-pre-wrap text-neutral-700">{message.content}</div>
+                  )}
                 </div>
               </div>
             </div>
