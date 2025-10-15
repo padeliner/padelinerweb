@@ -141,13 +141,13 @@ export async function POST(request: NextRequest) {
       const contactInfo = supportMatch[1]
       responseText = responseText.replace(/\[HUMAN_SUPPORT_NEEDED:.+?\]/, '').trim()
 
-      // Enviar email al equipo de soporte con la info de contacto
-      await sendSupportEmail({
+      // Crear conversación en sistema de mensajería + enviar email
+      await createSupportConversation({
         conversationId,
         userId,
-        userEmail: userEmail || contactInfo, // Usa el contactInfo si no hay userEmail
+        userEmail: userEmail || contactInfo,
         userName,
-        contactInfo, // Info adicional que proporcionó el usuario
+        contactInfo,
         conversationHistory: [...conversationHistory, { role: 'user', content: message }],
         lastMessage: message
       })
@@ -182,8 +182,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Función para enviar email al equipo de soporte
-async function sendSupportEmail(data: {
+// Función para crear conversación en sistema de mensajería
+async function createSupportConversation(data: {
   conversationId: string
   userId?: string
   userEmail?: string
@@ -193,6 +193,119 @@ async function sendSupportEmail(data: {
   lastMessage: string
 }) {
   try {
+    // ═══════════════════════════════════════════════════════════
+    // CREAR CONVERSACIÓN EN SISTEMA DE MENSAJERÍA
+    // ═══════════════════════════════════════════════════════════
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Get Support team
+    const { data: supportTeam } = await supabase
+      .from('teams')
+      .select('id')
+      .eq('slug', 'support')
+      .single()
+
+    if (supportTeam) {
+      // Build conversation text for display
+      const conversationText = data.conversationHistory
+        .map((msg: any) => `${msg.role === 'user' ? 'Usuario' : 'Chatbot'}: ${msg.content}`)
+        .join('\n\n')
+
+      // Create conversation
+      const { data: newConversation } = await supabase
+        .from('conversations')
+        .insert({
+          contact_email: data.userEmail || data.contactInfo || 'chatbot@padeliner.com',
+          contact_name: data.userName || 'Usuario Chatbot',
+          subject: `[Chatbot] Cliente solicita hablar con persona real`,
+          team_id: supportTeam.id,
+          category: 'support',
+          source: 'chatbot',
+          status: 'new',
+          priority: 'high', // Alta prioridad porque pidió hablar con persona
+          first_message_at: new Date().toISOString(),
+          last_message_at: new Date().toISOString(),
+          message_count: 1,
+          unread_count: 1
+        })
+        .select('id')
+        .single()
+
+      if (newConversation) {
+        // Add message to conversation
+        await supabase
+          .from('messages')
+          .insert({
+            conversation_id: newConversation.id,
+            from_email: data.userEmail || data.contactInfo || 'chatbot@padeliner.com',
+            from_name: data.userName || 'Usuario Chatbot',
+            to_email: 'soporte@padeliner.com',
+            subject: `[Chatbot] Cliente solicita hablar con persona real`,
+            content: `SOLICITUD DE SOPORTE HUMANO DESDE CHATBOT\n\n` +
+                     `Usuario: ${data.userName}\n` +
+                     `Email/Contacto: ${data.userEmail || data.contactInfo}\n` +
+                     `ID Usuario: ${data.userId || 'Anónimo'}\n\n` +
+                     `═══════════════════════════════════════\n` +
+                     `CONVERSACIÓN COMPLETA:\n` +
+                     `═══════════════════════════════════════\n\n` +
+                     `${conversationText}\n\n` +
+                     `═══════════════════════════════════════\n` +
+                     `ÚLTIMO MENSAJE:\n` +
+                     `═══════════════════════════════════════\n` +
+                     `${data.lastMessage}`,
+            html_content: `
+              <div style="font-family: Arial, sans-serif;">
+                <h2 style="color: #ef4444;">🤖 Solicitud de Soporte Humano desde Chatbot</h2>
+                <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0; color: #991b1b;"><strong>⚠️ Un cliente ha solicitado hablar con una persona real</strong></p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Usuario:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${data.userName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Email/Contacto:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;"><strong>${data.userEmail || data.contactInfo}</strong></td>
+                  </tr>
+                  ${data.userId ? `
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>ID Usuario:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${data.userId}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+                <h3 style="color: #333;">💬 Conversación Completa</h3>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-size: 14px; max-height: 400px; overflow-y: auto;">
+${conversationText}
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                  <strong>⚠️ Último mensaje del usuario:</strong>
+                  <p style="margin: 10px 0 0 0;">${data.lastMessage}</p>
+                </div>
+              </div>
+            `,
+            type: 'message',
+            is_internal: false,
+            is_from_customer: true
+          })
+
+        // Log activity
+        await supabase
+          .from('conversation_activities')
+          .insert({
+            conversation_id: newConversation.id,
+            action: 'created',
+            details: { source: 'chatbot', trigger: 'human_support_request' }
+          })
+      }
+    }
+
+    // También enviar email como respaldo
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 

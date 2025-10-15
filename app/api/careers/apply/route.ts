@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -31,6 +32,98 @@ export async function POST(request: NextRequest) {
     // Extract base64 content
     const base64Data = cvFile.split(',')[1]
     const buffer = Buffer.from(base64Data, 'base64')
+
+    // ═══════════════════════════════════════════════════════════
+    // CREAR CONVERSACIÓN EN SISTEMA DE MENSAJERÍA
+    // ═══════════════════════════════════════════════════════════
+    const supabaseService = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Get HR team
+    const { data: hrTeam } = await supabaseService
+      .from('teams')
+      .select('id')
+      .eq('slug', 'hr')
+      .single()
+
+    if (hrTeam) {
+      // Create conversation
+      const { data: newConversation } = await supabaseService
+        .from('conversations')
+        .insert({
+          contact_email: email,
+          contact_name: fullName,
+          contact_phone: phone || null,
+          subject: `[Solicitud Empleo] ${position} - ${fullName}`,
+          team_id: hrTeam.id,
+          category: 'careers',
+          source: 'form',
+          status: 'new',
+          priority: 'normal',
+          first_message_at: new Date().toISOString(),
+          last_message_at: new Date().toISOString(),
+          message_count: 1,
+          unread_count: 1
+        })
+        .select('id')
+        .single()
+
+      if (newConversation) {
+        // Add message to conversation
+        await supabaseService
+          .from('messages')
+          .insert({
+            conversation_id: newConversation.id,
+            from_email: email,
+            from_name: fullName,
+            to_email: 'empleo@padeliner.com',
+            subject: `[Solicitud Empleo] ${position}`,
+            content: `SOLICITUD DE EMPLEO\n\nPuesto: ${position}\nNombre: ${fullName}\nEmail: ${email}\nTeléfono: ${phone || 'No proporcionado'}\n\nMensaje:\n${message}\n\n📎 CV adjunto: ${fileName}`,
+            html_content: `
+              <div style="font-family: Arial, sans-serif;">
+                <h2 style="color: #059669;">Solicitud de Empleo</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Puesto:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${position}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Nombre:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${fullName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${email}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb;"><strong>Teléfono:</strong></td>
+                    <td style="padding: 10px; background: white; border: 1px solid #e5e7eb;">${phone || 'No proporcionado'}</td>
+                  </tr>
+                </table>
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin-top: 0;">Mensaje / Carta de Presentación:</h3>
+                  <p style="white-space: pre-wrap;">${message}</p>
+                </div>
+                <p><strong>📎 CV adjunto:</strong> ${fileName}</p>
+              </div>
+            `,
+            type: 'message',
+            is_internal: false,
+            is_from_customer: true
+          })
+
+        // Log activity
+        await supabaseService
+          .from('conversation_activities')
+          .insert({
+            conversation_id: newConversation.id,
+            action: 'created',
+            details: { source: 'careers_form', position }
+          })
+      }
+    }
 
     // Send email to internal team (email address NOT exposed in frontend)
     await resend.emails.send({
