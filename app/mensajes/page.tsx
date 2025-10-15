@@ -171,13 +171,25 @@ export default function MensajesPage() {
           filter: `conversation_id=eq.${selectedConversationId}`
         },
         (payload: any) => {
-          console.log('Mensaje actualizado (checks):', payload)
+          console.log('🔵 UPDATE recibido:', payload)
+          console.log('🔵 Payload completo:', JSON.stringify(payload, null, 2))
           const updatedMessage = payload.new as Message
           
+          console.log('🔵 Mensaje actualizado ID:', updatedMessage.id)
+          console.log('🔵 delivered_at:', updatedMessage.delivered_at)
+          console.log('🔵 read_at:', updatedMessage.read_at)
+          
           // Actualizar el mensaje con los checks
-          setMessages(prev => prev.map(m => 
-            m.id === updatedMessage.id ? updatedMessage : m
-          ))
+          setMessages(prev => {
+            const updated = prev.map(m => {
+              if (m.id === updatedMessage.id) {
+                console.log('✅ Actualizando mensaje en state:', m.id)
+                return updatedMessage
+              }
+              return m
+            })
+            return updated
+          })
         }
       )
       .subscribe((status: any) => {
