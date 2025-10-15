@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     const webhookSecret = request.headers.get('x-webhook-secret')
     
     if (webhookSecret !== process.env.WEBHOOK_SECRET) {
+      console.error('Invalid webhook secret')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -14,8 +15,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    console.log('Incoming email webhook received:', { from: body.from, to: body.to, subject: body.subject })
     
-    // Resend sends emails in this format
+    // Handle both Cloudflare Worker and Resend formats
     const {
       from,
       to,
@@ -33,10 +35,14 @@ export async function POST(request: NextRequest) {
 
     // Determine category based on recipient
     let category = 'general'
-    if (to?.includes('soporte@')) category = 'support'
-    if (to?.includes('hola@')) category = 'contact'
-    if (to?.includes('ventas@')) category = 'sales'
-    if (to?.includes('info@')) category = 'info'
+    const toEmail = typeof to === 'string' ? to : to?.[0] || 'unknown'
+    
+    if (toEmail.includes('contact@')) category = 'contact'
+    if (toEmail.includes('soporte@')) category = 'support'
+    if (toEmail.includes('hola@')) category = 'contact'
+    if (toEmail.includes('ventas@')) category = 'sales'
+    if (toEmail.includes('info@')) category = 'info'
+    if (toEmail.includes('empleo@')) category = 'careers'
 
     // Store in database
     const supabase = await createClient()
