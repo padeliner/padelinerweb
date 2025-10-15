@@ -293,6 +293,15 @@ export default function MensajesPage() {
     }
   }, [selectedConversationId, userId])
 
+  // Auto-scroll cuando aparece "escribiendo..."
+  useEffect(() => {
+    if (isOtherUserTyping) {
+      setTimeout(() => {
+        scrollToBottom()
+      }, 100)
+    }
+  }, [isOtherUserTyping])
+
   const loadMessages = async (conversationId: string) => {
     try {
       const res = await fetch(`/api/messages/${conversationId}`)
