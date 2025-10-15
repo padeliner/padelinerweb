@@ -51,6 +51,7 @@ function MensajesPageContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messageInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
   const filteredConversations = conversations.filter(conv =>
@@ -483,6 +484,36 @@ function MensajesPageContent() {
     }
   }, [showChatOnMobile])
 
+  // Detectar teclado en móvil usando Visual Viewport API (Android fix)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return
+    
+    const handleViewportResize = () => {
+      if (window.innerWidth < 768) {
+        const viewport = window.visualViewport
+        if (viewport) {
+          // Calcular altura del teclado
+          const keyboardHeight = window.innerHeight - viewport.height
+          console.log('⌨️ Teclado detectado:', {
+            windowHeight: window.innerHeight,
+            viewportHeight: viewport.height,
+            keyboardHeight,
+            offsetTop: viewport.offsetTop
+          })
+          setKeyboardHeight(keyboardHeight)
+        }
+      }
+    }
+
+    window.visualViewport?.addEventListener('resize', handleViewportResize)
+    window.visualViewport?.addEventListener('scroll', handleViewportResize)
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportResize)
+      window.visualViewport?.removeEventListener('scroll', handleViewportResize)
+    }
+  }, [])
+
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedConversationId || sending) return
 
@@ -712,11 +743,24 @@ function MensajesPageContent() {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Spacer cuando input está en fixed (Android keyboard) */}
+            {keyboardHeight > 0 && window.innerWidth < 768 && (
+              <div style={{ height: '80px' }} />
+            )}
+
             {/* Message Input */}
             <div 
               className="border-t border-neutral-200 bg-white flex-shrink-0"
               style={{
-                paddingBottom: 'max(env(safe-area-inset-bottom), 8px)'
+                paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
+                // Android keyboard fix: posicionar input sobre el teclado
+                ...(keyboardHeight > 0 && window.innerWidth < 768 ? {
+                  position: 'fixed' as const,
+                  bottom: `${keyboardHeight}px`,
+                  left: 0,
+                  right: 0,
+                  zIndex: 1000
+                } : {})
               }}
             >
               <div className="p-3 md:p-4 max-w-full">
@@ -728,6 +772,17 @@ function MensajesPageContent() {
                     value={messageText}
                     onChange={(e) => handleMessageTextChange(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
+                    onFocus={() => {
+                      // Android: asegurar que input sea visible cuando se hace focus
+                      if (window.innerWidth < 768) {
+                        setTimeout(() => {
+                          messageInputRef.current?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'nearest'
+                          })
+                        }, 300)
+                      }
+                    }}
                     disabled={sending}
                     className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
                     style={{ fontSize: '16px' }}
