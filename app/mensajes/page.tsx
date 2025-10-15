@@ -452,17 +452,15 @@ export default function MensajesPage() {
       })
 
       if (res.ok) {
-        // NO añadir el mensaje localmente
-        // Realtime INSERT lo añadirá automáticamente
-        // Esto evita duplicados
         setMessageText('')
         setTimeout(scrollToBottom, 100)
-        // Actualizar conversaciones
         loadConversations()
         
-        // Mantener foco en input solo en PC (no en móvil)
-        if (window.innerWidth >= 768 && messageInputRef.current) {
-          messageInputRef.current.focus()
+        // Mantener foco en input solo en PC (setTimeout para evitar que re-render lo robe)
+        if (window.innerWidth >= 768) {
+          setTimeout(() => {
+            messageInputRef.current?.focus()
+          }, 50)
         }
       }
     } catch (error) {
