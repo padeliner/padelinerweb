@@ -40,9 +40,24 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Parse from email and name
-    const fromMatch = from?.match(/<(.+)>/) || from?.match(/(.+)/)
-    const fromEmail = fromMatch ? fromMatch[1] : from
-    const fromName = from?.replace(/<.+>/, '').trim() || null
+    // Primero intentar obtener del Reply-To header (emails del formulario)
+    let fromEmail = headers?.['reply-to'] || headers?.['Reply-To']
+    let fromName = null
+    
+    if (!fromEmail) {
+      // Si no hay Reply-To, parsear el From normal
+      const fromMatch = from?.match(/<(.+)>/) || from?.match(/(.+)/)
+      fromEmail = fromMatch ? fromMatch[1] : from
+      fromName = from?.replace(/<.+>/, '').trim() || null
+    } else {
+      // Si viene del Reply-To, extraer nombre del subject si es del formulario
+      if (subject?.includes('[Contacto Web]')) {
+        const nameMatch = subject.match(/- (.+)$/)
+        fromName = nameMatch ? nameMatch[1] : null
+      }
+    }
+    
+    console.log('📧 Parsed email:', { fromEmail, fromName })
 
     // Determine team based on recipient
     const toEmail = typeof to === 'string' ? to : to?.[0] || 'unknown'
