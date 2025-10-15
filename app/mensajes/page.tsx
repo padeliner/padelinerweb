@@ -56,6 +56,32 @@ export default function MensajesPage() {
     loadUser()
   }, [])
 
+  // Suscribirse a actualizaciones de conversaciones en tiempo real
+  useEffect(() => {
+    if (!userId) return
+
+    // Escuchar nuevos mensajes en cualquier conversación
+    const conversationsChannel = supabase
+      .channel('all-conversations')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'direct_messages'
+        },
+        () => {
+          // Cuando llega un nuevo mensaje, actualizar la lista de conversaciones
+          loadConversations()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(conversationsChannel)
+    }
+  }, [userId])
+
   const loadUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -82,6 +108,53 @@ export default function MensajesPage() {
   useEffect(() => {
     if (selectedConversationId) {
       loadMessages(selectedConversationId)
+    }
+  }, [selectedConversationId])
+
+  // Suscribirse a nuevos mensajes en tiempo real
+  useEffect(() => {
+    if (!selectedConversationId) return
+
+    // Canal de Realtime para nuevos mensajes
+    const channel = supabase
+      .channel(`messages:${selectedConversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${selectedConversationId}`
+        },
+        (payload: any) => {
+          console.log('Nuevo mensaje recibido:', payload)
+          const newMessage = payload.new as Message
+          
+          // Añadir mensaje si no existe
+          setMessages(prev => {
+            if (prev.find(m => m.id === newMessage.id)) return prev
+            return [...prev, newMessage]
+          })
+          
+          // Auto-scroll si el usuario no está scrolleando arriba
+          setTimeout(() => {
+            const element = messagesEndRef.current
+            if (element) {
+              const parent = element.parentElement
+              if (parent) {
+                const isNearBottom = parent.scrollHeight - parent.scrollTop - parent.clientHeight < 200
+                if (isNearBottom) {
+                  scrollToBottom()
+                }
+              }
+            }
+          }, 100)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
     }
   }, [selectedConversationId])
 
