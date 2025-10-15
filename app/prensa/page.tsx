@@ -184,7 +184,7 @@ export default function PrensaPage() {
                 href="tel:+34900123456" 
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                +34 900 123 456
+                +34 699 984 661
               </a>
             </div>
           </div>

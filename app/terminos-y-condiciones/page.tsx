@@ -137,7 +137,7 @@ export default function TerminosPage() {
             <div>
               <h2 className="text-2xl font-bold text-neutral-900 mb-4">9. Ley Aplicable</h2>
               <p className="text-neutral-700 leading-relaxed">
-                Estos términos se rigen por las leyes de España. Cualquier disputa será resuelta en los tribunales de Madrid, España.
+                Estos términos se rigen por las leyes de España. Cualquier disputa será resuelta en los tribunales de Valencia, España.
               </p>
             </div>
 
@@ -149,8 +149,8 @@ export default function TerminosPage() {
               </p>
               <ul className="mt-3 space-y-2 text-neutral-700">
                 <li><strong>Email:</strong> contact@padeliner.com</li>
-                <li><strong>Teléfono:</strong> +34 900 123 456</li>
-                <li><strong>Dirección:</strong> Calle Serrano 123, 4º B, 28006 Madrid, España</li>
+                <li><strong>Teléfono:</strong> +34 699 984 661</li>
+                <li><strong>Dirección:</strong> Gran Vía Marqués del Turia 162, 4º B, 46001 Valencia, España</li>
               </ul>
             </div>
 

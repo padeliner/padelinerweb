@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
           <p>Nuestro equipo revisará tu consulta y te responderemos lo antes posible, generalmente en menos de 24 horas.</p>
 
-          <p>Si tu consulta es urgente, también puedes contactarnos por teléfono al <strong>+34 900 123 456</strong>.</p>
+          <p>Si tu consulta es urgente, también puedes contactarnos por teléfono al <strong>+34 699 984 661</strong>.</p>
 
           <p>¡Gracias por confiar en Padeliner!</p>
 

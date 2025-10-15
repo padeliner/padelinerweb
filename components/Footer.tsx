@@ -99,7 +99,7 @@ export function Footer() {
                 <div>
                   <p className="text-sm text-neutral-400">Teléfono</p>
                   <a href="tel:+34900123456" className="hover:text-primary-400 transition-colors">
-                    +34 900 123 456
+                    +34 699 984 661
                   </a>
                 </div>
               </li>
@@ -107,7 +107,7 @@ export function Footer() {
                 <MapPin className="w-5 h-5 text-primary-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-neutral-400">Ubicación</p>
-                  <p>Madrid, España</p>
+                  <p>Valencia, España</p>
                 </div>
               </li>
             </ul>

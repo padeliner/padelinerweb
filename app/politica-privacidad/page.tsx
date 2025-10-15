@@ -78,9 +78,9 @@ export default function PoliticaPrivacidadPage() {
               <div className="bg-blue-50 p-6 rounded-xl">
                 <p className="text-neutral-900 mb-2"><strong>Padeliner S.L.</strong></p>
                 <p className="text-neutral-700">NIF: B12345678</p>
-                <p className="text-neutral-700">Dirección: Calle Serrano 123, 4º B, 28006 Madrid, España</p>
+                <p className="text-neutral-700">Dirección: Gran Vía Marqués del Turia 162, 4º B, 46001 Valencia, España</p>
                 <p className="text-neutral-700">Email: privacidad@padeliner.com</p>
-                <p className="text-neutral-700">Teléfono: +34 900 123 456</p>
+                <p className="text-neutral-700">Teléfono: +34 699 984 661</p>
               </div>
             </div>
 
@@ -268,8 +268,8 @@ export default function PoliticaPrivacidadPage() {
                 <p className="text-neutral-900 font-semibold mb-3">Delegado de Protección de Datos</p>
                 <ul className="space-y-2 text-neutral-700">
                   <li><strong>Email:</strong> privacidad@padeliner.com</li>
-                  <li><strong>Teléfono:</strong> +34 900 123 456</li>
-                  <li><strong>Dirección:</strong> Calle Serrano 123, 4º B, 28006 Madrid, España</li>
+                  <li><strong>Teléfono:</strong> +34 699 984 661</li>
+                  <li><strong>Dirección:</strong> Gran Vía Marqués del Turia 162, 4º B, 46001 Valencia, España</li>
                 </ul>
               </div>
               <p className="text-neutral-700 leading-relaxed mt-4">

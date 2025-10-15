@@ -123,7 +123,7 @@ export default function ContactoPage() {
                     <div>
                       <h3 className="font-semibold text-neutral-900 mb-1">Teléfono</h3>
                       <a href="tel:+34900123456" className="text-primary-600 hover:text-primary-700">
-                        +34 900 123 456
+                        +34 699 984 661
                       </a>
                       <p className="text-sm text-neutral-500 mt-1">Lun - Vie, 9:00 - 18:00</p>
                     </div>
@@ -136,8 +136,8 @@ export default function ContactoPage() {
                     <div>
                       <h3 className="font-semibold text-neutral-900 mb-1">Oficina</h3>
                       <p className="text-neutral-600">
-                        Calle Serrano 123, 4º B<br />
-                        28006 Madrid, España
+                        Gran Vía Marqués del Turia 162, 4º B<br />
+                        46001 Valencia, España
                       </p>
                     </div>
                   </div>
