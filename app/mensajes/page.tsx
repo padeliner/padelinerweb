@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { Header } from '@/components/Header'
 import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 interface Message {
@@ -33,8 +33,9 @@ interface Conversation {
   isOnline: boolean
 }
 
-export default function MensajesPage() {
+function MensajesPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [userId, setUserId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -108,6 +109,22 @@ export default function MensajesPage() {
       setLoading(false)
     }
   }
+
+  // Abrir conversación automáticamente desde URL (ej: /mensajes?conversation=xxx)
+  useEffect(() => {
+    const conversationId = searchParams.get('conversation')
+    if (conversationId && conversations.length > 0 && !selectedConversationId) {
+      // Verificar que la conversación existe en la lista
+      const conversationExists = conversations.find(c => c.id === conversationId)
+      if (conversationExists) {
+        setSelectedConversationId(conversationId)
+        // En móvil, mostrar el chat
+        if (window.innerWidth < 768) {
+          setShowChatOnMobile(true)
+        }
+      }
+    }
+  }, [searchParams, conversations, selectedConversationId])
 
   // Cargar mensajes cuando se selecciona una conversación
   useEffect(() => {
@@ -699,5 +716,17 @@ export default function MensajesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function MensajesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    }>
+      <MensajesPageContent />
+    </Suspense>
   )
 }

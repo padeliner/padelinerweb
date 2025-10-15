@@ -94,9 +94,9 @@ export default function EntrenadorDetailPage() {
 
       const data = await res.json()
 
-      if (res.ok) {
-        // Redirigir a mensajes con la conversación abierta
-        router.push(`/mensajes`)
+      if (res.ok && data.conversationId) {
+        // Redirigir a mensajes con la conversación abierta automáticamente
+        router.push(`/mensajes?conversation=${data.conversationId}`)
       } else {
         alert('Error al iniciar conversación')
       }
