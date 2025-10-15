@@ -1,15 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/Header'
 import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-
-// Marcar como página dinámica (requiere autenticación)
-export const dynamic = 'force-dynamic'
 
 interface Message {
   id: string
@@ -36,19 +33,8 @@ interface Conversation {
   isOnline: boolean
 }
 
-// Componente wrapper para Suspense
 export default function MensajesPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary-500" /></div>}>
-      <MensajesContent />
-    </Suspense>
-  )
-}
-
-// Componente principal con toda la lógica
-function MensajesContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
   const [userId, setUserId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -121,21 +107,6 @@ function MensajesContent() {
       setLoading(false)
     }
   }
-
-  // Abrir conversación automáticamente si viene en URL
-  useEffect(() => {
-    const conversationId = searchParams.get('conversation')
-    if (conversationId && conversations.length > 0 && !selectedConversationId) {
-      console.log('Abriendo conversación automáticamente:', conversationId)
-      setSelectedConversationId(conversationId)
-      // En móvil, mostrar el chat
-      if (window.innerWidth < 768) {
-        setShowChatOnMobile(true)
-      }
-      // Limpiar el parámetro de la URL
-      router.replace('/mensajes', { scroll: false })
-    }
-  }, [conversations, searchParams, selectedConversationId])
 
   // Cargar mensajes cuando se selecciona una conversación
   useEffect(() => {
@@ -480,8 +451,8 @@ function MensajesContent() {
       })
 
       if (res.ok) {
-        const { message } = await res.json()
-        // NO añadir el mensaje aquí - Realtime lo hará automáticamente
+        // NO añadir el mensaje localmente
+        // Realtime INSERT lo añadirá automáticamente
         // Esto evita duplicados
         setMessageText('')
         setTimeout(scrollToBottom, 100)
