@@ -122,9 +122,12 @@ function MensajesPageContent() {
         if (window.innerWidth < 768) {
           setShowChatOnMobile(true)
         }
+        
+        // Limpiar parámetro URL después de usarlo (prevenir loops)
+        router.replace('/mensajes', { scroll: false })
       }
     }
-  }, [searchParams, conversations, selectedConversationId])
+  }, [searchParams, conversations, selectedConversationId, router])
 
   // Cargar mensajes cuando se selecciona una conversación
   useEffect(() => {
@@ -336,6 +339,14 @@ function MensajesPageContent() {
         // Solo hacer scroll si el contenido es mayor que el viewport
         const shouldScroll = container.scrollHeight > container.clientHeight
         
+        console.log('📜 scrollToBottom():', {
+          scrollHeight: container.scrollHeight,
+          clientHeight: container.clientHeight,
+          shouldScroll,
+          smooth,
+          messagesCount: messages.length
+        })
+        
         if (shouldScroll) {
           if (smooth) {
             container.scrollTo({
@@ -345,6 +356,9 @@ function MensajesPageContent() {
           } else {
             container.scrollTop = container.scrollHeight
           }
+          console.log('✅ Scroll ejecutado')
+        } else {
+          console.log('❌ NO scroll (contenido cabe en viewport)')
         }
       }
     }
@@ -454,6 +468,9 @@ function MensajesPageContent() {
   const handleBackToList = () => {
     setShowChatOnMobile(false)
     setSelectedConversationId(null)
+    
+    // Limpiar parámetro URL para evitar reapertura automática
+    router.replace('/mensajes', { scroll: false })
   }
 
   // Prevenir scroll del body cuando el chat está abierto en móvil
