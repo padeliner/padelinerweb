@@ -34,11 +34,6 @@ export function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { user, profile } = useAuth()
 
-  // No mostrar en la página de mensajes
-  if (pathname === '/mensajes') {
-    return null
-  }
-
   // Detectar si es móvil
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -157,6 +152,11 @@ export function ChatBot() {
       e.preventDefault()
       sendMessage()
     }
+  }
+
+  // No mostrar en la página de mensajes (después de todos los hooks)
+  if (pathname === '/mensajes') {
+    return null
   }
 
   return (
