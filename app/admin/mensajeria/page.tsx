@@ -1,25 +1,43 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
-import { MessagingClient } from '@/components/admin/MessagingClient'
+import { Suspense } from 'react'
+import InboxClient from '@/components/admin/inbox/InboxClient'
 
-export default async function MessagingPage() {
-  const supabase = await createClient()
-  
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error || !user) {
-    redirect('/login?redirectTo=/admin/mensajeria')
-  }
+export const metadata = {
+  title: 'Mensajería - Padeliner Admin',
+  description: 'Sistema de gestión de mensajes y conversaciones'
+}
 
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+export default function MessagingPage() {
+  return (
+    <div className="h-[calc(100vh-4rem)]">
+      <Suspense fallback={<InboxSkeleton />}>
+        <InboxClient />
+      </Suspense>
+    </div>
+  )
+}
 
-  if (userProfile?.role !== 'admin') {
-    redirect('/')
-  }
-
-  return <MessagingClient />
+function InboxSkeleton() {
+  return (
+    <div className="h-full flex">
+      {/* Sidebar skeleton */}
+      <div className="w-64 border-r bg-neutral-50 p-4 space-y-4">
+        <div className="h-10 bg-neutral-200 rounded animate-pulse" />
+        <div className="h-40 bg-neutral-200 rounded animate-pulse" />
+        <div className="h-60 bg-neutral-200 rounded animate-pulse" />
+      </div>
+      
+      {/* List skeleton */}
+      <div className="w-96 border-r bg-white p-4 space-y-2">
+        {[...Array(10)].map((_, i) => (
+          <div key={i} className="h-24 bg-neutral-100 rounded animate-pulse" />
+        ))}
+      </div>
+      
+      {/* Detail skeleton */}
+      <div className="flex-1 p-4 space-y-4">
+        <div className="h-20 bg-neutral-100 rounded animate-pulse" />
+        <div className="h-96 bg-neutral-100 rounded animate-pulse" />
+      </div>
+    </div>
+  )
 }
