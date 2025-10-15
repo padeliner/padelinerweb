@@ -540,6 +540,9 @@ function MensajesPageContent() {
       typingTimeoutRef.current = null
     }
 
+    // Guardar referencia del input activo antes de limpiar
+    const inputHasFocus = document.activeElement === messageInputRef.current
+
     setSending(true)
     try {
       const res = await fetch(`/api/messages/${selectedConversationId}`, {
@@ -550,13 +553,17 @@ function MensajesPageContent() {
 
       if (res.ok) {
         setMessageText('')
+        
+        // Solo restaurar focus si lo tenía antes (evita cerrar teclado)
+        if (inputHasFocus && messageInputRef.current) {
+          // Usar requestAnimationFrame para asegurar que DOM está actualizado
+          requestAnimationFrame(() => {
+            messageInputRef.current?.focus({ preventScroll: true })
+          })
+        }
+        
         setTimeout(scrollToBottom, 100)
         loadConversations()
-        
-        // Mantener foco en input (PC y móvil - evita que teclado se cierre)
-        setTimeout(() => {
-          messageInputRef.current?.focus()
-        }, 50)
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -799,9 +806,14 @@ function MensajesPageContent() {
                     autoComplete="off"
                   />
                   <button
+                    type="button"
                     onClick={handleSendMessage}
                     onMouseDown={(e) => {
-                      // Prevenir que el botón quite el foco del input (mantiene teclado abierto)
+                      // Prevenir que el botón quite el foco del input (PC)
+                      e.preventDefault()
+                    }}
+                    onTouchStart={(e) => {
+                      // Prevenir que el botón quite el foco del input (móvil)
                       e.preventDefault()
                     }}
                     disabled={!messageText.trim() || sending}
