@@ -3,18 +3,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { Search, MessageCircle, Clock, CheckCheck, Circle, ArrowLeft, Send } from 'lucide-react'
+import { Search, MessageCircle, ArrowLeft, Send, Loader2 } from 'lucide-react'
+import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 interface Message {
-  id: number
-  senderId: number
-  text: string
-  timestamp: string
-  isRead: boolean
+  id: string
+  sender_id: string
+  content: string
+  created_at: string
+  sender?: {
+    id: string
+    full_name: string
+    avatar_url: string
+  }
 }
 
 interface Conversation {
-  id: number
+  id: string
   name: string
   avatar: string
   role: string
@@ -22,107 +30,87 @@ interface Conversation {
   timestamp: string
   unreadCount: number
   isOnline: boolean
-  messages: Message[]
 }
 
-// Mock conversations
-const mockConversations: Conversation[] = [
-  {
-    id: 1,
-    name: "Carlos Martínez",
-    avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop",
-    role: "Entrenador",
-    lastMessage: "Perfecto, nos vemos el lunes a las 17:00 entonces 👍",
-    timestamp: "10:30",
-    unreadCount: 2,
-    isOnline: true,
-    messages: [
-      { id: 1, senderId: 1, text: "Hola! Vi tu perfil y me gustaría tomar clases de pádel", timestamp: "10:15", isRead: true },
-      { id: 2, senderId: 2, text: "¡Hola! Encantado de ayudarte. ¿Qué nivel tienes?", timestamp: "10:17", isRead: true },
-      { id: 3, senderId: 1, text: "Soy principiante, nunca he jugado antes", timestamp: "10:20", isRead: true },
-      { id: 4, senderId: 2, text: "Perfecto, me especializo en iniciación. ¿Te viene bien el lunes por la tarde?", timestamp: "10:25", isRead: true },
-      { id: 5, senderId: 1, text: "Sí, me viene genial. ¿A qué hora?", timestamp: "10:28", isRead: true },
-      { id: 6, senderId: 2, text: "Perfecto, nos vemos el lunes a las 17:00 entonces 👍", timestamp: "10:30", isRead: false },
-    ]
-  },
-  {
-    id: 2,
-    name: "Laura Sánchez",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
-    role: "Entrenadora",
-    lastMessage: "Claro, el precio es 40€/hora. ¿Te interesa?",
-    timestamp: "Ayer",
-    unreadCount: 0,
-    isOnline: false,
-    messages: [
-      { id: 1, senderId: 1, text: "Hola Laura, ¿das clases grupales?", timestamp: "Ayer 16:30", isRead: true },
-      { id: 2, senderId: 2, text: "¡Hola! Sí, tengo grupos los miércoles y viernes", timestamp: "Ayer 17:15", isRead: true },
-      { id: 3, senderId: 1, text: "Genial, ¿cuál es el precio?", timestamp: "Ayer 17:20", isRead: true },
-      { id: 4, senderId: 2, text: "Claro, el precio es 40€/hora. ¿Te interesa?", timestamp: "Ayer 17:25", isRead: true },
-    ]
-  },
-  {
-    id: 3,
-    name: "Padel Pro Madrid",
-    avatar: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=100&h=100&fit=crop",
-    role: "Club",
-    lastMessage: "Tenemos disponibilidad en horario de mañana",
-    timestamp: "Mar 15",
-    unreadCount: 0,
-    isOnline: true,
-    messages: [
-      { id: 1, senderId: 1, text: "Hola, ¿tienen clases disponibles para adultos?", timestamp: "Mar 15 11:00", isRead: true },
-      { id: 2, senderId: 2, text: "¡Hola! Sí, tenemos varios horarios disponibles", timestamp: "Mar 15 11:30", isRead: true },
-      { id: 3, senderId: 2, text: "Tenemos disponibilidad en horario de mañana", timestamp: "Mar 15 11:32", isRead: true },
-    ]
-  },
-  {
-    id: 4,
-    name: "Miguel Ángel Torres",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    role: "Entrenador",
-    lastMessage: "Mi especialidad es entrenamiento de alto rendimiento",
-    timestamp: "Mar 10",
-    unreadCount: 0,
-    isOnline: false,
-    messages: [
-      { id: 1, senderId: 1, text: "Hola Miguel, ¿entrenas para competición?", timestamp: "Mar 10 09:00", isRead: true },
-      { id: 2, senderId: 2, text: "Mi especialidad es entrenamiento de alto rendimiento", timestamp: "Mar 10 09:15", isRead: true },
-    ]
-  },
-]
-
 export default function MensajesPage() {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(mockConversations[0])
+  const router = useRouter()
+  const supabase = createClient()
+  const [userId, setUserId] = useState<string | null>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [messageText, setMessageText] = useState('')
   const [showChatOnMobile, setShowChatOnMobile] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const filteredConversations = mockConversations.filter(conv =>
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
+  const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Detectar si es móvil
+  // Cargar usuario y conversaciones
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    loadUser()
   }, [])
+
+  const loadUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    setUserId(user.id)
+    loadConversations()
+  }
+
+  const loadConversations = async () => {
+    try {
+      const res = await fetch('/api/messages/conversations')
+      const data = await res.json()
+      setConversations(data.conversations || [])
+    } catch (error) {
+      console.error('Error loading conversations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Cargar mensajes cuando se selecciona una conversación
+  useEffect(() => {
+    if (selectedConversationId) {
+      loadMessages(selectedConversationId)
+    }
+  }, [selectedConversationId])
+
+  const loadMessages = async (conversationId: string) => {
+    try {
+      const res = await fetch(`/api/messages/${conversationId}`)
+      const data = await res.json()
+      setMessages(data.messages || [])
+      setTimeout(scrollToBottom, 100)
+    } catch (error) {
+      console.error('Error loading messages:', error)
+    }
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleSelectConversation = (conversation: Conversation) => {
-    setSelectedConversation(conversation)
-    setShowChatOnMobile(true)
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversationId(conversationId)
+    // Solo mostrar overlay en móvil
+    if (window.innerWidth < 768) {
+      setShowChatOnMobile(true)
+    }
   }
 
   const handleBackToList = () => {
     setShowChatOnMobile(false)
+    setSelectedConversationId(null)
   }
 
   // Prevenir scroll del body cuando el chat está abierto en móvil
@@ -135,19 +123,40 @@ export default function MensajesPage() {
     }
   }, [showChatOnMobile])
 
-  // Manejar el enfoque del input para scroll automático en móvil
-  const handleInputFocus = () => {
-    if (isMobile) {
-      setTimeout(() => {
-        scrollToBottom()
-      }, 300) // Espera a que el teclado aparezca
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !selectedConversationId || sending) return
+
+    setSending(true)
+    try {
+      const res = await fetch(`/api/messages/${selectedConversationId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: messageText.trim() })
+      })
+
+      if (res.ok) {
+        const { message } = await res.json()
+        setMessages(prev => [...prev, message])
+        setMessageText('')
+        setTimeout(scrollToBottom, 100)
+        // Actualizar conversaciones
+        loadConversations()
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      setSending(false)
     }
   }
 
-  const handleSendMessage = () => {
-    if (messageText.trim() && selectedConversation) {
-      // Aquí se enviaría el mensaje en la implementación real
-      setMessageText('')
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp)
+    if (isToday(date)) {
+      return format(date, 'HH:mm')
+    } else if (isYesterday(date)) {
+      return 'Ayer'
+    } else {
+      return format(date, 'd MMM', { locale: es })
     }
   }
 
@@ -174,54 +183,65 @@ export default function MensajesPage() {
 
           {/* Conversations */}
           <div className="flex-1 overflow-y-auto">
-            {filteredConversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                onClick={() => handleSelectConversation(conversation)}
-                className={`w-full p-4 flex items-start space-x-3 hover:bg-neutral-50 transition-colors border-b border-neutral-100 ${
-                  selectedConversation?.id === conversation.id ? 'bg-primary-50' : ''
-                }`}
-              >
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={conversation.avatar}
-                    alt={conversation.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  {conversation.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
-                    <span className="text-xs text-neutral-500 flex-shrink-0 ml-2">{conversation.timestamp}</span>
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+              </div>
+            ) : filteredConversations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-neutral-500">
+                <MessageCircle className="w-12 h-12 mb-2 text-neutral-300" />
+                <p className="text-sm">No hay conversaciones</p>
+              </div>
+            ) : (
+              filteredConversations.map((conversation) => (
+                <button
+                  key={conversation.id}
+                  onClick={() => handleSelectConversation(conversation.id)}
+                  className={`w-full p-4 flex items-start space-x-3 hover:bg-neutral-50 transition-colors border-b border-neutral-100 ${
+                    selectedConversationId === conversation.id ? 'bg-primary-50' : ''
+                  }`}
+                >
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={conversation.avatar}
+                      alt={conversation.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    {conversation.isOnline && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                    )}
                   </div>
-                  <p className="text-sm text-neutral-500 mb-1">{conversation.role}</p>
-                  <p className="text-sm text-neutral-600 truncate">{conversation.lastMessage}</p>
-                </div>
+                  
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
+                      <span className="text-xs text-neutral-500 flex-shrink-0 ml-2">{formatTimestamp(conversation.timestamp)}</span>
+                    </div>
+                    <p className="text-sm text-neutral-500 mb-1">{conversation.role}</p>
+                    <p className="text-sm text-neutral-600 truncate">{conversation.lastMessage}</p>
+                  </div>
 
-                {conversation.unreadCount > 0 && (
-                  <div className="flex-shrink-0 ml-2">
-                    <span className="w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                      {conversation.unreadCount}
-                    </span>
-                  </div>
-                )}
-              </button>
-            ))}
+                  {conversation.unreadCount > 0 && (
+                    <div className="flex-shrink-0 ml-2">
+                      <span className="w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {conversation.unreadCount}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              ))
+            )}
           </div>
         </div>
 
         {/* Chat Area */}
         {selectedConversation ? (
           <div 
-            className={`flex-1 flex flex-col ${showChatOnMobile ? 'flex fixed inset-0 md:relative z-[9999] md:z-auto bg-white' : 'hidden md:flex'}`}
-            style={showChatOnMobile ? { 
-              height: '100dvh',
-              maxHeight: '100dvh'
-            } : undefined}
+            className={`
+              flex-1 flex-col bg-white
+              ${showChatOnMobile ? 'flex fixed inset-0 z-[9999]' : 'hidden'}
+              md:flex md:relative md:z-auto
+            `}
           >
             {/* Chat Header */}
             <div className="p-4 border-b border-neutral-200 flex items-center space-x-3 flex-shrink-0 bg-white">
@@ -251,34 +271,33 @@ export default function MensajesPage() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
-              {selectedConversation.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.senderId === 1 ? 'justify-end' : 'justify-start'}`}
-                >
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-neutral-500">
+                  <p className="text-sm">No hay mensajes aún</p>
+                </div>
+              ) : (
+                messages.map((message) => (
                   <div
-                    className={`max-w-[75%] md:max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                      message.senderId === 1
-                        ? 'bg-primary-500 text-white'
-                        : 'bg-neutral-100 text-neutral-900'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.sender_id === userId ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm break-words">{message.text}</p>
-                    <div className="flex items-center justify-end space-x-1 mt-1">
-                      <span className={`text-xs ${message.senderId === 1 ? 'text-primary-100' : 'text-neutral-500'}`}>
-                        {message.timestamp}
-                      </span>
-                      {message.senderId === 1 && (
-                        message.isRead ? (
-                          <CheckCheck className="w-3 h-3 text-primary-100" />
-                        ) : (
-                          <CheckCheck className="w-3 h-3 text-primary-200" />
-                        )
-                      )}
+                    <div
+                      className={`max-w-[75%] md:max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                        message.sender_id === userId
+                          ? 'bg-primary-500 text-white'
+                          : 'bg-neutral-100 text-neutral-900'
+                      }`}
+                    >
+                      <p className="text-sm break-words">{message.content}</p>
+                      <div className="flex items-center justify-end space-x-1 mt-1">
+                        <span className={`text-xs ${message.sender_id === userId ? 'text-primary-100' : 'text-neutral-500'}`}>
+                          {format(new Date(message.created_at), 'HH:mm')}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
 
               <div ref={messagesEndRef} />
             </div>
@@ -292,22 +311,25 @@ export default function MensajesPage() {
                     placeholder="Escribe un mensaje..."
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    onFocus={handleInputFocus}
-                    className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none"
+                    onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
+                    disabled={sending}
+                    className="flex-1 min-w-0 px-4 py-3 text-base md:text-sm border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
                     style={{ fontSize: '16px' }}
                     autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck="false"
                   />
                   <button
                     onClick={handleSendMessage}
-                    disabled={!messageText.trim()}
+                    disabled={!messageText.trim() || sending}
                     className="flex-shrink-0 w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 bg-primary-500 hover:bg-primary-600 active:scale-95 disabled:bg-neutral-300 text-white font-semibold rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed touch-manipulation"
                   >
-                    <span className="hidden md:inline">Enviar</span>
-                    <Send className="w-5 h-5 md:hidden" />
+                    {sending ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <span className="hidden md:inline">Enviar</span>
+                        <Send className="w-5 h-5 md:hidden" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
