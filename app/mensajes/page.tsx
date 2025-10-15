@@ -44,6 +44,7 @@ export default function MensajesPage() {
   const [messageText, setMessageText] = useState('')
   const [showChatOnMobile, setShowChatOnMobile] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMessages, setLoadingMessages] = useState(false)
   const [sending, setSending] = useState(false)
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -110,6 +111,7 @@ export default function MensajesPage() {
   // Cargar mensajes cuando se selecciona una conversación
   useEffect(() => {
     if (selectedConversationId) {
+      setMessages([]) // Limpiar mensajes anteriores
       loadMessages(selectedConversationId)
     }
   }, [selectedConversationId])
@@ -303,6 +305,7 @@ export default function MensajesPage() {
   }, [isOtherUserTyping])
 
   const loadMessages = async (conversationId: string) => {
+    setLoadingMessages(true)
     try {
       const res = await fetch(`/api/messages/${conversationId}`)
       const data = await res.json()
@@ -310,6 +313,8 @@ export default function MensajesPage() {
       setTimeout(scrollToBottom, 100)
     } catch (error) {
       console.error('Error loading messages:', error)
+    } finally {
+      setLoadingMessages(false)
     }
   }
 
@@ -582,7 +587,14 @@ export default function MensajesPage() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
-              {messages.length === 0 ? (
+              {loadingMessages ? (
+                <div className="flex items-center justify-center h-full text-neutral-500">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                    <p className="text-sm">Cargando mensajes...</p>
+                  </div>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-neutral-500">
                   <p className="text-sm">No hay mensajes aún</p>
                 </div>
