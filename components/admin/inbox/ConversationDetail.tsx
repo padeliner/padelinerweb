@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Conversation, Message } from './types'
-import { User, Mail, Phone, Clock, Tag, ChevronDown, Send, StickyNote, X } from 'lucide-react'
+import { User, Mail, Phone, Clock, Tag, ChevronDown, ChevronUp, Send, StickyNote, X, Maximize2, Minimize2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -20,6 +20,8 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
   const [noteContent, setNoteContent] = useState('')
   const [teams, setTeams] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
+  const [isContactInfoExpanded, setIsContactInfoExpanded] = useState(false)
+  const [fullscreenMessage, setFullscreenMessage] = useState<Message | null>(null)
 
   // Load teams and users for assignment
   useEffect(() => {
@@ -234,16 +236,26 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
     <div className="flex-1 flex flex-col bg-white">
       {/* Header */}
       <div className="border-b bg-white">
-        <div className="p-6">
-          {/* Subject */}
-          <h2 className="text-xl font-bold text-neutral-900 mb-3">
-            {conversation.subject}
-          </h2>
+        <div className="p-4">
+          {/* Subject with toggle button */}
+          <div className="flex items-start justify-between mb-2">
+            <h2 className="text-xl font-bold text-neutral-900 flex-1">
+              {conversation.subject}
+            </h2>
+            <button
+              onClick={() => setIsContactInfoExpanded(!isContactInfoExpanded)}
+              className="ml-4 p-2 hover:bg-neutral-100 rounded-lg transition-colors flex-shrink-0"
+              title={isContactInfoExpanded ? "Ocultar información" : "Ver información del contacto"}
+            >
+              {isContactInfoExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
+          </div>
 
-          {/* Contact Info Card */}
-          <div className="bg-neutral-50 rounded-lg p-4 mb-4">
-            <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-3">Información del Contacto</h3>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Contact Info Card - Colapsable */}
+          {isContactInfoExpanded && (
+            <div className="bg-neutral-50 rounded-lg p-4 mb-3">
+              <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-3">Información del Contacto</h3>
+              <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="flex items-center space-x-2 text-sm mb-2">
                   <User className="w-4 h-4 text-neutral-400" />
@@ -287,7 +299,8 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
           {/* Actions - Row 1 */}
           <div className="flex items-center space-x-2 mb-3">
@@ -393,9 +406,18 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
                       )}
                     </div>
                   </div>
-                  <span className="text-xs text-neutral-500">
-                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: es })}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-neutral-500">
+                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: es })}
+                    </span>
+                    <button
+                      onClick={() => setFullscreenMessage(message)}
+                      className="p-1.5 hover:bg-neutral-100 rounded transition-colors"
+                      title="Ver en pantalla completa"
+                    >
+                      <Maximize2 className="w-4 h-4 text-neutral-500" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Message Content */}
@@ -482,6 +504,91 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Message Modal */}
+      {fullscreenMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-neutral-900">
+                  {fullscreenMessage.from_name || 'Mensaje'}
+                </h3>
+                <p className="text-sm text-neutral-500">{fullscreenMessage.from_email}</p>
+                <p className="text-xs text-neutral-400">
+                  {formatDistanceToNow(new Date(fullscreenMessage.created_at), { addSuffix: true, locale: es })}
+                </p>
+              </div>
+              <button
+                onClick={() => setFullscreenMessage(null)}
+                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                title="Cerrar"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content - Message */}
+            <div className="flex-1 overflow-y-auto p-6 border-b">
+              <h4 className="text-sm font-semibold text-neutral-500 uppercase mb-3">Mensaje Original</h4>
+              <div className="prose prose-sm max-w-none">
+                {fullscreenMessage.html_content ? (
+                  <div dangerouslySetInnerHTML={{ __html: fullscreenMessage.html_content }} />
+                ) : (
+                  <div className="whitespace-pre-wrap text-neutral-700">{fullscreenMessage.content}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer - Reply Area */}
+            <div className="p-4 bg-neutral-50">
+              <h4 className="text-sm font-semibold text-neutral-700 mb-3">Responder</h4>
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Escribe tu respuesta..."
+                className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 mb-3"
+                rows={4}
+              />
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-neutral-500">
+                  El mensaje se enviará a {conversation.contact_email}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setFullscreenMessage(null)}
+                    className="px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSendReply(false)
+                      setFullscreenMessage(null)
+                    }}
+                    disabled={sending || !replyContent.trim()}
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Enviar</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSendReply(true)
+                      setFullscreenMessage(null)
+                    }}
+                    disabled={sending || !replyContent.trim()}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Enviar y Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
