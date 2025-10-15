@@ -33,12 +33,12 @@ export class AuditLogger {
       
       // Obtener info del usuario si no se proporciona
       let userId = data.userId
-      let userEmail = null
-      let userRole = null
+      let userEmail: string | null = null
+      let userRole: string | null = null
       
       if (!userId) {
         const { data: { user } } = await supabase.auth.getUser()
-        userId = user?.id || null
+        userId = user?.id || undefined
       }
       
       if (userId) {
