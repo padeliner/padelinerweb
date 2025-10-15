@@ -109,8 +109,8 @@ export default function ContactoPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-neutral-900 mb-1">Email</h3>
-                      <a href="mailto:hola@padeliner.com" className="text-primary-600 hover:text-primary-700">
-                        hola@padeliner.com
+                      <a href="mailto:contact@padeliner.com" className="text-primary-600 hover:text-primary-700">
+                        contact@padeliner.com
                       </a>
                       <p className="text-sm text-neutral-500 mt-1">Respuesta en 24h</p>
                     </div>
@@ -344,7 +344,7 @@ export default function ContactoPage() {
             {[
               {
                 question: '¿Cómo puedo registrarme como entrenador?',
-                answer: 'Puedes registrarte enviándonos un email a hola@padeliner.com con tu información profesional y certificaciones.'
+                answer: 'Puedes registrarte enviándonos un email a contact@padeliner.com con tu información profesional y certificaciones.'
               },
               {
                 question: '¿Cuánto cuesta usar Padeliner?',

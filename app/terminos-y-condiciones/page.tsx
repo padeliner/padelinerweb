@@ -148,7 +148,7 @@ export default function TerminosPage() {
                 Si tienes preguntas sobre estos Términos y Condiciones, puedes contactarnos en:
               </p>
               <ul className="mt-3 space-y-2 text-neutral-700">
-                <li><strong>Email:</strong> hola@padeliner.com</li>
+                <li><strong>Email:</strong> contact@padeliner.com</li>
                 <li><strong>Teléfono:</strong> +34 900 123 456</li>
                 <li><strong>Dirección:</strong> Calle Serrano 123, 4º B, 28006 Madrid, España</li>
               </ul>

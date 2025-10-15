@@ -61,8 +61,8 @@ export function Footer() {
                 <Mail className="w-5 h-5 text-primary-400 mt-0.5" />
                 <div>
                   <p className="text-sm text-neutral-400">Email</p>
-                  <a href="mailto:hola@padeliner.com" className="hover:text-primary-400 transition-colors">
-                    hola@padeliner.com
+                  <a href="mailto:contact@padeliner.com" className="hover:text-primary-400 transition-colors">
+                    contact@padeliner.com
                   </a>
                 </div>
               </li>

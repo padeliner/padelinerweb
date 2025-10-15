@@ -82,7 +82,7 @@ export function FAQSection() {
             Nuestro equipo está aquí para ayudarte
           </p>
           <a
-            href="mailto:soporte@padeliner.com"
+            href="mailto:contact@padeliner.com"
             className="inline-flex items-center space-x-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-full transition-all duration-200"
           >
             <span>Contactar soporte</span>

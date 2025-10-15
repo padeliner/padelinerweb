@@ -168,10 +168,10 @@ export default function PrensaPage() {
                 <h3 className="font-bold text-lg">Email</h3>
               </div>
               <a 
-                href="mailto:prensa@padeliner.com" 
+                href="mailto:contact@padeliner.com" 
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                prensa@padeliner.com
+                contact@padeliner.com
               </a>
             </div>
 
