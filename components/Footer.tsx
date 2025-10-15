@@ -3,9 +3,36 @@
 import { motion } from 'framer-motion'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, CircleDot } from 'lucide-react'
 import Link from 'next/link'
-import NewsletterSubscribe from './NewsletterSubscribe'
+import { useState } from 'react'
 
 export function Footer() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    
+    try {
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'footer' })
+      })
+      
+      if (res.ok) {
+        setSuccess(true)
+        setEmail('')
+        setTimeout(() => setSuccess(false), 5000)
+      }
+    } catch (error) {
+      console.error('Error subscribing:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <footer id="contacto" className="bg-neutral-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -89,8 +116,43 @@ export function Footer() {
 
         {/* Newsletter */}
         <div className="border-t border-neutral-800 pt-12 mb-12">
-          <div className="max-w-md mx-auto">
-            <NewsletterSubscribe />
+          <div className="max-w-2xl mx-auto text-center">
+            <h3 className="text-2xl font-bold mb-4">
+              Mantente al día
+            </h3>
+            <p className="text-neutral-400 mb-6">
+              Recibe ofertas exclusivas, consejos de entrenamiento y novedades
+            </p>
+            {success ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-green-500 text-white px-6 py-3 rounded-full max-w-md mx-auto"
+              >
+                ✅ ¡Gracias por suscribirte!
+              </motion.div>
+            ) : (
+              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
+                  required
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 bg-neutral-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <motion.button
+                  type="submit"
+                  disabled={loading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-full transition-all duration-200 disabled:opacity-50"
+                >
+                  {loading ? 'Enviando...' : 'Suscribirse'}
+                </motion.button>
+              </form>
+            )}
           </div>
         </div>
 
