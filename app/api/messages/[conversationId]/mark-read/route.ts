@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export async function POST(
   request: NextRequest,
@@ -7,6 +8,7 @@ export async function POST(
 ) {
   try {
     const supabase = await createClient()
+    const adminSupabase = createAdminClient()
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -15,26 +17,31 @@ export async function POST(
 
     const conversationId = params.conversationId
 
-    // Marcar todos los mensajes de otros como leídos
+    // Marcar todos los mensajes de otros como leídos (usar admin para bypassear RLS)
     const now = new Date().toISOString()
     
-    const { error } = await supabase
+    const { error, data } = await adminSupabase
       .from('direct_messages')
       .update({ read_at: now })
       .eq('conversation_id', conversationId)
       .neq('sender_id', user.id)
       .is('read_at', null)
+      .select()
 
-    if (error) throw error
+    console.log('Mensajes marcados como leídos:', data)
+    if (error) {
+      console.error('Error actualizando read_at:', error)
+      throw error
+    }
 
     // Actualizar last_read_at del participante
-    await supabase
+    await adminSupabase
       .from('direct_conversation_participants')
       .update({ last_read_at: now })
       .eq('conversation_id', conversationId)
       .eq('user_id', user.id)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, markedCount: data?.length || 0 })
 
   } catch (error: any) {
     console.error('Error marking messages as read:', error)

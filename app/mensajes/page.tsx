@@ -193,27 +193,67 @@ export default function MensajesPage() {
   useEffect(() => {
     if (!selectedConversationId || !userId) return
 
+    let typingTimeout: NodeJS.Timeout | null = null
+
     const typingChannel = supabase
       .channel(`typing:${selectedConversationId}`)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'direct_typing_indicators',
           filter: `conversation_id=eq.${selectedConversationId}`
         },
         (payload: any) => {
-          console.log('Typing indicator:', payload)
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const indicator = payload.new
-            // Solo mostrar si NO es el usuario actual
-            if (indicator.user_id !== userId) {
-              setIsOtherUserTyping(true)
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setIsOtherUserTyping(false)
+          console.log('Typing indicator INSERT:', payload)
+          const indicator = payload.new
+          // Solo mostrar si NO es el usuario actual
+          if (indicator.user_id !== userId) {
+            setIsOtherUserTyping(true)
+            
+            // Auto-limpiar después de 5 segundos (por si no llega DELETE)
+            if (typingTimeout) clearTimeout(typingTimeout)
+            typingTimeout = setTimeout(() => {
+              setIsOtherUserTyping(false)
+            }, 5000)
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'direct_typing_indicators',
+          filter: `conversation_id=eq.${selectedConversationId}`
+        },
+        (payload: any) => {
+          console.log('Typing indicator UPDATE:', payload)
+          const indicator = payload.new
+          if (indicator.user_id !== userId) {
+            setIsOtherUserTyping(true)
+            
+            // Renovar timeout
+            if (typingTimeout) clearTimeout(typingTimeout)
+            typingTimeout = setTimeout(() => {
+              setIsOtherUserTyping(false)
+            }, 5000)
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'direct_typing_indicators',
+          filter: `conversation_id=eq.${selectedConversationId}`
+        },
+        (payload: any) => {
+          console.log('Typing indicator DELETE:', payload)
+          setIsOtherUserTyping(false)
+          if (typingTimeout) clearTimeout(typingTimeout)
         }
       )
       .subscribe((status: any) => {
@@ -223,6 +263,7 @@ export default function MensajesPage() {
     return () => {
       supabase.removeChannel(typingChannel)
       setIsOtherUserTyping(false)
+      if (typingTimeout) clearTimeout(typingTimeout)
     }
   }, [selectedConversationId, userId])
 
@@ -245,17 +286,25 @@ export default function MensajesPage() {
   }
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Hacer scroll solo en el contenedor de mensajes, no en toda la página
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement
+      if (container) {
+        container.scrollTop = container.scrollHeight
+      }
+    }
   }
 
   // Marcar mensaje como entregado
   const markAsDelivered = async (messageId: string) => {
+    if (!selectedConversationId) return
+    
     try {
-      await supabase
-        .from('direct_messages')
-        .update({ delivered_at: new Date().toISOString() })
-        .eq('id', messageId)
-        .is('delivered_at', null)
+      await fetch(`/api/messages/${selectedConversationId}/mark-delivered`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId })
+      })
     } catch (error) {
       console.error('Error marking as delivered:', error)
     }
