@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Send email to internal team (will be captured by Cloudflare Worker)
     await resend.emails.send({
-      from: 'Formulario de Contacto <contacto@padeliner.com>',
+      from: 'Formulario de Contacto <contacto@send.padeliner.com>',
       to: 'contact@padeliner.com', // Cloudflare Email Routing → Worker → Supabase + Gmail
       subject: `[Contacto Web] ${subjectLabel} - ${name}`,
       html: `
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: 'Soporte <soporte@padeliner.com>',
+      from: 'Soporte <soporte@send.padeliner.com>',
       to: email,
       subject: 'Hemos recibido tu mensaje - Padeliner',
       html: `
