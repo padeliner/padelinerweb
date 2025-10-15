@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,8 +44,11 @@ export async function POST(request: NextRequest) {
     if (toEmail.includes('info@')) category = 'info'
     if (toEmail.includes('empleo@')) category = 'careers'
 
-    // Store in database
-    const supabase = await createClient()
+    // Store in database (using service role to bypass RLS)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
     
     const { data, error } = await supabase
       .from('incoming_emails')
@@ -66,8 +69,18 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error storing incoming email:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return NextResponse.json(
-        { error: 'Error storing email' },
+        { 
+          error: 'Error storing email',
+          details: error.message,
+          code: error.code
+        },
         { status: 500 }
       )
     }
