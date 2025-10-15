@@ -145,6 +145,13 @@ export default function MensajesPage() {
           // Marcar como entregado si no somos el remitente
           if (newMessage.sender_id !== userId) {
             markAsDelivered(newMessage.id)
+            
+            // Marcar como leído automáticamente si estamos viendo el chat
+            // Esperamos 1 segundo para que el usuario "vea" el mensaje
+            setTimeout(() => {
+              console.log('📖 Auto-marcando mensaje como leído (conversación abierta)')
+              markConversationAsRead()
+            }, 1000)
           }
           
           // Auto-scroll si el usuario no está scrolleando arriba
@@ -282,6 +289,7 @@ export default function MensajesPage() {
   // Marcar mensajes como leídos cuando se abre la conversación
   useEffect(() => {
     if (selectedConversationId && userId) {
+      console.log('📖 Marcando conversación como leída:', selectedConversationId)
       markConversationAsRead()
     }
   }, [selectedConversationId, userId])
@@ -326,12 +334,23 @@ export default function MensajesPage() {
   const markConversationAsRead = async () => {
     if (!selectedConversationId) return
     
+    console.log('📖 Llamando API mark-read para conversación:', selectedConversationId)
+    
     try {
-      await fetch(`/api/messages/${selectedConversationId}/mark-read`, {
+      const response = await fetch(`/api/messages/${selectedConversationId}/mark-read`, {
         method: 'POST'
       })
+      
+      const data = await response.json()
+      console.log('📖 Respuesta mark-read:', data)
+      
+      if (!response.ok) {
+        console.error('❌ Error en mark-read:', data)
+      } else {
+        console.log('✅ Mensajes marcados como leídos:', data.markedCount)
+      }
     } catch (error) {
-      console.error('Error marking as read:', error)
+      console.error('❌ Error marking as read:', error)
     }
   }
 
