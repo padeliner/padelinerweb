@@ -96,7 +96,7 @@ export default function EntrenadorDetailPage() {
 
       if (res.ok) {
         // Redirigir a mensajes con la conversación abierta
-        router.push(`/mensajes`)
+        router.push(`/mensajes?conversation=${data.conversationId}`)
       } else {
         alert('Error al iniciar conversación')
       }

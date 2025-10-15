@@ -5,7 +5,7 @@ import { Header } from '@/components/Header'
 import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 interface Message {
@@ -35,6 +35,7 @@ interface Conversation {
 
 export default function MensajesPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [userId, setUserId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -107,6 +108,21 @@ export default function MensajesPage() {
       setLoading(false)
     }
   }
+
+  // Abrir conversación automáticamente si viene en URL
+  useEffect(() => {
+    const conversationId = searchParams.get('conversation')
+    if (conversationId && conversations.length > 0 && !selectedConversationId) {
+      console.log('Abriendo conversación automáticamente:', conversationId)
+      setSelectedConversationId(conversationId)
+      // En móvil, mostrar el chat
+      if (window.innerWidth < 768) {
+        setShowChatOnMobile(true)
+      }
+      // Limpiar el parámetro de la URL
+      router.replace('/mensajes', { scroll: false })
+    }
+  }, [conversations, searchParams, selectedConversationId])
 
   // Cargar mensajes cuando se selecciona una conversación
   useEffect(() => {
@@ -452,7 +468,8 @@ export default function MensajesPage() {
 
       if (res.ok) {
         const { message } = await res.json()
-        setMessages(prev => [...prev, message])
+        // NO añadir el mensaje aquí - Realtime lo hará automáticamente
+        // Esto evita duplicados
         setMessageText('')
         setTimeout(scrollToBottom, 100)
         // Actualizar conversaciones
