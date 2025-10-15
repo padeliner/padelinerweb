@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { Header } from '@/components/Header'
 import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+
+// Marcar como página dinámica (requiere autenticación)
+export const dynamic = 'force-dynamic'
 
 interface Message {
   id: string
