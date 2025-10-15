@@ -18,6 +18,29 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
   const [sending, setSending] = useState(false)
   const [showNoteForm, setShowNoteForm] = useState(false)
   const [noteContent, setNoteContent] = useState('')
+  const [teams, setTeams] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
+
+  // Load teams and users for assignment
+  useEffect(() => {
+    loadTeamsAndUsers()
+  }, [])
+
+  const loadTeamsAndUsers = async () => {
+    try {
+      // Load teams
+      const teamsRes = await fetch('/api/admin/teams')
+      const teamsData = await teamsRes.json()
+      setTeams(teamsData.teams || [])
+
+      // Load users (agentes)
+      const usersRes = await fetch('/api/admin/users?role=admin')
+      const usersData = await usersRes.json()
+      setUsers(usersData.users || [])
+    } catch (error) {
+      console.error('Error loading teams/users:', error)
+    }
+  }
 
   useEffect(() => {
     if (conversation) {
@@ -132,6 +155,52 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
     }
   }
 
+  const handleTeamChange = async (teamId: string) => {
+    if (!conversation) return
+
+    try {
+      const res = await fetch(`/api/admin/conversations/${conversation.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team_id: teamId })
+      })
+
+      if (res.ok) {
+        const team = teams.find(t => t.id === teamId)
+        alert(`✅ Conversación derivada a ${team?.name}`)
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Error changing team:', error)
+      alert('❌ Error al derivar conversación')
+    }
+  }
+
+  const handleAssignUser = async (userId: string | null) => {
+    if (!conversation) return
+
+    try {
+      const res = await fetch(`/api/admin/conversations/${conversation.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assigned_to: userId })
+      })
+
+      if (res.ok) {
+        if (userId) {
+          const user = users.find(u => u.id === userId)
+          alert(`✅ Asignado a ${user?.full_name}`)
+        } else {
+          alert('✅ Asignación eliminada')
+        }
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Error assigning user:', error)
+      alert('❌ Error al asignar')
+    }
+  }
+
   if (!conversation) {
     return (
       <div className="flex-1 flex items-center justify-center bg-neutral-50">
@@ -220,8 +289,8 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-2">
+          {/* Actions - Row 1 */}
+          <div className="flex items-center space-x-2 mb-3">
             {/* Status Selector */}
             <select
               value={conversation.status}
@@ -243,19 +312,42 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
+          </div>
 
-            {/* Team Badge */}
-            {conversation.team && (
-              <span 
-                className="px-3 py-1.5 rounded text-sm font-medium"
-                style={{ 
-                  backgroundColor: `${conversation.team.color}20`,
-                  color: conversation.team.color 
-                }}
+          {/* Actions - Row 2: Derivación y Asignación */}
+          <div className="flex items-center space-x-2">
+            {/* Team Selector (Derivar) */}
+            <div className="flex-1">
+              <label className="text-xs text-neutral-500 mb-1 block">Equipo</label>
+              <select
+                value={conversation.team_id || ''}
+                onChange={(e) => handleTeamChange(e.target.value)}
+                className="w-full px-3 py-1.5 rounded text-sm border border-neutral-200 focus:ring-2 focus:ring-primary-500"
               >
-                {conversation.team.name}
-              </span>
-            )}
+                {teams.map(team => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* User Selector (Asignar) */}
+            <div className="flex-1">
+              <label className="text-xs text-neutral-500 mb-1 block">Asignar a</label>
+              <select
+                value={conversation.assigned_to || ''}
+                onChange={(e) => handleAssignUser(e.target.value || null)}
+                className="w-full px-3 py-1.5 rounded text-sm border border-neutral-200 focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">Sin asignar</option>
+                {users.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.full_name || user.email}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
