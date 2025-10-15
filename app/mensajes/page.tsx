@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
 import { Search, MessageCircle, ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -464,12 +463,12 @@ export default function MensajesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       <Header />
       
-      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full" style={{ height: 'calc(100vh - 160px)' }}>
+      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full min-h-0">
         {/* Conversations List */}
-        <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white min-h-0 ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
           <div className="p-4 border-b border-neutral-200">
             <div className="relative">
@@ -485,7 +484,7 @@ export default function MensajesPage() {
           </div>
 
           {/* Conversations */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
               <div className="flex items-center justify-center h-32">
                 <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
@@ -672,8 +671,6 @@ export default function MensajesPage() {
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
   )
 }
