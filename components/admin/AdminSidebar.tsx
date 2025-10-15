@@ -23,6 +23,7 @@ import {
   Ticket,
   BookOpen,
   MessageCircle,
+  Send,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -66,6 +67,11 @@ const navigationItems = [
     name: 'Mensajería',
     href: '/admin/mensajeria',
     icon: Mail,
+  },
+  {
+    name: 'Newsletter',
+    href: '/admin/newsletter',
+    icon: Send,
   },
   {
     name: 'Soporte',
