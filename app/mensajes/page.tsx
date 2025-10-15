@@ -553,12 +553,10 @@ function MensajesPageContent() {
         setTimeout(scrollToBottom, 100)
         loadConversations()
         
-        // Mantener foco en input solo en PC (setTimeout para evitar que re-render lo robe)
-        if (window.innerWidth >= 768) {
-          setTimeout(() => {
-            messageInputRef.current?.focus()
-          }, 50)
-        }
+        // Mantener foco en input (PC y móvil - evita que teclado se cierre)
+        setTimeout(() => {
+          messageInputRef.current?.focus()
+        }, 50)
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -781,7 +779,12 @@ function MensajesPageContent() {
                     placeholder="Escribe un mensaje..."
                     value={messageText}
                     onChange={(e) => handleMessageTextChange(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !sending) {
+                        e.preventDefault() // Prevenir comportamiento por defecto (que cierra teclado)
+                        handleSendMessage()
+                      }
+                    }}
                     onFocus={() => {
                       // Hacer scroll al final cuando se hace focus (mostrar último mensaje)
                       if (window.innerWidth < 768) {
@@ -797,6 +800,10 @@ function MensajesPageContent() {
                   />
                   <button
                     onClick={handleSendMessage}
+                    onMouseDown={(e) => {
+                      // Prevenir que el botón quite el foco del input (mantiene teclado abierto)
+                      e.preventDefault()
+                    }}
                     disabled={!messageText.trim() || sending}
                     className="flex-shrink-0 w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 bg-primary-500 hover:bg-primary-600 active:scale-95 disabled:bg-neutral-300 text-white font-semibold rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed touch-manipulation"
                   >
