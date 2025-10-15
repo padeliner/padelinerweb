@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, CircleDot } from 'lucide-react'
 import Link from 'next/link'
+import NewsletterSubscribe from './NewsletterSubscribe'
 
 export function Footer() {
   return (
@@ -88,27 +89,8 @@ export function Footer() {
 
         {/* Newsletter */}
         <div className="border-t border-neutral-800 pt-12 mb-12">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold mb-4">
-              Mantente al día
-            </h3>
-            <p className="text-neutral-400 mb-6">
-              Recibe ofertas exclusivas, consejos de entrenamiento y novedades
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="tu@email.com"
-                className="flex-1 px-6 py-3 bg-neutral-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-full transition-all duration-200"
-              >
-                Suscribirse
-              </motion.button>
-            </div>
+          <div className="max-w-md mx-auto">
+            <NewsletterSubscribe />
           </div>
         </div>
 
