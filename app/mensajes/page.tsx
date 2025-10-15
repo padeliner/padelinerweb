@@ -36,7 +36,17 @@ interface Conversation {
   isOnline: boolean
 }
 
+// Componente wrapper para Suspense
 export default function MensajesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary-500" /></div>}>
+      <MensajesContent />
+    </Suspense>
+  )
+}
+
+// Componente principal con toda la lógica
+function MensajesContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
