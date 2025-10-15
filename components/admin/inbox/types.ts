@@ -96,17 +96,22 @@ export interface ConversationStats {
     closed: number
     total: number
   }
-  byPriority: {
-    low: number
-    normal: number
-    high: number
-    urgent: number
-  }
   byTeam: {
-    [key: string]: {
+    [slug: string]: {
       name: string
       count: number
     }
+  }
+  bySource: {
+    email: number
+    chatbot: number
+    form: number
+  }
+  byPriority: {
+    urgent: number
+    high: number
+    normal: number
+    low: number
   }
   myConversations: number
   unassigned: number
@@ -127,8 +132,10 @@ export type FilterType =
 export interface ConversationFilters {
   status?: string
   team_id?: string
+  team?: string
   assigned_to?: string | 'me' | 'unassigned'
   priority?: string
+  source?: string
   search?: string
   page?: number
   limit?: number

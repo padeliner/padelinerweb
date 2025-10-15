@@ -63,9 +63,16 @@ export default function ConversationList({ filter, selectedId, onSelect, refresh
       filters.assigned_to = 'me'
     } else if (filterString === 'unassigned') {
       filters.assigned_to = 'unassigned'
+    } else if (filterString === 'urgent') {
+      filters.priority = 'urgent'
+    } else if (filterString.startsWith('source:')) {
+      // Extract source (email, chatbot, form)
+      const source = filterString.split(':')[1]
+      filters.source = source
     } else if (filterString.startsWith('team:')) {
-      // Extract team slug and get team_id
-      // For now, just use the status
+      // Extract team slug
+      const teamSlug = filterString.split(':')[1]
+      filters.team = teamSlug
     } else if (['new', 'open', 'pending', 'solved', 'closed'].includes(filterString)) {
       filters.status = filterString
     }

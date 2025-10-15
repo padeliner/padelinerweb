@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Inbox, User, Users, FolderOpen, Circle } from 'lucide-react'
+import { Search, Inbox, User, Users, FolderOpen, Circle, Mail, MessageSquare, Briefcase, AlertCircle, Star, Archive } from 'lucide-react'
 import { ConversationStats, FilterType } from './types'
 
 interface InboxSidebarProps {
@@ -10,19 +10,26 @@ interface InboxSidebarProps {
 }
 
 export default function InboxSidebar({ activeFilter, onFilterChange, stats }: InboxSidebarProps) {
-  const filters = [
-    { id: 'inbox', label: 'Inbox', icon: Inbox, count: stats?.byStatus.new || 0 },
-    { id: 'mine', label: 'Míos', icon: User, count: stats?.myConversations || 0 },
-    { id: 'team', label: 'Mi Equipo', icon: Users, count: 0 },
-    { id: 'unassigned', label: 'Sin Asignar', icon: FolderOpen, count: stats?.unassigned || 0 },
+  const mainFilters = [
+    { id: 'inbox', label: 'Inbox', icon: Inbox, count: stats?.byStatus.new || 0, color: 'text-blue-600' },
+    { id: 'mine', label: 'Asignados a Mí', icon: User, count: stats?.myConversations || 0, color: 'text-green-600' },
+    { id: 'unassigned', label: 'Sin Asignar', icon: FolderOpen, count: stats?.unassigned || 0, color: 'text-orange-600' },
+    { id: 'urgent', label: 'Urgentes', icon: AlertCircle, count: stats?.byPriority?.urgent || 0, color: 'text-red-600' },
+  ]
+
+  // NUEVAS SECCIONES POR CANAL/FUENTE
+  const channelFilters = [
+    { id: 'source:email', label: 'Formulario Contacto', icon: Mail, count: stats?.bySource?.email || 0, emoji: '📧' },
+    { id: 'source:chatbot', label: 'Chatbot', icon: MessageSquare, count: stats?.bySource?.chatbot || 0, emoji: '🤖' },
+    { id: 'source:form', label: 'Solicitudes Empleo', icon: Briefcase, count: stats?.bySource?.form || 0, emoji: '💼' },
   ]
 
   const statusFilters = [
-    { id: 'new', label: 'Nuevos', count: stats?.byStatus.new || 0, color: 'text-blue-600' },
-    { id: 'open', label: 'Abiertos', count: stats?.byStatus.open || 0, color: 'text-green-600' },
-    { id: 'pending', label: 'Pendientes', count: stats?.byStatus.pending || 0, color: 'text-orange-600' },
-    { id: 'solved', label: 'Resueltos', count: stats?.byStatus.solved || 0, color: 'text-emerald-600' },
-    { id: 'closed', label: 'Cerrados', count: stats?.byStatus.closed || 0, color: 'text-gray-600' },
+    { id: 'new', label: 'Nuevos', count: stats?.byStatus.new || 0, color: 'bg-blue-500' },
+    { id: 'open', label: 'Abiertos', count: stats?.byStatus.open || 0, color: 'bg-green-500' },
+    { id: 'pending', label: 'Pendientes', count: stats?.byStatus.pending || 0, color: 'bg-orange-500' },
+    { id: 'solved', label: 'Resueltos', count: stats?.byStatus.solved || 0, color: 'bg-emerald-500' },
+    { id: 'closed', label: 'Cerrados', count: stats?.byStatus.closed || 0, color: 'bg-gray-500' },
   ]
 
   return (
@@ -42,9 +49,9 @@ export default function InboxSidebar({ activeFilter, onFilterChange, stats }: In
       <div className="flex-1 overflow-y-auto">
         {/* Main Filters */}
         <div className="p-4">
-          <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Vistas</h3>
+          <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Principal</h3>
           <div className="space-y-1">
-            {filters.map(filter => {
+            {mainFilters.map(filter => {
               const Icon = filter.icon
               const isActive = activeFilter === filter.id
               return (
@@ -58,14 +65,48 @@ export default function InboxSidebar({ activeFilter, onFilterChange, stats }: In
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-4 h-4 ${filter.color}`} />
                     <span className="text-sm font-medium">{filter.label}</span>
                   </div>
                   {filter.count > 0 && (
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      isActive ? 'bg-primary-100' : 'bg-neutral-100'
+                      isActive ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'
                     }`}>
                       {filter.count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Channel Filters */}
+        <div className="p-4 border-t">
+          <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Por Canal</h3>
+          <div className="space-y-1">
+            {channelFilters.map(channel => {
+              const Icon = channel.icon
+              const isActive = activeFilter === channel.id
+              return (
+                <button
+                  key={channel.id}
+                  onClick={() => onFilterChange(channel.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-700 border-l-2 border-primary-600'
+                      : 'hover:bg-neutral-50 text-neutral-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-lg">{channel.emoji}</span>
+                    <span className="text-sm font-medium">{channel.label}</span>
+                  </div>
+                  {channel.count > 0 && (
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      isActive ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'
+                    }`}>
+                      {channel.count}
                     </span>
                   )}
                 </button>

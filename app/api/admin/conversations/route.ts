@@ -28,8 +28,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status')
     const teamId = searchParams.get('team_id')
+    const team = searchParams.get('team')
     const assignedTo = searchParams.get('assigned_to')
     const priority = searchParams.get('priority')
+    const source = searchParams.get('source')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const search = searchParams.get('search')
@@ -55,6 +57,19 @@ export async function GET(request: NextRequest) {
       query = query.eq('team_id', teamId)
     }
 
+    if (team) {
+      // Get team by slug
+      const { data: teamData } = await supabase
+        .from('teams')
+        .select('id')
+        .eq('slug', team)
+        .single()
+      
+      if (teamData) {
+        query = query.eq('team_id', teamData.id)
+      }
+    }
+
     if (assignedTo === 'me') {
       query = query.eq('assigned_to', user.id)
     } else if (assignedTo === 'unassigned') {
@@ -65,6 +80,10 @@ export async function GET(request: NextRequest) {
 
     if (priority) {
       query = query.eq('priority', priority)
+    }
+
+    if (source) {
+      query = query.eq('source', source)
     }
 
     if (search) {

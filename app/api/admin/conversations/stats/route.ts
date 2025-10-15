@@ -89,11 +89,31 @@ export async function GET(request: NextRequest) {
         return { data: byTeam }
       })
 
+    // Get counts by source (NEW)
+    const { data: sourceCounts } = await supabase
+      .from('conversations')
+      .select('source')
+      .in('status', ['new', 'open', 'pending'])
+      .then(res => {
+        const counts: any = {
+          email: 0,
+          chatbot: 0,
+          form: 0
+        }
+        res.data?.forEach((conv: any) => {
+          if (counts.hasOwnProperty(conv.source)) {
+            counts[conv.source]++
+          }
+        })
+        return { data: counts }
+      })
+
     return NextResponse.json({
       stats: {
         byStatus: statusCounts,
         byPriority: priorityCounts,
         byTeam: teamCounts,
+        bySource: sourceCounts,
         myConversations: myCount || 0,
         unassigned: unassignedCount || 0
       }
