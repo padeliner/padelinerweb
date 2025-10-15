@@ -19,7 +19,6 @@ import {
   ArrowLeft,
   DollarSign,
   Mail,
-  Headphones,
   Ticket,
   BookOpen,
   MessageCircle,
@@ -72,11 +71,6 @@ const navigationItems = [
     name: 'Newsletter',
     href: '/admin/newsletter',
     icon: Send,
-  },
-  {
-    name: 'Soporte',
-    href: '/admin/soporte',
-    icon: Headphones,
   },
   {
     name: 'Moderación',
