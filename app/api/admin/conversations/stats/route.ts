@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
         return { data: byTeam }
       })
 
-    // Get counts by source (NEW)
+    // Get counts by source
     const { data: sourceCounts } = await supabase
       .from('conversations')
       .select('source')
@@ -108,12 +108,37 @@ export async function GET(request: NextRequest) {
         return { data: counts }
       })
 
+    // Get counts by category (NEW)
+    const { data: categoryCounts } = await supabase
+      .from('conversations')
+      .select('category')
+      .eq('source', 'email')
+      .in('status', ['new', 'open', 'pending'])
+      .then(res => {
+        const counts: any = {
+          general: 0,
+          entrenador: 0,
+          club: 0,
+          academia: 0,
+          tienda: 0,
+          soporte: 0,
+          colaboracion: 0
+        }
+        res.data?.forEach((conv: any) => {
+          if (counts.hasOwnProperty(conv.category)) {
+            counts[conv.category]++
+          }
+        })
+        return { data: counts }
+      })
+
     return NextResponse.json({
       stats: {
         byStatus: statusCounts,
         byPriority: priorityCounts,
         byTeam: teamCounts,
         bySource: sourceCounts,
+        byCategory: categoryCounts,
         myConversations: myCount || 0,
         unassigned: unassignedCount || 0
       }

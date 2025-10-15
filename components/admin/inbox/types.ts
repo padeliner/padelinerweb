@@ -113,6 +113,15 @@ export interface ConversationStats {
     normal: number
     low: number
   }
+  byCategory: {
+    general: number
+    entrenador: number
+    club: number
+    academia: number
+    tienda: number
+    soporte: number
+    colaboracion: number
+  }
   myConversations: number
   unassigned: number
 }
@@ -136,6 +145,7 @@ export interface ConversationFilters {
   assigned_to?: string | 'me' | 'unassigned'
   priority?: string
   source?: string
+  category?: string
   search?: string
   page?: number
   limit?: number

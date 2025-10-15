@@ -1,6 +1,7 @@
 'use client'
 
-import { Search, Inbox, User, Users, FolderOpen, Circle, Mail, MessageSquare, Briefcase, AlertCircle, Star, Archive } from 'lucide-react'
+import { useState } from 'react'
+import { Search, Inbox, User, Users, FolderOpen, Circle, Mail, MessageSquare, Briefcase, AlertCircle, Star, Archive, ChevronDown, ChevronRight } from 'lucide-react'
 import { ConversationStats, FilterType } from './types'
 
 interface InboxSidebarProps {
@@ -19,10 +20,25 @@ export default function InboxSidebar({ activeFilter, onFilterChange, stats }: In
 
   // NUEVAS SECCIONES POR CANAL/FUENTE
   const channelFilters = [
-    { id: 'source:email', label: 'Formulario Contacto', icon: Mail, count: stats?.bySource?.email || 0, emoji: '📧' },
-    { id: 'source:chatbot', label: 'Chatbot', icon: MessageSquare, count: stats?.bySource?.chatbot || 0, emoji: '🤖' },
-    { id: 'source:form', label: 'Solicitudes Empleo', icon: Briefcase, count: stats?.bySource?.form || 0, emoji: '💼' },
+    { id: 'source:email', label: 'Formulario Contacto', icon: Mail, count: stats?.bySource?.email || 0, emoji: '📧', hasSubcategories: true },
+    { id: 'source:chatbot', label: 'Chatbot', icon: MessageSquare, count: stats?.bySource?.chatbot || 0, emoji: '🤖', hasSubcategories: false },
+    { id: 'source:form', label: 'Solicitudes Empleo', icon: Briefcase, count: stats?.bySource?.form || 0, emoji: '💼', hasSubcategories: false },
   ]
+
+  // Subcategorías del formulario de contacto
+  const contactSubcategories = [
+    { id: 'category:general', label: 'Consultas Generales', count: stats?.byCategory?.general || 0, emoji: '💬' },
+    { id: 'category:entrenador', label: 'Entrenadores', count: stats?.byCategory?.entrenador || 0, emoji: '🎾' },
+    { id: 'category:club', label: 'Clubes', count: stats?.byCategory?.club || 0, emoji: '🏢' },
+    { id: 'category:academia', label: 'Academias', count: stats?.byCategory?.academia || 0, emoji: '🎓' },
+    { id: 'category:tienda', label: 'Tienda', count: stats?.byCategory?.tienda || 0, emoji: '🛒' },
+    { id: 'category:soporte', label: 'Soporte Técnico', count: stats?.byCategory?.soporte || 0, emoji: '🔧' },
+    { id: 'category:colaboracion', label: 'Colaboraciones', count: stats?.byCategory?.colaboracion || 0, emoji: '🤝' },
+  ]
+  
+  const [expandedChannels, setExpandedChannels] = useState<Record<string, boolean>>({
+    'source:email': false
+  })
 
   const statusFilters = [
     { id: 'new', label: 'Nuevos', count: stats?.byStatus.new || 0, color: 'bg-blue-500' },
@@ -88,28 +104,68 @@ export default function InboxSidebar({ activeFilter, onFilterChange, stats }: In
             {channelFilters.map(channel => {
               const Icon = channel.icon
               const isActive = activeFilter === channel.id
+              const isExpanded = expandedChannels[channel.id]
+              
               return (
-                <button
-                  key={channel.id}
-                  onClick={() => onFilterChange(channel.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-primary-50 text-primary-700 border-l-2 border-primary-600'
-                      : 'hover:bg-neutral-50 text-neutral-700'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <span className="text-lg">{channel.emoji}</span>
-                    <span className="text-sm font-medium">{channel.label}</span>
-                  </div>
-                  {channel.count > 0 && (
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      isActive ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'
-                    }`}>
-                      {channel.count}
-                    </span>
+                <div key={channel.id}>
+                  <button
+                    onClick={() => {
+                      if (channel.hasSubcategories) {
+                        setExpandedChannels({...expandedChannels, [channel.id]: !isExpanded})
+                      } else {
+                        onFilterChange(channel.id)
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-primary-50 text-primary-700 border-l-2 border-primary-600'
+                        : 'hover:bg-neutral-50 text-neutral-700'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      {channel.hasSubcategories && (
+                        isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />
+                      )}
+                      <span className="text-lg">{channel.emoji}</span>
+                      <span className="text-sm font-medium">{channel.label}</span>
+                    </div>
+                    {channel.count > 0 && (
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        isActive ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'
+                      }`}>
+                        {channel.count}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Subcategorías */}
+                  {channel.hasSubcategories && isExpanded && channel.id === 'source:email' && (
+                    <div className="ml-6 mt-1 space-y-1">
+                      {contactSubcategories.map(subcategory => {
+                        const isSubActive = activeFilter === subcategory.id
+                        return (
+                          <button
+                            key={subcategory.id}
+                            onClick={() => onFilterChange(subcategory.id)}
+                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg transition-colors text-sm ${
+                              isSubActive
+                                ? 'bg-primary-100 text-primary-700'
+                                : 'hover:bg-neutral-50 text-neutral-600'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm">{subcategory.emoji}</span>
+                              <span>{subcategory.label}</span>
+                            </div>
+                            {subcategory.count > 0 && (
+                              <span className="text-xs text-neutral-500">{subcategory.count}</span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
                   )}
-                </button>
+                </div>
               )
             })}
           </div>

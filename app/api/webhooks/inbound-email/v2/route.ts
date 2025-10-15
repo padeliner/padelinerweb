@@ -59,18 +59,44 @@ export async function POST(request: NextRequest) {
     
     console.log('📧 Parsed email:', { fromEmail, fromName })
 
-    // Determine team based on recipient
+    // Determine team and category based on subject or recipient
     const toEmail = typeof to === 'string' ? to : to?.[0] || 'unknown'
     let teamSlug = 'general'
     let category = 'general'
     
-    if (toEmail.includes('contact@')) { teamSlug = 'general'; category = 'contact'; }
-    if (toEmail.includes('soporte@')) { teamSlug = 'support'; category = 'support'; }
-    if (toEmail.includes('support@')) { teamSlug = 'support'; category = 'support'; }
-    if (toEmail.includes('ventas@')) { teamSlug = 'sales'; category = 'sales'; }
-    if (toEmail.includes('sales@')) { teamSlug = 'sales'; category = 'sales'; }
-    if (toEmail.includes('empleo@')) { teamSlug = 'hr'; category = 'careers'; }
-    if (toEmail.includes('hr@')) { teamSlug = 'hr'; category = 'careers'; }
+    // Si es del formulario de contacto, extraer categoría del subject
+    if (subject?.includes('[Contacto Web]')) {
+      // Mapeo de categorías del formulario a equipos
+      const categoryMapping: Record<string, { team: string, category: string }> = {
+        'Consulta General': { team: 'general', category: 'general' },
+        'Información sobre entrenadores': { team: 'general', category: 'entrenador' },
+        'Información sobre clubes': { team: 'general', category: 'club' },
+        'Información sobre academias': { team: 'general', category: 'academia' },
+        'Consulta sobre tienda': { team: 'sales', category: 'tienda' },
+        'Soporte Técnico': { team: 'support', category: 'soporte' },
+        'Propuesta de Colaboración': { team: 'sales', category: 'colaboracion' }
+      }
+      
+      // Buscar la categoría en el subject
+      for (const [key, value] of Object.entries(categoryMapping)) {
+        if (subject.includes(key)) {
+          teamSlug = value.team
+          category = value.category
+          break
+        }
+      }
+    } else {
+      // Determinar por email de destino (otros formularios)
+      if (toEmail.includes('contact@')) { teamSlug = 'general'; category = 'contact'; }
+      if (toEmail.includes('soporte@')) { teamSlug = 'support'; category = 'support'; }
+      if (toEmail.includes('support@')) { teamSlug = 'support'; category = 'support'; }
+      if (toEmail.includes('ventas@')) { teamSlug = 'sales'; category = 'sales'; }
+      if (toEmail.includes('sales@')) { teamSlug = 'sales'; category = 'sales'; }
+      if (toEmail.includes('empleo@')) { teamSlug = 'hr'; category = 'careers'; }
+      if (toEmail.includes('hr@')) { teamSlug = 'hr'; category: 'careers'; }
+    }
+    
+    console.log('📋 Category mapping:', { teamSlug, category })
 
     // Connect to Supabase with service role
     const supabase = createClient(

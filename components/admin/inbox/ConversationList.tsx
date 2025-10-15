@@ -65,6 +65,10 @@ export default function ConversationList({ filter, selectedId, onSelect, refresh
       filters.assigned_to = 'unassigned'
     } else if (filterString === 'urgent') {
       filters.priority = 'urgent'
+    } else if (filterString.startsWith('category:')) {
+      // Extract category
+      const category = filterString.split(':')[1]
+      filters.category = category
     } else if (filterString.startsWith('source:')) {
       // Extract source (email, chatbot, form)
       const source = filterString.split(':')[1]

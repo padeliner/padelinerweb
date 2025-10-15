@@ -86,6 +86,11 @@ export async function GET(request: NextRequest) {
       query = query.eq('source', source)
     }
 
+    const category = searchParams.get('category')
+    if (category) {
+      query = query.eq('category', category)
+    }
+
     if (search) {
       query = query.textSearch('subject', search)
     }
