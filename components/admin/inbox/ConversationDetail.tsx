@@ -249,8 +249,12 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: es })}
                     </span>
                   </div>
-                  <div className="text-sm text-neutral-700 whitespace-pre-wrap">
-                    {message.content}
+                  <div className="text-sm text-neutral-700">
+                    {message.html_content ? (
+                      <div dangerouslySetInnerHTML={{ __html: message.html_content }} />
+                    ) : (
+                      <div className="whitespace-pre-wrap">{message.content}</div>
+                    )}
                   </div>
                 </div>
               </div>
