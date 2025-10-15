@@ -48,6 +48,7 @@ export default function MensajesPage() {
   const [sending, setSending] = useState(false)
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messageInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
@@ -458,6 +459,11 @@ export default function MensajesPage() {
         setTimeout(scrollToBottom, 100)
         // Actualizar conversaciones
         loadConversations()
+        
+        // Mantener foco en input solo en PC (no en móvil)
+        if (window.innerWidth >= 768 && messageInputRef.current) {
+          messageInputRef.current.focus()
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -656,6 +662,7 @@ export default function MensajesPage() {
               <div className="p-3 md:p-4 max-w-full">
                 <div className="flex items-end gap-2 w-full">
                   <input
+                    ref={messageInputRef}
                     type="text"
                     placeholder="Escribe un mensaje..."
                     value={messageText}
