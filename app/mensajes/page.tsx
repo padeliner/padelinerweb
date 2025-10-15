@@ -164,7 +164,7 @@ export default function MensajesPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
       
-      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full">
+      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full" style={{ minHeight: 'calc(100vh - 200px)' }}>
         {/* Conversations List */}
         <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
