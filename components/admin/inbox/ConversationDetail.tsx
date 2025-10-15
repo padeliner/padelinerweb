@@ -57,13 +57,20 @@ export default function ConversationDetail({ conversation, onUpdate }: Conversat
         })
       })
 
+      const data = await res.json()
+
       if (res.ok) {
         setReplyContent('')
         await loadMessages()
         onUpdate()
+        alert('✅ Respuesta enviada al cliente correctamente')
+      } else {
+        console.error('Error response:', data)
+        alert(`❌ Error: ${data.message || data.error || 'No se pudo enviar el email'}`)
       }
     } catch (error) {
       console.error('Error sending reply:', error)
+      alert('❌ Error al enviar la respuesta')
     } finally {
       setSending(false)
     }

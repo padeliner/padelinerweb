@@ -95,13 +95,16 @@ export async function POST(
     const fromName = userProfile?.full_name || 'Equipo Padeliner'
 
     // Si no es nota interna, enviar email real
+    let emailSent = false
     if (!is_internal) {
       try {
-        await resend.emails.send({
+        console.log('📧 Sending reply email to:', conversation.contact_email)
+        
+        const result = await resend.emails.send({
           from: `${fromName} <${fromEmail}>`,
           to: conversation.contact_email,
           subject: `Re: ${conversation.subject}`,
-          replyTo: fromEmail,
+          replyTo: 'contact@padeliner.com',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #059669; color: white; padding: 20px; text-align: center;">
@@ -122,9 +125,24 @@ export async function POST(
             </div>
           `
         })
-      } catch (emailError) {
-        console.error('Error sending email:', emailError)
-        // Continue even if email fails
+        
+        console.log('✅ Email sent successfully:', result)
+        emailSent = true
+        
+      } catch (emailError: any) {
+        console.error('❌ ERROR sending email:', emailError)
+        console.error('Error details:', emailError.message)
+        console.error('Error stack:', emailError.stack)
+        
+        // Return error to user so they know
+        return NextResponse.json(
+          { 
+            error: 'Error al enviar email', 
+            details: emailError.message,
+            message: 'El mensaje se guardó pero no se pudo enviar el email al cliente'
+          },
+          { status: 500 }
+        )
       }
     }
 
