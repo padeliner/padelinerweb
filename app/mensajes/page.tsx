@@ -467,7 +467,7 @@ export default function MensajesPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
       
-      <div className="flex-1 flex overflow-hidden max-w-[1800px] mx-auto w-full" style={{ minHeight: 'calc(100vh - 200px)' }}>
+      <div className="flex flex-1 overflow-hidden max-w-[1800px] mx-auto w-full" style={{ height: 'calc(100vh - 160px)' }}>
         {/* Conversations List */}
         <div className={`w-full md:w-96 border-r border-neutral-200 flex flex-col bg-white ${showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Search */}
@@ -541,8 +541,8 @@ export default function MensajesPage() {
         {selectedConversation ? (
           <div 
             className={`
-              flex-1 flex-col bg-white
-              ${showChatOnMobile ? 'flex fixed inset-0 z-[9999]' : 'hidden'}
+              flex-1 flex flex-col bg-white
+              ${showChatOnMobile ? 'fixed inset-0 z-[9999]' : 'hidden'}
               md:flex md:relative md:z-auto
             `}
           >
@@ -573,7 +573,7 @@ export default function MensajesPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-neutral-500">
                   <p className="text-sm">No hay mensajes aún</p>
