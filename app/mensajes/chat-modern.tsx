@@ -239,26 +239,9 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
   }, [showMenu])
 
   // Handlers del menú
-  const handleViewProfile = async () => {
+  const handleViewProfile = () => {
     setShowMenu(false)
-    
-    try {
-      // Obtener el idx del coach desde la base de datos
-      const { data: coach } = await supabase
-        .from('coaches')
-        .select('idx')
-        .eq('user_id', conversation.otherUserId)
-        .single()
-      
-      if (coach?.idx) {
-        window.location.href = `/entrenador/${coach.idx}`
-      } else {
-        alert('No se pudo encontrar el perfil del entrenador')
-      }
-    } catch (error) {
-      console.error('Error al obtener perfil:', error)
-      alert('Error al cargar el perfil')
-    }
+    window.location.href = `/entrenador/${conversation.otherUserId}`
   }
 
   const handleToggleMute = () => {
