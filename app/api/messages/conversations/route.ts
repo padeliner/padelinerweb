@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
           .neq('sender_id', user.id)
           .gt('created_at', lastReadAt || '1970-01-01')
 
-        return {
+        const conversationData = {
           id: conv.id,
           name: otherUser?.full_name || 'Usuario',
           avatar: otherUser?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUser?.full_name || 'U')}`,
@@ -72,10 +72,23 @@ export async function GET(request: NextRequest) {
           lastMessage: lastMessage?.content || 'Sin mensajes',
           timestamp: lastMessage?.created_at || conv.created_at,
           unreadCount: unreadCount || 0,
-          isOnline: false, // TODO: implementar status en tiempo real
+          isOnline: false,
           otherUserId: otherUser?.id || '',
           isVerified: otherUser?.is_verified || false,
         }
+        
+        // DEBUG: Log para verificar datos del admin
+        if (otherUser?.email === 'padeliner@gmail.com') {
+          console.log('📧 Admin Padeliner conversation:', {
+            userId: otherUser?.id,
+            name: otherUser?.full_name,
+            avatar: otherUser?.avatar_url,
+            isVerified: otherUser?.is_verified,
+            rawUser: otherUser
+          })
+        }
+        
+        return conversationData
       })
     )
 
