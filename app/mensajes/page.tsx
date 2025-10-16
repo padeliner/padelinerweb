@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ChatView } from './chat-modern'
 import { VerifiedBadge } from '@/components/VerifiedBadge'
+import { useUserPresence } from '@/hooks/useUserPresence'
 
 interface Conversation {
   id: string
@@ -31,8 +32,10 @@ function MensajesPageContent() {
   const [userId, setUserId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useUserPresence(true)
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
   const filteredConversations = conversations.filter(conv =>

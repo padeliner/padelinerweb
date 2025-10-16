@@ -42,9 +42,6 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  
-  // Activar heartbeat para marcar al usuario como online
-  useUserPresence(true)
 
   const scrollToBottom = useCallback((smooth = false) => {
     messagesEndRef.current?.scrollIntoView({ 

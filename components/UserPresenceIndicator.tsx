@@ -23,49 +23,76 @@ export function UserPresenceIndicator({
   const supabase = createClient()
 
   useEffect(() => {
+    if (!userId) return
+
+    let isMounted = true
+
     // Cargar presencia inicial
     loadPresence()
 
-    // Suscribirse a cambios en tiempo real
+    // Polling cada 1 segundo para actualización instantánea
+    const pollingInterval = setInterval(() => {
+      if (isMounted) {
+        loadPresence()
+      }
+    }, 1000)
+
+    // Suscribirse a cambios en tiempo real con canal único
+    const channelName = `presence-${userId}-${Math.random().toString(36).substring(7)}`
     const channel = supabase
-      .channel(`presence:${userId}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
           table: 'user_presence',
           filter: `user_id=eq.${userId}`
         },
         (payload: any) => {
-          const presence = payload.new
-          if (presence) {
-            setStatus(presence.status)
-            setLastSeen(presence.last_seen)
+          if (isMounted && payload.new) {
+            console.log('🔄 Presencia actualizada:', payload.new.status)
+            setStatus(payload.new.status)
+            setLastSeen(payload.new.last_seen)
           }
         }
       )
       .subscribe()
 
     return () => {
+      isMounted = false
+      clearInterval(pollingInterval)
       supabase.removeChannel(channel)
     }
-  }, [userId, supabase])
+  }, [userId])
 
   const loadPresence = async () => {
     try {
+      const startTime = Date.now()
       const { data, error } = await supabase
         .from('user_presence')
         .select('*')
         .eq('user_id', userId)
         .single()
 
+      const loadTime = Date.now() - startTime
+      
       if (!error && data) {
+        const changed = data.status !== status
+        console.log(`📊 Polling (${loadTime}ms):`, {
+          userId,
+          status: data.status,
+          lastSeen: data.last_seen,
+          changed,
+          oldStatus: status
+        })
         setStatus(data.status)
         setLastSeen(data.last_seen)
+      } else if (error) {
+        console.error('❌ Error loading presence:', error)
       }
     } catch (error) {
-      console.error('Error loading presence:', error)
+      console.error('❌ Exception loading presence:', error)
     }
   }
 
@@ -74,13 +101,13 @@ export function UserPresenceIndicator({
       return 'En línea'
     }
 
-    // Si no queremos mostrar "Hace X min", solo mostrar "Desconectado"
+    // Si no queremos mostrar "Hace X min", no mostrar nada
     if (!showLastSeen) {
-      return 'Desconectado'
+      return null
     }
 
     if (!lastSeen) {
-      return 'Desconectado'
+      return 'Última vez hace un momento'
     }
 
     try {
@@ -90,24 +117,25 @@ export function UserPresenceIndicator({
 
       // Menos de 1 minuto
       if (diffMinutes < 1) {
-        return 'Hace un momento'
+        return 'Última vez hace un momento'
       }
 
       // Menos de 60 minutos
       if (diffMinutes < 60) {
-        return `Hace ${diffMinutes} min`
+        return `Última vez hace ${diffMinutes} min`
       }
 
       // Menos de 24 horas
       if (diffMinutes < 1440) {
         const hours = Math.floor(diffMinutes / 60)
-        return `Hace ${hours}h`
+        return `Última vez hace ${hours}h`
       }
 
       // Más de 24 horas
-      return formatDistanceToNow(lastSeenDate, { addSuffix: true, locale: es })
+      const formattedDate = formatDistanceToNow(lastSeenDate, { addSuffix: false, locale: es })
+      return `Última vez ${formattedDate}`
     } catch {
-      return 'Desconectado'
+      return 'Última vez hace un momento'
     }
   }
 
@@ -122,10 +150,16 @@ export function UserPresenceIndicator({
     )
   }
 
+  const text = getLastSeenText()
+  
+  if (!text) {
+    return null
+  }
+
   return (
     <div className={`flex items-center ${className}`}>
       <span className={`text-xs ${status === 'online' ? 'text-green-600 font-medium' : 'text-neutral-500'}`}>
-        {getLastSeenText()}
+        {text}
       </span>
     </div>
   )
