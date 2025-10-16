@@ -116,10 +116,7 @@ export function UserPresenceIndicator({
   }
 
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      {status === 'online' && (
-        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-      )}
+    <div className={`flex items-center ${className}`}>
       <span className={`text-xs ${status === 'online' ? 'text-green-600 font-medium' : 'text-neutral-500'}`}>
         {getLastSeenText()}
       </span>
