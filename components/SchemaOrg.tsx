@@ -44,11 +44,38 @@ export function SchemaOrg() {
     '@type': 'WebSite',
     name: 'Padeliner',
     url: 'https://www.padeliner.com',
+    image: 'https://www.padeliner.com/hero-padel.jpg',
     potentialAction: {
       '@type': 'SearchAction',
       target: 'https://www.padeliner.com/entrenadores?q={search_term_string}',
       'query-input': 'required name=search_term_string'
     }
+  }
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Padeliner - Plataforma Líder de Pádel en España',
+    description: 'Conecta con los mejores profesionales del pádel. Reserva clases, encuentra clubes y compra equipo de alta calidad.',
+    url: 'https://www.padeliner.com',
+    image: {
+      '@type': 'ImageObject',
+      url: 'https://www.padeliner.com/hero-padel.jpg',
+      width: 1200,
+      height: 630,
+      caption: 'Padeliner - Plataforma de Pádel'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Padeliner',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.padeliner.com/padeliner-logo.png',
+        width: 512,
+        height: 512
+      }
+    },
+    inLanguage: 'es-ES'
   }
 
   const localBusinessSchema = {
@@ -104,6 +131,13 @@ export function SchemaOrg() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(websiteSchema)
+        }}
+      />
+      <Script
+        id="schema-org-webpage"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(webPageSchema)
         }}
       />
       <Script
