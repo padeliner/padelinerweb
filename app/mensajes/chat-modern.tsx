@@ -28,6 +28,7 @@ interface ChatViewProps {
     role: string
     otherUserId: string  // ID del otro usuario para mostrar presencia
     isVerified?: boolean  // Badge de verificación oficial
+    otherUserSlug?: string  // Slug del entrenador para la URL
   }
   userId: string
   userRole: string  // Para detectar si es admin
@@ -241,7 +242,11 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
   // Handlers del menú
   const handleViewProfile = () => {
     setShowMenu(false)
-    window.location.href = `/perfil/${conversation.otherUserId}`
+    
+    // Solo para entrenadores
+    if (conversation.role === 'entrenador' && conversation.otherUserSlug) {
+      window.location.href = `/entrenadores/${conversation.otherUserSlug}`
+    }
   }
 
   const handleToggleMute = () => {
@@ -334,41 +339,54 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
           {/* Dropdown menu */}
           {showMenu && (
             <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-xl border border-neutral-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <button
-                onClick={handleViewProfile}
-                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
-              >
-                <User className="w-4 h-4 text-neutral-600" />
-                <span className="text-sm text-neutral-900">Ver perfil</span>
-              </button>
+              {/* Ver perfil: Solo para entrenadores */}
+              {conversation.role === 'entrenador' && conversation.otherUserSlug && (
+                <button
+                  onClick={handleViewProfile}
+                  className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+                >
+                  <User className="w-4 h-4 text-neutral-600" />
+                  <span className="text-sm text-neutral-900">Ver perfil</span>
+                </button>
+              )}
 
-              <button
-                onClick={handleToggleMute}
-                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
-              >
-                {isMuted ? (
-                  <>
-                    <Bell className="w-4 h-4 text-neutral-600" />
-                    <span className="text-sm text-neutral-900">Activar notificaciones</span>
-                  </>
-                ) : (
-                  <>
-                    <BellOff className="w-4 h-4 text-neutral-600" />
-                    <span className="text-sm text-neutral-900">Silenciar notificaciones</span>
-                  </>
-                )}
-              </button>
+              {/* Silenciar: Solo si NO es admin */}
+              {conversation.role !== 'admin' && (
+                <button
+                  onClick={handleToggleMute}
+                  className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+                >
+                  {isMuted ? (
+                    <>
+                      <Bell className="w-4 h-4 text-neutral-600" />
+                      <span className="text-sm text-neutral-900">Activar notificaciones</span>
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="w-4 h-4 text-neutral-600" />
+                      <span className="text-sm text-neutral-900">Silenciar notificaciones</span>
+                    </>
+                  )}
+                </button>
+              )}
 
-              <div className="border-t border-neutral-100 my-1" />
+              {/* Separador: Solo si hay opciones arriba Y abajo */}
+              {(conversation.role === 'entrenador' || conversation.role !== 'admin') && (
+                <div className="border-t border-neutral-100 my-1" />
+              )}
 
-              <button
-                onClick={handleReport}
-                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
-              >
-                <AlertCircle className="w-4 h-4 text-orange-600" />
-                <span className="text-sm text-orange-600">Reportar usuario</span>
-              </button>
+              {/* Reportar: Solo si NO es admin */}
+              {conversation.role !== 'admin' && (
+                <button
+                  onClick={handleReport}
+                  className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm text-orange-600">Reportar usuario</span>
+                </button>
+              )}
 
+              {/* Eliminar conversación: SIEMPRE disponible */}
               <button
                 onClick={handleDeleteConversation}
                 className="w-full px-4 py-2.5 text-left hover:bg-red-50 flex items-center gap-3 transition-colors"

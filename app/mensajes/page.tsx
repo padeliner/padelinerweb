@@ -22,6 +22,7 @@ interface Conversation {
   isOnline: boolean
   otherUserId: string  // ID del otro usuario en la conversación
   isVerified?: boolean  // Badge de verificación oficial
+  otherUserSlug?: string  // Slug del entrenador para la URL
 }
 
 function MensajesPageContent() {

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         if (participants?.user_id) {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('id, full_name, avatar_url, role, is_verified, email')
+            .select('id, full_name, avatar_url, role, is_verified, email, slug')
             .eq('id', participants.user_id)
             .single()
 
@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
           isOnline,
           otherUserId: otherUser?.id || '',
           isVerified: otherUser?.is_verified || false,
+          otherUserSlug: otherUser?.slug || null, // Slug para entrenadores
         }
         
         // DEBUG: Log para verificar datos del admin
