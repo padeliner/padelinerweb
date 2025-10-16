@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChatView } from './chat-optimized'
+import { ChatView } from './chat-modern'
 
 interface Conversation {
   id: string
