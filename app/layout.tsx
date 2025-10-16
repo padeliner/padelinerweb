@@ -8,6 +8,7 @@ import { CookieBanner } from '@/components/CookieBanner'
 import { ChatBot } from '@/components/ChatBot'
 import { AppDownloadPopup } from '@/components/AppDownloadPopup'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
+import { SchemaOrg } from '@/components/SchemaOrg'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -90,6 +91,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased pb-16 md:pb-0">
         {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        <SchemaOrg />
         <AuthProvider>
           <CartProvider>
             {children}
