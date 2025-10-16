@@ -1,8 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, CircleDot } from 'lucide-react'
+import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
 export function Footer() {
@@ -40,11 +41,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="flex items-center justify-center w-12 h-12 bg-primary-500 rounded-xl">
-                <CircleDot className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-2xl font-bold">Padeliner</span>
+            <div className="flex items-center mb-6">
+              <Image 
+                src="/padeliner-logo.png" 
+                alt="Padeliner" 
+                width={180} 
+                height={48}
+                className="h-12 w-auto"
+              />
             </div>
             <p className="text-neutral-400 mb-6 leading-relaxed">
               La plataforma líder para conectar jugadores con entrenadores profesionales de pádel.

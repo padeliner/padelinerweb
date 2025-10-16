@@ -41,7 +41,7 @@ export const metadata: Metadata = {
       { url: '/favicon.png', type: 'image/png' },
     ],
     shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     type: 'website',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     description: 'Conecta con los mejores profesionales del pádel. Reserva clases, encuentra clubes y compra equipo de alta calidad.',
     images: [
       {
-        url: 'https://www.padeliner.com/og-image.jpg',
+        url: 'https://www.padeliner.com/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Padeliner - Plataforma de Pádel',
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Padeliner - Plataforma Líder de Pádel en España',
     description: 'Descubre entrenadores, clubes y academias de pádel cerca de ti. Reserva, juega y mejora tu nivel.',
-    images: ['https://www.padeliner.com/og-image.jpg'],
+    images: ['https://www.padeliner.com/og-image.png'],
   },
   verification: {
     google: 'verification_token', // Añadir token real de Google Search Console
