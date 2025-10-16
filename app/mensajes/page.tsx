@@ -119,6 +119,43 @@ function MensajesPageContent() {
     }
   }, [searchParams, conversations, selectedConversationId, router])
 
+  // Suscribirse a cambios de presencia en tiempo real
+  useEffect(() => {
+    if (conversations.length === 0) return
+
+    const supabase = createClient()
+    
+    // Suscribirse a todos los cambios en user_presence
+    const channel = supabase
+      .channel('presence-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_presence'
+        },
+        (payload: any) => {
+          const presence = payload.new
+          if (presence) {
+            // Actualizar estado online de la conversación afectada
+            setConversations(prev => 
+              prev.map(conv => 
+                conv.otherUserId === presence.user_id
+                  ? { ...conv, isOnline: presence.status === 'online' }
+                  : conv
+              )
+            )
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [conversations.length])
+
   // Realtime: Actualizar conversaciones
   useEffect(() => {
     if (!userId) return

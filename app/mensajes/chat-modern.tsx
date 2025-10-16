@@ -253,7 +253,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
             <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
             <VerifiedBadge isVerified={conversation.isVerified} size="sm" />
           </div>
-          <UserPresenceIndicator userId={conversation.otherUserId} showText={true} />
+          <UserPresenceIndicator userId={conversation.otherUserId} showText={true} showLastSeen={true} />
         </div>
       </div>
 

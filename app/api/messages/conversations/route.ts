@@ -79,6 +79,18 @@ export async function GET(request: NextRequest) {
           .neq('sender_id', user.id)
           .gt('created_at', lastReadAt || '1970-01-01')
 
+        // Obtener estado de presencia en tiempo real
+        let isOnline = false
+        if (otherUser?.id) {
+          const { data: presence } = await supabase
+            .from('user_presence')
+            .select('status')
+            .eq('user_id', otherUser.id)
+            .single()
+          
+          isOnline = presence?.status === 'online'
+        }
+
         const conversationData = {
           id: conv.id,
           name: otherUser?.full_name || 'Usuario',
@@ -87,7 +99,7 @@ export async function GET(request: NextRequest) {
           lastMessage: lastMessage?.content || 'Sin mensajes',
           timestamp: lastMessage?.created_at || conv.created_at,
           unreadCount: unreadCount || 0,
-          isOnline: false,
+          isOnline,
           otherUserId: otherUser?.id || '',
           isVerified: otherUser?.is_verified || false,
         }

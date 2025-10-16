@@ -8,12 +8,14 @@ import { es } from 'date-fns/locale'
 interface UserPresenceIndicatorProps {
   userId: string
   showText?: boolean // Mostrar texto "En línea" o solo el indicador visual
+  showLastSeen?: boolean // Mostrar "Hace X min" o solo "En línea/Desconectado"
   className?: string
 }
 
 export function UserPresenceIndicator({ 
   userId, 
   showText = true,
+  showLastSeen = true,
   className = ''
 }: UserPresenceIndicatorProps) {
   const [status, setStatus] = useState<'online' | 'offline'>('offline')
@@ -70,6 +72,11 @@ export function UserPresenceIndicator({
   const getLastSeenText = () => {
     if (status === 'online') {
       return 'En línea'
+    }
+
+    // Si no queremos mostrar "Hace X min", solo mostrar "Desconectado"
+    if (!showLastSeen) {
+      return 'Desconectado'
     }
 
     if (!lastSeen) {
