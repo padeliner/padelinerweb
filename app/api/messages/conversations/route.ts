@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
           .from('direct_conversation_participants')
           .select(`
             user_id,
-            users!inner(id, full_name, avatar_url, role)
+            users!inner(id, full_name, avatar_url, role, is_verified)
           `)
           .eq('conversation_id', conv.id)
           .neq('user_id', user.id)
@@ -73,6 +73,8 @@ export async function GET(request: NextRequest) {
           timestamp: lastMessage?.created_at || conv.created_at,
           unreadCount: unreadCount || 0,
           isOnline: false, // TODO: implementar status en tiempo real
+          otherUserId: otherUser?.id || '',
+          isVerified: otherUser?.is_verified || false,
         }
       })
     )

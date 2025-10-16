@@ -8,6 +8,7 @@ import { createClient } from '@/utils/supabase/client'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ChatView } from './chat-modern'
+import { VerifiedBadge } from '@/components/VerifiedBadge'
 
 interface Conversation {
   id: string
@@ -19,6 +20,7 @@ interface Conversation {
   unreadCount: number
   isOnline: boolean
   otherUserId: string  // ID del otro usuario en la conversación
+  isVerified?: boolean  // Badge de verificación oficial
 }
 
 function MensajesPageContent() {
@@ -207,7 +209,10 @@ function MensajesPageContent() {
                   
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
+                        <VerifiedBadge isVerified={conversation.isVerified} size="sm" />
+                      </div>
                       <span className="text-xs text-neutral-500 flex-shrink-0 ml-2">
                         {formatTimestamp(conversation.timestamp)}
                       </span>

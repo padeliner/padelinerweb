@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { createClient } from '@/utils/supabase/client'
 import { UserPresenceIndicator } from '@/components/UserPresenceIndicator'
 import { useUserPresence } from '@/hooks/useUserPresence'
+import { VerifiedBadge } from '@/components/VerifiedBadge'
 
 interface Message {
   id: string
@@ -24,6 +25,7 @@ interface ChatViewProps {
     avatar: string
     role: string
     otherUserId: string  // ID del otro usuario para mostrar presencia
+    isVerified?: boolean  // Badge de verificación oficial
   }
   userId: string
   onBack: () => void
@@ -217,7 +219,10 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           <UserPresenceIndicator userId={conversation.otherUserId} showText={false} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
+          <div className="flex items-center gap-1">
+            <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
+            <VerifiedBadge isVerified={conversation.isVerified} size="sm" />
+          </div>
           <UserPresenceIndicator userId={conversation.otherUserId} showText={true} />
         </div>
       </div>
