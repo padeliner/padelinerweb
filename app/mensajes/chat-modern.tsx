@@ -90,23 +90,28 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [conversationId])
 
-  // Enviar mensaje
+  // Enviar mensaje - SIN re-renders para mantener teclado abierto
   const handleSendMessage = useCallback(async () => {
-    if (!messageText.trim() || sending) return
+    // Obtener valor directamente del DOM (no del estado)
+    const inputValue = inputRef.current?.value || ''
+    if (!inputValue.trim() || sending) return
 
-    const textToSend = messageText.trim()
+    const textToSend = inputValue.trim()
     
-    // IMPORTANTE: Cancelar timeout ANTES de limpiar input
+    // Cancelar timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current)
       typingTimeoutRef.current = null
     }
     
-    // Limpiar input inmediatamente
-    setMessageText('')
+    // Limpiar input DIRECTAMENTE sin setState (evita re-render)
+    if (inputRef.current) {
+      inputRef.current.value = ''
+    }
+    setMessageText('') // Sync estado
     
-    // NO llamar sendTypingIndicator aquí - causa pérdida de focus
-    // El onChange con string vacío lo manejará
+    // Detener typing indicator
+    sendTypingIndicator(false).catch(() => {})
 
     setSending(true)
 
@@ -118,24 +123,23 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       })
 
       if (res.ok) {
-        // Scroll al final después de enviar
         setTimeout(() => scrollToBottom(true), 100)
       } else {
-        // Restaurar texto si falla
+        if (inputRef.current) {
+          inputRef.current.value = textToSend
+        }
         setMessageText(textToSend)
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      if (inputRef.current) {
+        inputRef.current.value = textToSend
+      }
       setMessageText(textToSend)
     } finally {
       setSending(false)
-      // CRÍTICO: Restaurar focus INMEDIATAMENTE
-      // Usar setTimeout(0) para ejecutar después del re-render
-      setTimeout(() => {
-        inputRef.current?.focus()
-      }, 0)
     }
-  }, [messageText, sending, conversationId, scrollToBottom])
+  }, [sending, conversationId, scrollToBottom, sendTypingIndicator])
 
   // Manejar cambio de texto con debounce (best practice)
   const handleTextChange = useCallback((text: string) => {
@@ -376,13 +380,19 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
 
       {/* Input */}
       <div className="chat-input">
-        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-end gap-2 p-3">
+        <div className="flex items-end gap-2 p-3">
           <input
             ref={inputRef}
             type="text"
             placeholder="Escribe un mensaje..."
-            value={messageText}
+            defaultValue={messageText}
             onChange={(e) => handleTextChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey && !sending) {
+                e.preventDefault()
+                handleSendMessage()
+              }
+            }}
             onFocus={handleInputFocus}
             disabled={sending}
             className="flex-1 px-4 py-3 text-base border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
@@ -390,7 +400,8 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
             autoComplete="off"
           />
           <button
-            type="submit"
+            type="button"
+            onClick={handleSendMessage}
             disabled={!messageText.trim() || sending}
             onMouseDown={(e) => e.preventDefault()}
             onTouchStart={(e) => e.preventDefault()}
@@ -398,7 +409,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           >
             {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </button>
-        </form>
+        </div>
       </div>
 
       <style jsx>{`
