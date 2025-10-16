@@ -46,14 +46,11 @@ function MensajesPageContent() {
     }
   }
 
-  // Cargar conversaciones
   const loadConversations = async () => {
     try {
       const res = await fetch('/api/messages/conversations')
       const data = await res.json()
       setConversations(data.conversations || [])
-    } catch (error) {
-      console.error('Error loading conversations:', error)
     } finally {
       setLoading(false)
     }

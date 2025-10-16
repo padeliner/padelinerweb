@@ -12,10 +12,6 @@ interface Message {
   created_at: string
   delivered_at?: string | null
   read_at?: string | null
-  sender?: {
-    full_name: string
-    avatar_url: string
-  }
 }
 
 interface ChatViewProps {
@@ -39,21 +35,15 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Scroll al final
   const scrollToBottom = useCallback((smooth = false) => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: smooth ? 'smooth' : 'auto',
-        block: 'end'
-      })
-    }
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'end'
+    })
   }, [])
 
-  // Cargar mensajes
   const loadMessages = useCallback(async () => {
     setLoading(true)
     try {
@@ -61,23 +51,17 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       const data = await res.json()
       setMessages(data.messages || [])
       setTimeout(() => scrollToBottom(false), 100)
-    } catch (error) {
-      console.error('Error loading messages:', error)
     } finally {
       setLoading(false)
     }
   }, [conversationId, scrollToBottom])
 
-  // Marcar como leído
   const markAsRead = useCallback(async () => {
     try {
       await fetch(`/api/messages/${conversationId}/mark-read`, { method: 'POST' })
-    } catch (error) {
-      console.error('Error marking as read:', error)
-    }
+    } catch {}
   }, [conversationId])
 
-  // Typing indicator
   const sendTypingIndicator = useCallback(async (isTyping: boolean) => {
     try {
       await fetch(`/api/messages/${conversationId}/typing`, {
@@ -85,34 +69,21 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isTyping })
       })
-    } catch (error) {
-      console.error('Error sending typing indicator:', error)
-    }
+    } catch {}
   }, [conversationId])
 
-  // Enviar mensaje - SIN re-renders para mantener teclado abierto
   const handleSendMessage = useCallback(async () => {
-    // Obtener valor directamente del DOM (no del estado)
-    const inputValue = inputRef.current?.value || ''
-    if (!inputValue.trim() || sending) return
+    if (!messageText.trim() || sending) return
 
-    const textToSend = inputValue.trim()
+    const textToSend = messageText.trim()
+    setMessageText('')
     
-    // Cancelar timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current)
       typingTimeoutRef.current = null
     }
     
-    // Limpiar input DIRECTAMENTE sin setState (evita re-render)
-    if (inputRef.current) {
-      inputRef.current.value = ''
-    }
-    setMessageText('') // Sync estado
-    
-    // Detener typing indicator
-    sendTypingIndicator(false).catch(() => {})
-
+    sendTypingIndicator(false)
     setSending(true)
 
     try {
@@ -125,120 +96,61 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       if (res.ok) {
         setTimeout(() => scrollToBottom(true), 100)
       } else {
-        if (inputRef.current) {
-          inputRef.current.value = textToSend
-        }
         setMessageText(textToSend)
       }
-    } catch (error) {
-      console.error('Error sending message:', error)
-      if (inputRef.current) {
-        inputRef.current.value = textToSend
-      }
+    } catch {
       setMessageText(textToSend)
     } finally {
       setSending(false)
     }
-  }, [sending, conversationId, scrollToBottom, sendTypingIndicator])
+  }, [messageText, sending, conversationId, scrollToBottom, sendTypingIndicator])
 
-  // Manejar cambio de texto con debounce (best practice)
   const handleTextChange = useCallback((text: string) => {
     setMessageText(text)
 
-    // Solo enviar typing indicator si hay texto
     if (text.trim()) {
-      // Cancelar timeout anterior
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current)
-      }
-      
-      // Enviar "typing" de forma no-bloqueante
-      sendTypingIndicator(true).catch(() => {
-        // Ignorar errores silenciosamente - no es crítico
-      })
-      
-      // Auto-cancelar después de 3 segundos de inactividad
-      typingTimeoutRef.current = setTimeout(() => {
-        sendTypingIndicator(false).catch(() => {})
-      }, 3000)
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      sendTypingIndicator(true)
+      typingTimeoutRef.current = setTimeout(() => sendTypingIndicator(false), 3000)
     } else {
-      // Input vacío - cancelar typing indicator
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current)
         typingTimeoutRef.current = null
       }
-      sendTypingIndicator(false).catch(() => {})
+      sendTypingIndicator(false)
     }
   }, [sendTypingIndicator])
 
-  // Configurar VirtualKeyboard API (solo móvil)
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth >= 768) return
-    
-    // @ts-ignore - VirtualKeyboard API
-    if ('virtualKeyboard' in navigator) {
-      // @ts-ignore
-      navigator.virtualKeyboard.overlaysContent = true
-    }
-
-    return () => {
-      // @ts-ignore
-      if ('virtualKeyboard' in navigator) {
-        // @ts-ignore
-        navigator.virtualKeyboard.overlaysContent = false
-      }
-    }
-  }, [])
-
-  // Cargar mensajes al montar
   useEffect(() => {
     loadMessages()
   }, [loadMessages])
 
-  // Marcar como leído al montar
   useEffect(() => {
     markAsRead()
   }, [markAsRead])
 
-  // Realtime: Mensajes
   useEffect(() => {
     const channel = supabase
       .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `conversation_id=eq.${conversationId}`
-        },
-        (payload: any) => {
-          const newMessage = payload.new as Message
-          setMessages(prev => {
-            if (prev.find(m => m.id === newMessage.id)) return prev
-            return [...prev, newMessage]
-          })
-          
-          if (newMessage.sender_id !== userId) {
-            setTimeout(() => markAsRead(), 1000)
-          }
-          
-          setTimeout(() => scrollToBottom(true), 100)
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `conversation_id=eq.${conversationId}`
-        },
-        (payload: any) => {
-          const updated = payload.new as Message
-          setMessages(prev => prev.map(m => m.id === updated.id ? updated : m))
-        }
-      )
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload: any) => {
+        const newMessage = payload.new as Message
+        setMessages(prev => prev.find(m => m.id === newMessage.id) ? prev : [...prev, newMessage])
+        if (newMessage.sender_id !== userId) setTimeout(() => markAsRead(), 1000)
+        setTimeout(() => scrollToBottom(true), 100)
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload: any) => {
+        setMessages(prev => prev.map(m => m.id === payload.new.id ? payload.new as Message : m))
+      })
       .subscribe()
 
     return () => {
@@ -246,24 +158,25 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [conversationId, userId, supabase, markAsRead, scrollToBottom])
 
-  // Realtime: Typing
   useEffect(() => {
     const channel = supabase
       .channel(`typing:${conversationId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'direct_typing_indicators', filter: `conversation_id=eq.${conversationId}` },
-        (payload: any) => {
-          if (payload.new.user_id !== userId) setIsOtherUserTyping(true)
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'direct_typing_indicators', filter: `conversation_id=eq.${conversationId}` },
-        (payload: any) => {
-          if (payload.old.user_id !== userId) setIsOtherUserTyping(false)
-        }
-      )
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_typing_indicators',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload: any) => {
+        if (payload.new.user_id !== userId) setIsOtherUserTyping(true)
+      })
+      .on('postgres_changes', {
+        event: 'DELETE',
+        schema: 'public',
+        table: 'direct_typing_indicators',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload: any) => {
+        if (payload.old.user_id !== userId) setIsOtherUserTyping(false)
+      })
       .subscribe()
 
     return () => {
@@ -271,50 +184,25 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [conversationId, userId, supabase])
 
-  // Scroll cuando typing
   useEffect(() => {
-    if (isOtherUserTyping) {
-      setTimeout(() => scrollToBottom(true), 100)
-    }
+    if (isOtherUserTyping) setTimeout(() => scrollToBottom(true), 100)
   }, [isOtherUserTyping, scrollToBottom])
 
-  // Scroll automático cuando cambian mensajes (igual que WhatsApp)
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => scrollToBottom(true), 100)
-    }
+    if (messages.length > 0) setTimeout(() => scrollToBottom(true), 100)
   }, [messages, scrollToBottom])
 
-  // Cleanup al desmontar componente
   useEffect(() => {
     return () => {
-      // Limpiar typing indicator de forma no-bloqueante
-      sendTypingIndicator(false).catch(() => {})
-      
-      // Limpiar timeout pendiente
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current)
-        typingTimeoutRef.current = null
-      }
+      sendTypingIndicator(false)
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     }
   }, [sendTypingIndicator])
 
-  // Scroll cuando el input recibe focus (teclado aparece) - igual que WhatsApp
-  const handleInputFocus = useCallback(() => {
-    // Delay para dar tiempo a que el teclado aparezca
-    setTimeout(() => {
-      scrollToBottom(true)
-    }, 300)
-  }, [scrollToBottom])
-
   return (
-    <div 
-      ref={containerRef}
-      className="chat-container"
-    >
-      {/* Header */}
-      <div className="chat-header">
-        <button onClick={onBack} className="md:hidden p-2 -ml-2 hover:bg-neutral-100 rounded-full" type="button">
+    <div className="flex flex-col h-full bg-white fixed inset-0 z-[9999] md:relative md:z-auto md:flex-1">
+      <div className="flex-shrink-0 p-4 border-b border-neutral-200 flex items-center gap-3 bg-white">
+        <button onClick={onBack} className="md:hidden p-2 -ml-2 hover:bg-neutral-100 rounded-full">
           <ArrowLeft className="w-5 h-5 text-neutral-700" />
         </button>
         <img src={conversation.avatar} alt={conversation.name} className="w-10 h-10 rounded-full object-cover" />
@@ -324,8 +212,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="chat-messages">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -375,120 +262,34 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Spacer for keyboard */}
-      <div className="chat-keyboard-spacer" />
-
-      {/* Input */}
-      <div className="chat-input">
-        <div className="flex items-end gap-2 p-3">
+      <div className="flex-shrink-0 border-t border-neutral-200 p-4 bg-white">
+        <div className="flex items-end gap-2">
           <input
-            ref={inputRef}
             type="text"
             placeholder="Escribe un mensaje..."
-            defaultValue={messageText}
+            value={messageText}
             onChange={(e) => handleTextChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey && !sending) {
-                e.preventDefault()
-                handleSendMessage()
-              }
-            }}
-            onFocus={handleInputFocus}
+            onKeyDown={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
             disabled={sending}
             className="flex-1 px-4 py-3 text-base border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
             style={{ fontSize: '16px' }}
-            autoComplete="off"
           />
           <button
-            type="button"
             onClick={handleSendMessage}
             disabled={!messageText.trim() || sending}
-            onMouseDown={(e) => e.preventDefault()}
-            onTouchStart={(e) => e.preventDefault()}
-            className="flex-shrink-0 w-11 h-11 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
+            className="flex-shrink-0 w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
           >
-            {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            {sending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <span className="hidden md:inline">Enviar</span>
+                <Send className="w-5 h-5 md:hidden" />
+              </>
+            )}
           </button>
         </div>
       </div>
-
-      <style jsx>{`
-        .chat-container {
-          display: grid;
-          height: 100dvh;
-          grid-template-rows: auto 1fr auto env(keyboard-inset-height, 0px);
-          grid-template-areas:
-            "header"
-            "messages"
-            "input"
-            "keyboard";
-          background: white;
-          position: fixed;
-          inset: 0;
-          z-index: 9999;
-        }
-
-        @media (min-width: 768px) {
-          .chat-container {
-            position: relative;
-            height: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          }
-        }
-
-        .chat-header {
-          grid-area: header;
-          padding: 1rem;
-          border-bottom: 1px solid #e5e5e5;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          background: white;
-        }
-
-        .chat-messages {
-          grid-area: messages;
-          overflow-y: auto;
-          padding: 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          -webkit-overflow-scrolling: touch;
-          overscroll-behavior: contain;
-        }
-
-        .chat-keyboard-spacer {
-          grid-area: keyboard;
-        }
-
-        .chat-input {
-          grid-area: input;
-          border-top: 1px solid #e5e5e5;
-          background: white;
-          padding-bottom: max(env(safe-area-inset-bottom), 0px);
-        }
-
-        @media (min-width: 768px) {
-          .chat-header {
-            flex-shrink: 0;
-          }
-
-          .chat-messages {
-            flex: 1;
-            min-height: 0;
-          }
-
-          .chat-keyboard-spacer {
-            display: none;
-          }
-
-          .chat-input {
-            flex-shrink: 0;
-          }
-        }
-      `}</style>
     </div>
   )
 }
