@@ -89,6 +89,24 @@ function normalizeText(text: string): string {
     .trim()
 }
 
+// Dominios permitidos (whitelist)
+const ALLOWED_DOMAINS = [
+  'padeliner.com',
+  'www.padeliner.com',
+  'google.com/maps',
+  'maps.google.com',
+  'goo.gl/maps',
+  'maps.app.goo.gl',
+]
+
+/**
+ * Verifica si una URL es de un dominio permitido
+ */
+function isAllowedURL(url: string): boolean {
+  const lowerUrl = url.toLowerCase()
+  return ALLOWED_DOMAINS.some(domain => lowerUrl.includes(domain))
+}
+
 /**
  * Valida si el mensaje contiene URLs
  */
@@ -98,10 +116,13 @@ function checkURLs(text: string): ValidationResult {
   for (const pattern of URL_PATTERNS) {
     const matches = text.match(pattern) || normalized.match(pattern)
     if (matches) {
-      return {
-        isValid: false,
-        reason: 'No se permiten compartir enlaces o redes sociales',
-        blockedContent: matches[0]
+      // Verificar si es un dominio permitido
+      if (!isAllowedURL(matches[0])) {
+        return {
+          isValid: false,
+          reason: 'No se permiten compartir enlaces externos. Solo se permiten enlaces de Google Maps y Padeliner.com',
+          blockedContent: matches[0]
+        }
       }
     }
   }
