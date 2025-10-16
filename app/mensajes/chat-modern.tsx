@@ -96,18 +96,17 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
 
     const textToSend = messageText.trim()
     
-    // CRÍTICO: Guardar que el input tiene focus antes de hacer nada
-    const hadFocus = document.activeElement === inputRef.current
-    console.log('🎯 Antes de enviar - Input tiene focus:', hadFocus)
+    // IMPORTANTE: Cancelar timeout ANTES de limpiar input
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+      typingTimeoutRef.current = null
+    }
     
     // Limpiar input inmediatamente
     setMessageText('')
     
-    // Detener typing indicator
-    sendTypingIndicator(false)
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current)
-    }
+    // NO llamar sendTypingIndicator aquí - causa pérdida de focus
+    // El onChange con string vacío lo manejará
 
     setSending(true)
 
@@ -130,38 +129,41 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       setMessageText(textToSend)
     } finally {
       setSending(false)
-      console.log('🔄 Finally - hadFocus:', hadFocus, 'inputRef existe:', !!inputRef.current)
-      
-      // CRÍTICO: Restaurar focus para mantener teclado abierto
-      if (hadFocus && inputRef.current) {
-        console.log('⚡ Restaurando focus con requestAnimationFrame...')
-        // Usar requestAnimationFrame para sincronizar con el navegador
-        requestAnimationFrame(() => {
-          if (inputRef.current) {
-            inputRef.current.focus()
-            console.log('✅ Focus restaurado - Elemento activo:', document.activeElement === inputRef.current)
-          }
-        })
-      }
+      // CRÍTICO: Restaurar focus INMEDIATAMENTE
+      // Usar setTimeout(0) para ejecutar después del re-render
+      setTimeout(() => {
+        inputRef.current?.focus()
+      }, 0)
     }
-  }, [messageText, sending, conversationId, sendTypingIndicator, scrollToBottom])
+  }, [messageText, sending, conversationId, scrollToBottom])
 
-  // Manejar cambio de texto
+  // Manejar cambio de texto con debounce (best practice)
   const handleTextChange = useCallback((text: string) => {
     setMessageText(text)
 
+    // Solo enviar typing indicator si hay texto
     if (text.trim()) {
-      sendTypingIndicator(true)
-      
+      // Cancelar timeout anterior
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current)
       }
       
+      // Enviar "typing" de forma no-bloqueante
+      sendTypingIndicator(true).catch(() => {
+        // Ignorar errores silenciosamente - no es crítico
+      })
+      
+      // Auto-cancelar después de 3 segundos de inactividad
       typingTimeoutRef.current = setTimeout(() => {
-        sendTypingIndicator(false)
+        sendTypingIndicator(false).catch(() => {})
       }, 3000)
     } else {
-      sendTypingIndicator(false)
+      // Input vacío - cancelar typing indicator
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+        typingTimeoutRef.current = null
+      }
+      sendTypingIndicator(false).catch(() => {})
     }
   }, [sendTypingIndicator])
 
@@ -279,12 +281,16 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [messages, scrollToBottom])
 
-  // Cleanup
+  // Cleanup al desmontar componente
   useEffect(() => {
     return () => {
-      sendTypingIndicator(false)
+      // Limpiar typing indicator de forma no-bloqueante
+      sendTypingIndicator(false).catch(() => {})
+      
+      // Limpiar timeout pendiente
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current)
+        typingTimeoutRef.current = null
       }
     }
   }, [sendTypingIndicator])
@@ -370,14 +376,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
 
       {/* Input */}
       <div className="chat-input">
-        <form 
-          onSubmit={(e) => { 
-            e.preventDefault();
-            e.stopPropagation();
-            handleSendMessage();
-          }} 
-          className="flex items-end gap-2 p-3"
-        >
+        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-end gap-2 p-3">
           <input
             ref={inputRef}
             type="text"
@@ -393,7 +392,6 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           <button
             type="submit"
             disabled={!messageText.trim() || sending}
-            onPointerDown={(e) => e.preventDefault()}
             onMouseDown={(e) => e.preventDefault()}
             onTouchStart={(e) => e.preventDefault()}
             className="flex-shrink-0 w-11 h-11 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
