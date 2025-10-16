@@ -196,7 +196,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           table: 'direct_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        (payload) => {
+        (payload: any) => {
           const newMessage = payload.new as Message
           setMessages(prev => {
             if (prev.find(m => m.id === newMessage.id)) return prev
@@ -218,7 +218,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           table: 'direct_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        (payload) => {
+        (payload: any) => {
           const updated = payload.new as Message
           setMessages(prev => prev.map(m => m.id === updated.id ? updated : m))
         }
