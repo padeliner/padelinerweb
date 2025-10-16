@@ -128,6 +128,13 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
 
       if (res.ok) {
         setTimeout(() => scrollToBottom(true), 100)
+        
+        // 🖥️ DESKTOP: Mantener foco en el input después de enviar (solo PC, no móvil)
+        if (window.innerWidth >= 768 && inputRef.current) {
+          setTimeout(() => {
+            inputRef.current?.focus()
+          }, 50)
+        }
       } else {
         const error = await res.json()
         setBlockedWarning(error.error || 'Error al enviar mensaje')
