@@ -30,17 +30,32 @@ export async function GET(request: NextRequest) {
     const processedConversations = await Promise.all(
       (conversations || []).map(async (conv) => {
         // Obtener el otro participante (no el usuario actual)
-        const { data: participants } = await supabase
+        const { data: participants, error: participantsError } = await supabase
           .from('direct_conversation_participants')
-          .select(`
-            user_id,
-            users!inner(id, full_name, avatar_url, role, is_verified)
-          `)
+          .select('user_id')
           .eq('conversation_id', conv.id)
           .neq('user_id', user.id)
           .single()
 
-        const otherUser = participants?.users as any
+        // Obtener datos del usuario directamente
+        let otherUser = null
+        if (participants?.user_id) {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id, full_name, avatar_url, role, is_verified, email')
+            .eq('id', participants.user_id)
+            .single()
+
+          console.log('🔍 Usuario obtenido:', {
+            userId: participants.user_id,
+            userData,
+            userError
+          })
+
+          otherUser = userData
+        } else {
+          console.log('⚠️ No se encontró participante')
+        }
 
         // Obtener último mensaje
         const { data: lastMessages } = await supabase

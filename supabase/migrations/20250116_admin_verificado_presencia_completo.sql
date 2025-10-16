@@ -1,23 +1,9 @@
 -- ============================================
--- EJECUTAR TODO EN SUPABASE - COPIAR Y PEGAR
+-- MIGRACIÓN COMPLETA: Admin Verificado + Presencia Online
 -- ============================================
 
 -- ============================================
--- PARTE 1: VERIFICAR ESTADO ACTUAL
--- ============================================
--- Primero verifica qué se ejecutó
-SELECT 
-  id, 
-  full_name, 
-  email, 
-  role,
-  is_verified,
-  avatar_url
-FROM public.users 
-WHERE email = 'padeliner@gmail.com';
-
--- ============================================
--- PARTE 2: USER PRESENCE (ESTADO ONLINE)
+-- PARTE 1: USER PRESENCE (Estado Online)
 -- ============================================
 
 -- Tabla para rastrear presencia de usuarios
@@ -51,7 +37,7 @@ CREATE POLICY "Users can update own presence"
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- Función para actualizar presencia
+-- Función para actualizar presencia (heartbeat)
 CREATE OR REPLACE FUNCTION public.update_user_presence(
   p_status TEXT DEFAULT 'online'
 )
@@ -70,17 +56,38 @@ BEGIN
 END;
 $$;
 
+-- Función para marcar inactivos como offline
+CREATE OR REPLACE FUNCTION public.mark_inactive_users_offline()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE public.user_presence
+  SET 
+    status = 'offline',
+    updated_at = NOW()
+  WHERE 
+    status = 'online'
+    AND last_seen < NOW() - INTERVAL '2 minutes';
+END;
+$$;
+
 -- Habilitar Realtime (ignorar si ya existe)
 DO $$
 BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.user_presence;
 EXCEPTION
   WHEN duplicate_object THEN
-    NULL; -- Ya existe, continuar
+    NULL;
 END $$;
 
+-- Comentarios
+COMMENT ON TABLE public.user_presence IS 'Rastreo de presencia online de usuarios (última vez visto)';
+COMMENT ON FUNCTION public.update_user_presence IS 'Actualiza la presencia del usuario actual (heartbeat)';
+
 -- ============================================
--- PARTE 3: BADGE VERIFICADO
+-- PARTE 2: BADGE DE VERIFICACIÓN
 -- ============================================
 
 -- Columna is_verified
@@ -90,7 +97,7 @@ ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
 -- Índice
 CREATE INDEX IF NOT EXISTS idx_users_verified ON public.users(is_verified);
 
--- ACTUALIZAR ADMIN
+-- Actualizar admin Padeliner
 UPDATE public.users
 SET 
   is_verified = true,
@@ -103,43 +110,76 @@ WHERE id = 'f6802450-c094-491e-8b44-a36ebc795676';
 COMMENT ON COLUMN public.users.is_verified IS 'Badge de verificación oficial de Padeliner (check azul)';
 
 -- ============================================
--- PARTE 4: VERIFICAR QUE TODO FUNCIONÓ
+-- PARTE 3: RLS POLICY PARA CHAT
 -- ============================================
 
--- 1. Verificar admin actualizado
+-- Policy: Solo puedes ver usuarios con los que tienes conversaciones
+DROP POLICY IF EXISTS "Users can view conversation participants" ON public.users;
+CREATE POLICY "Users can view conversation participants"
+  ON public.users
+  FOR SELECT
+  TO authenticated
+  USING (
+    -- Puedes ver tu propio perfil
+    auth.uid() = id
+    OR
+    -- O puedes ver usuarios con los que compartes una conversación
+    EXISTS (
+      SELECT 1 
+      FROM direct_conversation_participants dcp1
+      INNER JOIN direct_conversation_participants dcp2 
+        ON dcp1.conversation_id = dcp2.conversation_id
+      WHERE dcp1.user_id = auth.uid()
+        AND dcp2.user_id = users.id
+    )
+  );
+
+COMMENT ON POLICY "Users can view conversation participants" ON public.users IS 
+  'Permite ver solo a usuarios con los que compartes conversaciones activas';
+
+-- ============================================
+-- VERIFICACIÓN
+-- ============================================
+
+-- Verificar admin actualizado
 SELECT 
+  'Admin Padeliner' as verificacion,
   id, 
   full_name, 
   email, 
   role,
   is_verified,
-  avatar_url,
-  created_at
+  avatar_url
 FROM public.users 
 WHERE email = 'padeliner@gmail.com';
 
--- 2. Verificar tabla user_presence existe
-SELECT EXISTS (
-  SELECT FROM information_schema.tables 
-  WHERE table_schema = 'public' 
-  AND table_name = 'user_presence'
-) as user_presence_table_exists;
+-- Verificar tabla user_presence
+SELECT 
+  'Tabla user_presence' as verificacion,
+  EXISTS (
+    SELECT FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_name = 'user_presence'
+  ) as existe;
 
--- 3. Verificar columna is_verified existe
-SELECT EXISTS (
-  SELECT FROM information_schema.columns 
-  WHERE table_schema = 'public' 
-  AND table_name = 'users'
-  AND column_name = 'is_verified'
-) as is_verified_column_exists;
+-- Verificar columna is_verified
+SELECT 
+  'Columna is_verified' as verificacion,
+  EXISTS (
+    SELECT FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'users'
+    AND column_name = 'is_verified'
+  ) as existe;
 
--- ============================================
--- RESULTADO ESPERADO:
--- ============================================
--- full_name: "Padeliner"
--- is_verified: true
--- avatar_url: https://ui-avatars.com/...
--- role: admin
--- user_presence_table_exists: true
--- is_verified_column_exists: true
--- ============================================
+-- Verificar policies
+SELECT 
+  'Policies creadas' as verificacion,
+  COUNT(*) as total
+FROM pg_policies
+WHERE tablename IN ('users', 'user_presence')
+  AND policyname IN (
+    'Users can view presence of others',
+    'Users can update own presence',
+    'Users can view conversation participants'
+  );
