@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { ArrowLeft, Send, Loader2, CheckCheck, Check } from 'lucide-react'
+import { ArrowLeft, Send, Loader2, CheckCheck, Check, MoreVertical, User, BellOff, Bell, Trash2, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { createClient } from '@/utils/supabase/client'
 import { UserPresenceIndicator } from '@/components/UserPresenceIndicator'
@@ -42,6 +42,9 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
   const [loading, setLoading] = useState(true)
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   const [blockedWarning, setBlockedWarning] = useState<string | null>(null)
+  const [showMenu, setShowMenu] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -221,6 +224,55 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
     }
   }, [sendTypingIndicator])
 
+  // Cerrar menú al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false)
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showMenu])
+
+  // Handlers del menú
+  const handleViewProfile = () => {
+    setShowMenu(false)
+    window.location.href = `/perfil/${conversation.otherUserId}`
+  }
+
+  const handleToggleMute = () => {
+    setIsMuted(!isMuted)
+    setShowMenu(false)
+    // TODO: Guardar preferencia en localStorage o DB
+  }
+
+  const handleDeleteConversation = async () => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta conversación? Esta acción no se puede deshacer.')) {
+      return
+    }
+    
+    setShowMenu(false)
+    
+    try {
+      // TODO: Implementar endpoint para eliminar conversación
+      onBack()
+    } catch (error) {
+      alert('Error al eliminar la conversación')
+    }
+  }
+
+  const handleReport = () => {
+    setShowMenu(false)
+    if (confirm('¿Quieres reportar este usuario por comportamiento inapropiado?')) {
+      // TODO: Implementar sistema de reportes
+      alert('Gracias por tu reporte. Lo revisaremos pronto.')
+    }
+  }
+
   // Scroll cuando el input recibe focus (teclado aparece) - igual que WhatsApp
   const handleInputFocus = useCallback(() => {
     // Delay para dar tiempo a que el teclado aparezca
@@ -267,6 +319,65 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
             <VerifiedBadge isVerified={conversation.isVerified} size="sm" />
           </div>
           <UserPresenceIndicator userId={conversation.otherUserId} showText={true} showLastSeen={true} />
+        </div>
+
+        {/* Menú de 3 puntos */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+            aria-label="Más opciones"
+          >
+            <MoreVertical className="w-5 h-5 text-neutral-700" />
+          </button>
+
+          {/* Dropdown menu */}
+          {showMenu && (
+            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-xl border border-neutral-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <button
+                onClick={handleViewProfile}
+                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+              >
+                <User className="w-4 h-4 text-neutral-600" />
+                <span className="text-sm text-neutral-900">Ver perfil</span>
+              </button>
+
+              <button
+                onClick={handleToggleMute}
+                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+              >
+                {isMuted ? (
+                  <>
+                    <Bell className="w-4 h-4 text-neutral-600" />
+                    <span className="text-sm text-neutral-900">Activar notificaciones</span>
+                  </>
+                ) : (
+                  <>
+                    <BellOff className="w-4 h-4 text-neutral-600" />
+                    <span className="text-sm text-neutral-900">Silenciar notificaciones</span>
+                  </>
+                )}
+              </button>
+
+              <div className="border-t border-neutral-100 my-1" />
+
+              <button
+                onClick={handleReport}
+                className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+              >
+                <AlertCircle className="w-4 h-4 text-orange-600" />
+                <span className="text-sm text-orange-600">Reportar usuario</span>
+              </button>
+
+              <button
+                onClick={handleDeleteConversation}
+                className="w-full px-4 py-2.5 text-left hover:bg-red-50 flex items-center gap-3 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+                <span className="text-sm text-red-600 font-medium">Eliminar conversación</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
