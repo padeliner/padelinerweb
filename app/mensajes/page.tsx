@@ -30,6 +30,7 @@ function MensajesPageContent() {
   const supabase = createClient()
   
   const [userId, setUserId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>('usuario')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,6 +48,17 @@ function MensajesPageContent() {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       setUserId(user.id)
+      
+      // Cargar rol del usuario
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      
+      if (userData) {
+        setUserRole(userData.role || 'usuario')
+      }
     } else {
       router.push('/login')
     }
@@ -294,6 +306,7 @@ function MensajesPageContent() {
             conversationId={selectedConversationId!}
             conversation={selectedConversation}
             userId={userId}
+            userRole={userRole}
             onBack={handleBackToList}
           />
         ) : (

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { validateMessageAsync } from '@/utils/messageValidation'
 
 export async function GET(
   request: NextRequest,
@@ -81,6 +82,29 @@ export async function POST(
 
     if (!content || !content.trim()) {
       return NextResponse.json({ error: 'Message content required' }, { status: 400 })
+    }
+
+    // Obtener rol del usuario para bypass de admin
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    const isAdmin = userData?.role === 'admin'
+
+    // 🛡️ VALIDACIÓN DE SEGURIDAD: Prevenir teléfonos, URLs, insultos, etc. (excepto admins)
+    const validation = await validateMessageAsync(content.trim(), isAdmin)
+    if (!validation.isValid) {
+      console.warn('⚠️ Mensaje bloqueado:', {
+        userId: user.id,
+        role: userData?.role,
+        reason: validation.reason,
+        blockedContent: validation.blockedContent
+      })
+      return NextResponse.json({ 
+        error: validation.reason 
+      }, { status: 400 })
     }
 
     // Verificar que el usuario es participante

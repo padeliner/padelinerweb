@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
+import { ArrowLeft, Send, Loader2, CheckCheck, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { createClient } from '@/utils/supabase/client'
 import { UserPresenceIndicator } from '@/components/UserPresenceIndicator'
 import { useUserPresence } from '@/hooks/useUserPresence'
 import { VerifiedBadge } from '@/components/VerifiedBadge'
+import { validateMessage } from '@/utils/messageValidation'
+import { MessageBlockedWarning } from '@/components/MessageBlockedWarning'
 
 interface Message {
   id: string
@@ -28,16 +30,18 @@ interface ChatViewProps {
     isVerified?: boolean  // Badge de verificación oficial
   }
   userId: string
+  userRole: string  // Para detectar si es admin
   onBack: () => void
 }
 
-export function ChatView({ conversationId, conversation, userId, onBack }: ChatViewProps) {
+export function ChatView({ conversationId, conversation, userId, userRole, onBack }: ChatViewProps) {
   const supabase = createClient()
   const [messages, setMessages] = useState<Message[]>([])
   const [messageText, setMessageText] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
+  const [blockedWarning, setBlockedWarning] = useState<string | null>(null)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -82,6 +86,15 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     if (!messageText.trim() || sending) return
 
     const textToSend = messageText.trim()
+    const isAdmin = userRole === 'admin'
+    
+    // 🛡️ VALIDACIÓN: Prevenir teléfonos, URLs, insultos, etc. (excepto admins)
+    const validation = validateMessage(textToSend, isAdmin)
+    if (!validation.isValid) {
+      setBlockedWarning(validation.reason || 'Mensaje no permitido')
+      return
+    }
+    
     setMessageText('')
     
     if (typingTimeoutRef.current) {
@@ -102,14 +115,17 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       if (res.ok) {
         setTimeout(() => scrollToBottom(true), 100)
       } else {
+        const error = await res.json()
+        setBlockedWarning(error.error || 'Error al enviar mensaje')
         setMessageText(textToSend)
       }
     } catch {
+      setBlockedWarning('Error de conexión. Intenta nuevamente.')
       setMessageText(textToSend)
     } finally {
       setSending(false)
     }
-  }, [messageText, sending, conversationId, scrollToBottom, sendTypingIndicator])
+  }, [messageText, sending, conversationId, scrollToBottom, sendTypingIndicator, userRole])
 
   const handleTextChange = useCallback((text: string) => {
     setMessageText(text)
@@ -419,6 +435,14 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           }
         }
       `}</style>
+
+      {/* Advertencia de mensaje bloqueado */}
+      {blockedWarning && (
+        <MessageBlockedWarning
+          reason={blockedWarning}
+          onClose={() => setBlockedWarning(null)}
+        />
+      )}
     </div>
   )
 }
