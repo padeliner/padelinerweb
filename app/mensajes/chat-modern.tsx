@@ -115,7 +115,8 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       })
 
       if (res.ok) {
-        setTimeout(() => scrollToBottom(false), 100)
+        // Scroll al final después de enviar
+        setTimeout(() => scrollToBottom(true), 100)
       } else {
         // Restaurar texto si falla
         setMessageText(textToSend)
@@ -125,6 +126,8 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       setMessageText(textToSend)
     } finally {
       setSending(false)
+      // Mantener foco en el input (clave para mantener teclado abierto)
+      inputRef.current?.focus()
     }
   }, [messageText, sending, conversationId, sendTypingIndicator, scrollToBottom])
 
@@ -254,6 +257,13 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [isOtherUserTyping, scrollToBottom])
 
+  // Scroll automático cuando cambian mensajes (igual que WhatsApp)
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => scrollToBottom(true), 100)
+    }
+  }, [messages, scrollToBottom])
+
   // Cleanup
   useEffect(() => {
     return () => {
@@ -263,6 +273,14 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       }
     }
   }, [sendTypingIndicator])
+
+  // Scroll cuando el input recibe focus (teclado aparece) - igual que WhatsApp
+  const handleInputFocus = useCallback(() => {
+    // Delay para dar tiempo a que el teclado aparezca
+    setTimeout(() => {
+      scrollToBottom(true)
+    }, 300)
+  }, [scrollToBottom])
 
   return (
     <div 
@@ -344,6 +362,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
             placeholder="Escribe un mensaje..."
             value={messageText}
             onChange={(e) => handleTextChange(e.target.value)}
+            onFocus={handleInputFocus}
             disabled={sending}
             className="flex-1 px-4 py-3 text-base border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
             style={{ fontSize: '16px' }}
@@ -352,6 +371,8 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           <button
             type="submit"
             disabled={!messageText.trim() || sending}
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.preventDefault()}
             className="flex-shrink-0 w-11 h-11 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
           >
             {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
