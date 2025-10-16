@@ -208,9 +208,39 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
     }
   }, [sendTypingIndicator])
 
+  // Scroll cuando el input recibe focus (teclado aparece) - igual que WhatsApp
+  const handleInputFocus = useCallback(() => {
+    // Delay para dar tiempo a que el teclado aparezca
+    setTimeout(() => {
+      scrollToBottom(true)
+    }, 300)
+  }, [scrollToBottom])
+
+  // Configurar VirtualKeyboard API (solo móvil)
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return
+    
+    // @ts-ignore - VirtualKeyboard API
+    if ('virtualKeyboard' in navigator) {
+      // @ts-ignore
+      navigator.virtualKeyboard.overlaysContent = true
+    }
+
+    return () => {
+      // @ts-ignore
+      if ('virtualKeyboard' in navigator) {
+        // @ts-ignore
+        navigator.virtualKeyboard.overlaysContent = false
+      }
+    }
+  }, [])
+
   return (
-    <div className="flex flex-col h-full bg-white fixed inset-0 z-[9999] md:relative md:z-auto md:flex-1">
-      <div className="flex-shrink-0 p-4 border-b border-neutral-200 flex items-center gap-3 bg-white">
+    <div 
+      className="chat-container"
+    >
+      {/* Header */}
+      <div className="chat-header">
         <button onClick={onBack} className="md:hidden p-2 -ml-2 hover:bg-neutral-100 rounded-full">
           <ArrowLeft className="w-5 h-5 text-neutral-700" />
         </button>
@@ -227,7 +257,8 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      {/* Messages */}
+      <div className="chat-messages">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -277,34 +308,120 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex-shrink-0 border-t border-neutral-200 p-4 bg-white">
-        <div className="flex items-end gap-2">
+      {/* Spacer for keyboard */}
+      <div className="chat-keyboard-spacer" />
+
+      {/* Input */}
+      <div className="chat-input">
+        <div className="flex items-end gap-2 p-3">
           <input
+            ref={inputRef}
             type="text"
             placeholder="Escribe un mensaje..."
             value={messageText}
             onChange={(e) => handleTextChange(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey && !sending) {
+                e.preventDefault()
+                handleSendMessage()
+              }
+            }}
+            onFocus={handleInputFocus}
             disabled={sending}
             className="flex-1 px-4 py-3 text-base border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none disabled:opacity-50"
             style={{ fontSize: '16px' }}
+            autoComplete="off"
           />
           <button
+            type="button"
             onClick={handleSendMessage}
             disabled={!messageText.trim() || sending}
-            className="flex-shrink-0 w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.preventDefault()}
+            className="flex-shrink-0 w-11 h-11 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
           >
-            {sending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <span className="hidden md:inline">Enviar</span>
-                <Send className="w-5 h-5 md:hidden" />
-              </>
-            )}
+            {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        .chat-container {
+          display: grid;
+          height: 100dvh;
+          grid-template-rows: auto 1fr auto env(keyboard-inset-height, 0px);
+          grid-template-areas:
+            "header"
+            "messages"
+            "input"
+            "keyboard";
+          background: white;
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+        }
+
+        @media (min-width: 768px) {
+          .chat-container {
+            position: relative;
+            height: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+          }
+        }
+
+        .chat-header {
+          grid-area: header;
+          padding: 1rem;
+          border-bottom: 1px solid #e5e5e5;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: white;
+        }
+
+        .chat-messages {
+          grid-area: messages;
+          overflow-y: auto;
+          padding: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+        }
+
+        .chat-keyboard-spacer {
+          grid-area: keyboard;
+        }
+
+        .chat-input {
+          grid-area: input;
+          border-top: 1px solid #e5e5e5;
+          background: white;
+          padding-bottom: max(env(safe-area-inset-bottom), 0px);
+        }
+
+        @media (min-width: 768px) {
+          .chat-header {
+            flex-shrink: 0;
+          }
+
+          .chat-messages {
+            flex: 1;
+            min-height: 0;
+          }
+
+          .chat-keyboard-spacer {
+            display: none;
+          }
+
+          .chat-input {
+            flex-shrink: 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }

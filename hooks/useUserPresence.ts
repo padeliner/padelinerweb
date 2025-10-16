@@ -25,12 +25,6 @@ export function useUserPresence(enabled: boolean = true) {
       sendHeartbeat()
     }, HEARTBEAT_INTERVAL)
 
-    // Enviar heartbeat cuando la página está a punto de cerrarse
-    const handleBeforeUnload = () => {
-      // Marcar como offline al cerrar
-      navigator.sendBeacon('/api/presence/heartbeat', JSON.stringify({ status: 'offline' }))
-    }
-
     // Enviar heartbeat cuando la página vuelve a estar visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -38,14 +32,20 @@ export function useUserPresence(enabled: boolean = true) {
       }
     }
 
-    window.addEventListener('beforeunload', handleBeforeUnload)
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
-    // Cleanup
+    // Cleanup: Marcar como offline al desmontar o cerrar
     return () => {
       clearInterval(intervalId)
-      window.removeEventListener('beforeunload', handleBeforeUnload)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      
+      // Marcar como offline al salir de /mensajes
+      fetch('/api/presence/heartbeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'offline' }),
+        keepalive: true // Importante: permite que la request se complete aunque la página se cierre
+      }).catch(() => {})
     }
   }, [enabled, sendHeartbeat])
 }

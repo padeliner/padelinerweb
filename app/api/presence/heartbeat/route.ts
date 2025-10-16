@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const supabase = await createClient()
 
@@ -15,9 +15,18 @@ export async function POST() {
       )
     }
 
+    // Obtener status del body (default: online)
+    let status = 'online'
+    try {
+      const body = await request.json()
+      status = body.status || 'online'
+    } catch {
+      // Si no hay body, usar default 'online'
+    }
+
     // Actualizar presencia llamando a la función
     const { error } = await supabase.rpc('update_user_presence', {
-      p_status: 'online'
+      p_status: status
     })
 
     if (error) {
