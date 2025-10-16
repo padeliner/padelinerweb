@@ -96,6 +96,10 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
 
     const textToSend = messageText.trim()
     
+    // CRÍTICO: Guardar que el input tiene focus antes de hacer nada
+    const hadFocus = document.activeElement === inputRef.current
+    console.log('🎯 Antes de enviar - Input tiene focus:', hadFocus)
+    
     // Limpiar input inmediatamente
     setMessageText('')
     
@@ -126,8 +130,19 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
       setMessageText(textToSend)
     } finally {
       setSending(false)
-      // Mantener foco en el input (clave para mantener teclado abierto)
-      inputRef.current?.focus()
+      console.log('🔄 Finally - hadFocus:', hadFocus, 'inputRef existe:', !!inputRef.current)
+      
+      // CRÍTICO: Restaurar focus para mantener teclado abierto
+      if (hadFocus && inputRef.current) {
+        console.log('⚡ Restaurando focus con requestAnimationFrame...')
+        // Usar requestAnimationFrame para sincronizar con el navegador
+        requestAnimationFrame(() => {
+          if (inputRef.current) {
+            inputRef.current.focus()
+            console.log('✅ Focus restaurado - Elemento activo:', document.activeElement === inputRef.current)
+          }
+        })
+      }
     }
   }, [messageText, sending, conversationId, sendTypingIndicator, scrollToBottom])
 
@@ -355,7 +370,14 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
 
       {/* Input */}
       <div className="chat-input">
-        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-end gap-2 p-3">
+        <form 
+          onSubmit={(e) => { 
+            e.preventDefault();
+            e.stopPropagation();
+            handleSendMessage();
+          }} 
+          className="flex items-end gap-2 p-3"
+        >
           <input
             ref={inputRef}
             type="text"
@@ -371,6 +393,7 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
           <button
             type="submit"
             disabled={!messageText.trim() || sending}
+            onPointerDown={(e) => e.preventDefault()}
             onMouseDown={(e) => e.preventDefault()}
             onTouchStart={(e) => e.preventDefault()}
             className="flex-shrink-0 w-11 h-11 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-300 text-white rounded-xl flex items-center justify-center transition-all"
