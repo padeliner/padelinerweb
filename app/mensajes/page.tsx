@@ -69,20 +69,6 @@ function MensajesPageContent() {
     try {
       const res = await fetch('/api/messages/conversations')
       const data = await res.json()
-      
-      // DEBUG: Log todas las conversaciones
-      console.log('🔍 Conversaciones recibidas:', data.conversations)
-      
-      // DEBUG: Log específico del admin
-      const adminConv = data.conversations?.find((c: any) => 
-        c.name?.toLowerCase().includes('padeliner') || c.isVerified
-      )
-      if (adminConv) {
-        console.log('👤 Conversación admin encontrada:', adminConv)
-      } else {
-        console.log('⚠️ NO se encontró conversación con admin')
-      }
-      
       setConversations(data.conversations || [])
     } catch (error) {
       console.error('Error loading conversations:', error)

@@ -5,19 +5,11 @@ const HEARTBEAT_INTERVAL = 30 * 1000 // 30 segundos (como WhatsApp)
 export function useUserPresence(enabled: boolean = true) {
   const sendHeartbeat = useCallback(async () => {
     try {
-      const startTime = Date.now()
-      const response = await fetch('/api/presence/heartbeat', {
+      await fetch('/api/presence/heartbeat', {
         method: 'POST'
       })
-      const duration = Date.now() - startTime
-      
-      if (response.ok) {
-        console.log(`💓 Heartbeat sent (${duration}ms) - marked ONLINE`)
-      } else {
-        console.error('❌ Heartbeat failed:', response.status)
-      }
     } catch (error) {
-      console.error('❌ Error sending heartbeat:', error)
+      // Silencioso
     }
   }, [])
 

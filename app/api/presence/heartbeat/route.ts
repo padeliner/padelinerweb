@@ -25,25 +25,16 @@ export async function POST(request: Request) {
     }
 
     // Actualizar presencia llamando a la función
-    const startTime = Date.now()
     const { error } = await supabase.rpc('update_user_presence', {
       p_status: status
     })
-    const duration = Date.now() - startTime
 
     if (error) {
-      console.error('❌ Error updating presence:', error)
       return NextResponse.json(
         { error: 'Error al actualizar presencia' },
         { status: 500 }
       )
     }
-
-    console.log(`✅ Presencia actualizada en DB (${duration}ms):`, {
-      userId: user.id,
-      status,
-      timestamp: new Date().toISOString()
-    })
 
     return NextResponse.json({ success: true })
 

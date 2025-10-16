@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { ArrowLeft, Send, Loader2, CheckCheck, Check, MoreVertical, User, BellOff, Bell, Trash2, AlertCircle, Reply, Copy } from 'lucide-react'
+import { ArrowLeft, Send, Loader2, CheckCheck, Check, MoreVertical, User, BellOff, Bell, Trash2, AlertCircle, Copy } from 'lucide-react'
 import { format } from 'date-fns'
 import { createClient } from '@/utils/supabase/client'
 import { UserPresenceIndicator } from '@/components/UserPresenceIndicator'
@@ -45,8 +45,15 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
   const [showMenu, setShowMenu] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageId: string; content: string } | null>(null)
-  const [replyingTo, setReplyingTo] = useState<{ id: string; content: string; senderName: string } | null>(null)
+  
+  // Context menu para copiar mensajes
+  const [contextMenu, setContextMenu] = useState<{
+    show: boolean
+    x: number
+    y: number
+    messageId: string
+    messageContent: string
+  } | null>(null)
   const contextMenuRef = useRef<HTMLDivElement>(null)
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
   
@@ -234,27 +241,18 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowMenu(false)
       }
-    }
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showMenu])
-
-  // Cerrar menú contextual al hacer click fuera
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+      
+      // Cerrar context menu también
       if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
         setContextMenu(null)
       }
     }
 
-    if (contextMenu) {
+    if (showMenu || contextMenu) {
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [contextMenu])
+  }, [showMenu, contextMenu])
 
   // Handlers del menú
   const handleViewProfile = () => {
@@ -291,34 +289,41 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
     }
   }
 
-  // Handlers del menú contextual de mensajes
-  const handleContextMenu = (e: React.MouseEvent, message: Message) => {
+  // Handlers del context menu de mensajes
+  const handleMessageContextMenu = (e: React.MouseEvent, message: Message) => {
     e.preventDefault()
     setContextMenu({
+      show: true,
       x: e.clientX,
       y: e.clientY,
       messageId: message.id,
-      content: message.content
+      messageContent: message.content
     })
   }
 
-  const handleTouchStart = (message: Message) => {
+  const handleMessageTouchStart = (message: Message) => {
     longPressTimerRef.current = setTimeout(() => {
       // Vibración táctil si está disponible
       if (navigator.vibrate) {
         navigator.vibrate(50)
       }
-      // Centrar el menú en la pantalla para móvil
-      setContextMenu({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-        messageId: message.id,
-        content: message.content
-      })
+      
+      // Mostrar menú en el centro del mensaje
+      const messageElement = document.getElementById(`message-${message.id}`)
+      if (messageElement) {
+        const rect = messageElement.getBoundingClientRect()
+        setContextMenu({
+          show: true,
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          messageId: message.id,
+          messageContent: message.content
+        })
+      }
     }, 500) // 500ms para long press
   }
 
-  const handleTouchEnd = () => {
+  const handleMessageTouchEnd = () => {
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current)
       longPressTimerRef.current = null
@@ -329,30 +334,20 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
     if (!contextMenu) return
     
     try {
-      await navigator.clipboard.writeText(contextMenu.content)
+      await navigator.clipboard.writeText(contextMenu.messageContent)
       setContextMenu(null)
+      // TODO: Mostrar toast de confirmación
     } catch (error) {
       console.error('Error al copiar:', error)
+      // Fallback para navegadores antiguos
+      const textArea = document.createElement('textarea')
+      textArea.value = contextMenu.messageContent
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setContextMenu(null)
     }
-  }
-
-  const handleReplyMessage = () => {
-    if (!contextMenu) return
-    
-    const message = messages.find(m => m.id === contextMenu.messageId)
-    if (message) {
-      setReplyingTo({
-        id: message.id,
-        content: message.content,
-        senderName: message.sender_id === userId ? 'Tú' : conversation.name
-      })
-      inputRef.current?.focus()
-    }
-    setContextMenu(null)
-  }
-
-  const cancelReply = () => {
-    setReplyingTo(null)
   }
 
   // Scroll cuando el input recibe focus (teclado aparece) - igual que WhatsApp
@@ -485,11 +480,12 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
           messages.map((message) => (
             <div key={message.id} className={`flex ${message.sender_id === userId ? 'justify-end' : 'justify-start'}`}>
               <div 
-                className={`max-w-[75%] rounded-2xl px-4 py-2 cursor-pointer select-none ${message.sender_id === userId ? 'bg-primary-500 text-white' : 'bg-neutral-100 text-neutral-900'}`}
-                onContextMenu={(e) => handleContextMenu(e, message)}
-                onTouchStart={() => handleTouchStart(message)}
-                onTouchEnd={handleTouchEnd}
-                onTouchCancel={handleTouchEnd}
+                id={`message-${message.id}`}
+                className={`max-w-[75%] rounded-2xl px-4 py-2 cursor-pointer select-text ${message.sender_id === userId ? 'bg-primary-500 text-white' : 'bg-neutral-100 text-neutral-900'}`}
+                onContextMenu={(e) => handleMessageContextMenu(e, message)}
+                onTouchStart={() => handleMessageTouchStart(message)}
+                onTouchEnd={handleMessageTouchEnd}
+                onTouchMove={handleMessageTouchEnd}
               >
                 <p className="text-sm break-words">{message.content}</p>
                 <div className="flex items-center justify-end gap-1 mt-1">
@@ -533,25 +529,6 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
 
       {/* Input */}
       <div className="chat-input">
-        {/* Barra de respuesta */}
-        {replyingTo && (
-          <div className="border-t border-neutral-200 bg-neutral-50 px-4 py-2 flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <Reply className="w-4 h-4 text-primary-500" />
-                <span className="text-xs font-medium text-primary-600">Respondiendo a {replyingTo.senderName}</span>
-              </div>
-              <p className="text-sm text-neutral-600 truncate">{replyingTo.content}</p>
-            </div>
-            <button
-              onClick={cancelReply}
-              className="p-1 hover:bg-neutral-200 rounded-full transition-colors ml-2"
-              aria-label="Cancelar respuesta"
-            >
-              <AlertCircle className="w-5 h-5 text-neutral-500 rotate-45" />
-            </button>
-          </div>
-        )}
         <div className="flex items-end gap-2 p-3">
           <input
             ref={inputRef}
@@ -670,30 +647,23 @@ export function ChatView({ conversationId, conversation, userId, userRole, onBac
         />
       )}
 
-      {/* Menú contextual de mensajes */}
+      {/* Context menu para copiar mensaje */}
       {contextMenu && (
         <div
           ref={contextMenuRef}
-          className="fixed bg-white rounded-lg shadow-2xl border border-neutral-200 py-1 z-[10000] min-w-[180px] animate-in fade-in zoom-in-95 duration-100"
+          className="fixed bg-white rounded-lg shadow-2xl border border-neutral-200 py-1 z-[10001] animate-in fade-in zoom-in-95 duration-100"
           style={{
-            left: `${Math.min(contextMenu.x, window.innerWidth - 200)}px`,
-            top: `${Math.min(contextMenu.y, window.innerHeight - 150)}px`,
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
+            transform: 'translate(-50%, -50%)'
           }}
         >
           <button
-            onClick={handleReplyMessage}
-            className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
-          >
-            <Reply className="w-4 h-4 text-neutral-600" />
-            <span className="text-sm text-neutral-900">Responder</span>
-          </button>
-          
-          <button
             onClick={handleCopyMessage}
-            className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors"
+            className="w-full px-4 py-2.5 text-left hover:bg-neutral-50 flex items-center gap-3 transition-colors min-w-[140px]"
           >
             <Copy className="w-4 h-4 text-neutral-600" />
-            <span className="text-sm text-neutral-900">Copiar</span>
+            <span className="text-sm text-neutral-900 font-medium">Copiar</span>
           </button>
         </div>
       )}

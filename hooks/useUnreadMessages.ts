@@ -47,7 +47,6 @@ export function useUnreadMessages() {
           filter: `sender_id=neq.${user.id}` // Solo mensajes de otros
         },
         (payload: any) => {
-          console.log('Nuevo mensaje recibido:', payload)
           // Incrementar contador si no somos el remitente
           setUnreadCount(prev => prev + 1)
         }
@@ -61,7 +60,6 @@ export function useUnreadMessages() {
           filter: `user_id=eq.${user.id}` // Solo nuestras actualizaciones
         },
         (payload: any) => {
-          console.log('Actualización de last_read_at:', payload)
           // Cuando marcamos como leído, refrescar el conteo
           fetchUnreadCount()
         }

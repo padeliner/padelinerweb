@@ -28,9 +28,7 @@ export async function POST(
       .is('read_at', null)
       .select()
 
-    console.log('Mensajes marcados como leídos:', data)
     if (error) {
-      console.error('Error actualizando read_at:', error)
       throw error
     }
 

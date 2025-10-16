@@ -46,15 +46,7 @@ export async function GET(request: NextRequest) {
             .eq('id', participants.user_id)
             .single()
 
-          console.log('🔍 Usuario obtenido:', {
-            userId: participants.user_id,
-            userData,
-            userError
-          })
-
           otherUser = userData
-        } else {
-          console.log('⚠️ No se encontró participante')
         }
 
         // Obtener último mensaje
@@ -102,17 +94,6 @@ export async function GET(request: NextRequest) {
           isOnline,
           otherUserId: otherUser?.id || '',
           isVerified: otherUser?.is_verified || false,
-        }
-        
-        // DEBUG: Log para verificar datos del admin
-        if (otherUser?.email === 'padeliner@gmail.com') {
-          console.log('📧 Admin Padeliner conversation:', {
-            userId: otherUser?.id,
-            name: otherUser?.full_name,
-            avatar: otherUser?.avatar_url,
-            isVerified: otherUser?.is_verified,
-            rawUser: otherUser
-          })
         }
         
         return conversationData

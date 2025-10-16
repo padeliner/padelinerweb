@@ -68,31 +68,18 @@ export function UserPresenceIndicator({
 
   const loadPresence = async () => {
     try {
-      const startTime = Date.now()
       const { data, error } = await supabase
         .from('user_presence')
         .select('*')
         .eq('user_id', userId)
         .single()
 
-      const loadTime = Date.now() - startTime
-      
       if (!error && data) {
-        const changed = data.status !== status
-        console.log(`📊 Polling (${loadTime}ms):`, {
-          userId,
-          status: data.status,
-          lastSeen: data.last_seen,
-          changed,
-          oldStatus: status
-        })
         setStatus(data.status)
         setLastSeen(data.last_seen)
-      } else if (error) {
-        console.error('❌ Error loading presence:', error)
       }
     } catch (error) {
-      console.error('❌ Exception loading presence:', error)
+      // Silencioso
     }
   }
 
