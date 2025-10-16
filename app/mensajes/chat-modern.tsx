@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { ArrowLeft, Send, Loader2, Check, CheckCheck } from 'lucide-react'
 import { format } from 'date-fns'
 import { createClient } from '@/utils/supabase/client'
+import { UserPresenceIndicator } from '@/components/UserPresenceIndicator'
+import { useUserPresence } from '@/hooks/useUserPresence'
 
 interface Message {
   id: string
@@ -21,6 +23,7 @@ interface ChatViewProps {
     name: string
     avatar: string
     role: string
+    otherUserId: string  // ID del otro usuario para mostrar presencia
   }
   userId: string
   onBack: () => void
@@ -35,7 +38,11 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Activar heartbeat para marcar al usuario como online
+  useUserPresence(true)
 
   const scrollToBottom = useCallback((smooth = false) => {
     messagesEndRef.current?.scrollIntoView({ 
@@ -205,10 +212,13 @@ export function ChatView({ conversationId, conversation, userId, onBack }: ChatV
         <button onClick={onBack} className="md:hidden p-2 -ml-2 hover:bg-neutral-100 rounded-full">
           <ArrowLeft className="w-5 h-5 text-neutral-700" />
         </button>
-        <img src={conversation.avatar} alt={conversation.name} className="w-10 h-10 rounded-full object-cover" />
+        <div className="relative">
+          <img src={conversation.avatar} alt={conversation.name} className="w-10 h-10 rounded-full object-cover" />
+          <UserPresenceIndicator userId={conversation.otherUserId} showText={false} />
+        </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-neutral-900 truncate">{conversation.name}</h3>
-          <p className="text-sm text-neutral-500 truncate">{conversation.role}</p>
+          <UserPresenceIndicator userId={conversation.otherUserId} showText={true} />
         </div>
       </div>
 
