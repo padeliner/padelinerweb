@@ -84,6 +84,10 @@ export default function RootLayout({
 
   return (
     <html lang="es" className={inter.variable}>
+      <head>
+        {/* Facebook App ID - Obtén el tuyo en https://developers.facebook.com */}
+        <meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID" />
+      </head>
       <body className="antialiased pb-16 md:pb-0">
         {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
         <AuthProvider>
