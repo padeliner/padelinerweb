@@ -6,189 +6,129 @@ import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
-import { 
-  Star, 
-  Calendar, 
-  Clock, 
-  MapPin,
-  Award,
-  Heart,
-  ArrowLeft,
-  MessageCircle,
-  CheckCircle,
-  Home as HomeIcon,
-  Languages,
-  Users
-} from 'lucide-react'
-
+// Coach profile interface from API
 interface CoachProfile {
-  id: string
+  user_id: string
   full_name: string
   avatar_url: string | null
-  email: string
-  role: string
-  created_at: string
-  coach_profile: {
-    bio: string | null
-    specialties: string[]
-    experience_years: number
-    certifications: string[]
-    languages: string[]
-    price_per_hour: number
-    offers_home_service: boolean
-    max_travel_distance: number
-    available_hours: any
-    city: string | null
-    location: string | null
-    location_formatted: string | null
-    country: string | null
-    total_students: number
-    total_sessions_completed: number
-    average_rating: number | null
-    total_reviews: number
-    profile_visibility: string
-    show_stats: boolean
-    show_reviews: boolean
-    is_featured: boolean
-  } | null
+  bio: string | null
+  experience_years: number
+  certifications: string[]
+  languages: string[]
+  specialties: string[]
+  rating: number
+  reviews_count: number
+  price_per_hour: number
+  location: string
+  location_city: string
+  offers_home_service: boolean
+  is_featured: boolean
   images: string[]
-  reviews: any[]
-  recent_students: any[]
+  availability: string[]
 }
+import { 
+  Star, 
+  MapPin, 
+  Award, 
+  Clock, 
+  Languages, 
+  ArrowLeft,
+  CheckCircle,
+  MessageCircle,
+  Calendar,
+  Shield
+} from 'lucide-react'
 
-export default function CoachPage() {
+// Mock reviews
+const mockReviews = [
+  {
+    id: 1,
+    userName: "María González",
+    rating: 5,
+    date: "Hace 2 semanas",
+    comment: "Excelente entrenador, muy profesional y atento. He mejorado mucho mi técnica en solo 2 meses.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+  },
+  {
+    id: 2,
+    userName: "Pedro Martínez",
+    rating: 5,
+    date: "Hace 1 mes",
+    comment: "Las clases son muy dinámicas y divertidas. Totalmente recomendable para todos los niveles.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+  },
+  {
+    id: 3,
+    userName: "Laura Sánchez",
+    rating: 4,
+    date: "Hace 1 mes",
+    comment: "Gran profesional. Me ha ayudado mucho a mejorar mi saque y mi juego en red.",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
+  },
+  {
+    id: 4,
+    userName: "Carlos Ruiz",
+    rating: 5,
+    date: "Hace 2 meses",
+    comment: "Muy paciente y con un método de enseñanza excelente. 100% recomendado.",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
+  }
+]
+
+export default function EntrenadorPage() {
   const params = useParams()
   const router = useRouter()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated } = useAuth()
   const coachId = params.id as string
-
-  const [profile, setProfile] = useState<CoachProfile | null>(null)
+  
+  const [coach, setCoach] = useState<CoachProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [favoriteLoading, setFavoriteLoading] = useState(false)
-  const [contacting, setContacting] = useState(false)
 
   useEffect(() => {
-    if (coachId) {
-      loadCoachData()
-      if (isAuthenticated) {
-        checkFavoriteStatus()
+    const loadCoach = async () => {
+      try {
+        const res = await fetch(`/api/coaches/${coachId}`)
+        if (res.ok) {
+          const data = await res.json()
+          setCoach(data)
+        }
+      } catch (error) {
+        console.error('Error loading coach:', error)
+      } finally {
+        setLoading(false)
       }
     }
-  }, [coachId, isAuthenticated])
+    loadCoach()
+  }, [coachId])
 
-  const loadCoachData = async () => {
-    try {
-      const res = await fetch(`/api/coaches/${coachId}`)
-      if (!res.ok) {
-        throw new Error('Entrenador no encontrado')
-      }
-      const data = await res.json()
-      setProfile(data)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const checkFavoriteStatus = async () => {
-    try {
-      const res = await fetch(`/api/players/me/favorites/${coachId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setIsFavorite(data.isFavorite)
-      }
-    } catch (error) {
-      console.error('Error checking favorite status:', error)
-    }
-  }
-
-  const toggleFavorite = async () => {
+  const handleReservar = () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=/entrenadores/${coachId}`)
-      return
-    }
-
-    setFavoriteLoading(true)
-    try {
-      const method = isFavorite ? 'DELETE' : 'POST'
-      const res = await fetch(`/api/players/me/favorites/${coachId}`, {
-        method
-      })
-
-      if (res.ok) {
-        setIsFavorite(!isFavorite)
-      } else {
-        const data = await res.json()
-        alert(data.error || 'Error al actualizar favoritos')
-      }
-    } catch (error) {
-      console.error('Error toggling favorite:', error)
-      alert('Error al actualizar favoritos')
-    } finally {
-      setFavoriteLoading(false)
-    }
-  }
-
-  const handleContactar = async () => {
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=/entrenadores/${coachId}`)
-      return
-    }
-
-    if (!profile?.id) {
-      alert('Error: No se puede contactar con este entrenador')
-      return
-    }
-
-    setContacting(true)
-    try {
-      const res = await fetch('/api/conversations/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetUserId: profile.id })
-      })
-
-      const data = await res.json()
-
-      if (res.ok && data.conversationId) {
-        router.push(`/mensajes?conversation=${data.conversationId}`)
-      } else {
-        alert('Error al iniciar conversación')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Error al iniciar conversación')
-    } finally {
-      setContacting(false)
+      // Guardar la URL de destino para redirigir después del login
+      router.push(`/login?redirect=/reservar/${coachId}`)
+    } else {
+      router.push(`/reservar/${coachId}`)
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50">
-        <Header />
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-neutral-600">Cargando perfil...</p>
+          <p className="text-neutral-600">Cargando...</p>
         </div>
-        <Footer />
       </div>
     )
   }
 
-  if (error || !profile) {
+  if (!coach) {
     return (
       <div className="min-h-screen bg-neutral-50">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold text-neutral-900 mb-4">
-            {error || 'Entrenador no encontrado'}
-          </h1>
-          <Link href="/entrenadores" className="text-primary-600 hover:underline">
-            Ver todos los entrenadores
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h1 className="text-2xl font-bold text-neutral-900 mb-4">Entrenador no encontrado</h1>
+          <Link href="/entrenadores" className="text-primary-600 hover:text-primary-700 font-semibold">
+            Volver a entrenadores
           </Link>
         </div>
         <Footer />
@@ -196,334 +136,253 @@ export default function CoachPage() {
     )
   }
 
-  const coachProfile = profile.coach_profile
-
   return (
     <div className="min-h-screen bg-neutral-50">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Back Button */}
-        <Link
-          href="/entrenadores"
-          className="inline-flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Volver a entrenadores
-        </Link>
+      {/* Back Button */}
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link 
+            href="/entrenadores"
+            className="inline-flex items-center space-x-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-semibold">Volver a entrenadores</span>
+          </Link>
+        </div>
+      </div>
 
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Avatar */}
-            <div className="flex-shrink-0">
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.full_name}
-                  className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover border-4 border-primary-500"
-                />
-              ) : (
-                <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-primary-100 flex items-center justify-center border-4 border-primary-500">
-                  <Users className="w-16 h-16 text-primary-600" />
+      {/* Hero Section */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Coach Info */}
+            <div className="lg:col-span-2">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Profile Image */}
+                <div className="flex-shrink-0">
+                  <img
+                    src={coach.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(coach.full_name)}&size=200&background=16a34a&color=fff&bold=true`}
+                    alt={coach.full_name}
+                    className="w-48 h-48 rounded-2xl object-cover shadow-lg"
+                  />
                 </div>
-              )}
-            </div>
 
-            {/* Info */}
-            <div className="flex-1">
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-                    {profile.full_name}
-                  </h1>
-                  {coachProfile?.average_rating && (
-                    <div className="flex items-center gap-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-5 h-5 ${
-                              i < Math.round(coachProfile.average_rating!)
-                                ? 'text-yellow-400 fill-yellow-400'
-                                : 'text-neutral-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-neutral-700 font-semibold">
-                        {coachProfile.average_rating.toFixed(1)}
-                      </span>
-                      <span className="text-neutral-500">
-                        ({coachProfile.total_reviews} reseñas)
-                      </span>
+                {/* Info */}
+                <div className="flex-1">
+                  {coach.is_featured && (
+                    <div className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-bold rounded-full mb-3">
+                      ⭐ ENTRENADOR DESTACADO
                     </div>
                   )}
-                </div>
+                  
+                  <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-3">
+                    {coach.full_name}
+                  </h1>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={toggleFavorite}
-                    disabled={favoriteLoading}
-                    className={`p-3 rounded-xl transition-all ${
-                      isFavorite
-                        ? 'bg-red-500 text-white hover:bg-red-600'
-                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                    }`}
-                    aria-label={isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                  >
-                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                  </button>
-                  <button
-                    onClick={handleContactar}
-                    disabled={contacting}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    {contacting ? 'Contactando...' : 'Contactar'}
-                  </button>
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="flex items-center space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${
+                            i < Math.floor(coach.rating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-neutral-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-lg font-semibold text-neutral-900">{coach.rating}</span>
+                    <span className="text-neutral-500">({coach.reviews_count} valoraciones)</span>
+                  </div>
+
+                  <div className="flex items-center text-neutral-600 mb-4">
+                    <MapPin className="w-5 h-5 mr-2" />
+                    <span>{coach.location}, {coach.location_city}</span>
+                  </div>
+
+                  <div className="flex items-center text-neutral-600 mb-6">
+                    <Award className="w-5 h-5 mr-2" />
+                    <span>{coach.experience_years} años de experiencia</span>
+                  </div>
+
+                  {/* Specialties */}
+                  <div className="flex flex-wrap gap-2">
+                    {coach.specialties.map((specialty, idx) => (
+                      <span
+                        key={idx}
+                        className="px-4 py-2 bg-primary-100 text-primary-700 font-medium rounded-lg"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Location & Price */}
-              <div className="flex flex-wrap gap-4 mb-4">
-                {coachProfile?.location && (
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <MapPin className="w-4 h-4" />
-                    <span>{coachProfile.location}</span>
-                  </div>
-                )}
-                {!coachProfile?.location && coachProfile?.location_formatted && (
-                  <div className="flex items-center gap-2 text-neutral-600">
-                    <MapPin className="w-4 h-4" />
-                    <span>{coachProfile.location_formatted}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-primary-600 font-bold">
-                  <span className="text-2xl">€{coachProfile?.price_per_hour || '-'}</span>
-                  <span className="text-sm text-neutral-600">/hora</span>
+            {/* Right Column - Booking Card */}
+            <div className="lg:col-span-1">
+              <div className="bg-white border-2 border-neutral-200 rounded-2xl p-6 sticky top-24 shadow-lg">
+                <div className="text-center mb-6">
+                  <p className="text-sm text-neutral-600 mb-2">Precio por hora</p>
+                  <p className="text-4xl font-bold text-primary-600">{coach.price_per_hour}€</p>
                 </div>
-              </div>
 
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2">
-                {coachProfile?.experience_years && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                    {coachProfile.experience_years} años experiencia
-                  </span>
-                )}
-                {coachProfile?.offers_home_service && (
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
-                    <HomeIcon className="w-4 h-4" />
-                    Servicio a domicilio
-                  </span>
-                )}
-                {coachProfile?.certifications && coachProfile.certifications.length > 0 && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium flex items-center gap-1">
-                    <Award className="w-4 h-4" />
-                    Certificado
-                  </span>
-                )}
+                <div className="mb-6">
+                  <button 
+                    onClick={handleReservar}
+                    className="w-full py-3.5 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl mb-3"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    <span>Reservar Clase</span>
+                  </button>
+                  
+                  <Link href="/mensajes" className="block">
+                    <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
+                      <MessageCircle className="w-5 h-5" />
+                      <span>Contactar</span>
+                    </button>
+                  </Link>
+                </div>
+
+                <div className="border-t border-neutral-200 pt-4 space-y-3 text-sm">
+                  {coach.offers_home_service && (
+                    <div className="flex items-center text-neutral-600">
+                      <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                      <span>Disponibilidad de desplazamiento</span>
+                    </div>
+                  )}
+                  <div className="flex items-center text-neutral-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    <span>Respuesta en menos de 2h</span>
+                  </div>
+                  <div className="flex items-center text-neutral-600">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    <span>Cancelación gratuita 24h antes</span>
+                  </div>
+                  <div className="flex items-center text-neutral-600">
+                    <Shield className="w-4 h-4 mr-2 text-green-500" />
+                    <span>Pago seguro</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Bio */}
-            {coachProfile?.bio && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Sobre mí</h2>
-                <p className="text-neutral-700 whitespace-pre-wrap">{coachProfile.bio}</p>
+      {/* Bio Section */}
+      <section className="bg-white border-t border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* About */}
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">Sobre mí</h2>
+                <p className="text-neutral-700 leading-relaxed text-lg">{coach.bio}</p>
               </div>
-            )}
 
-            {/* Especialidades */}
-            {coachProfile?.specialties && Array.isArray(coachProfile.specialties) && coachProfile.specialties.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Especialidades</h2>
-                <div className="flex flex-wrap gap-2">
-                  {coachProfile.specialties.map((specialty, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-primary-50 text-primary-700 rounded-xl font-medium"
-                    >
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Certificaciones */}
-            {coachProfile?.certifications && Array.isArray(coachProfile.certifications) && coachProfile.certifications.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-primary-600" />
-                  Certificaciones
-                </h2>
-                <div className="space-y-2">
-                  {coachProfile.certifications.map((cert, index) => (
-                    <div key={index} className="flex items-center gap-2 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span>{cert}</span>
+              {/* Certifications */}
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">Certificaciones</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {coach.certifications.map((cert, idx) => (
+                    <div key={idx} className="flex items-center space-x-3 p-4 bg-neutral-50 rounded-xl">
+                      <Award className="w-6 h-6 text-primary-600 flex-shrink-0" />
+                      <span className="font-medium text-neutral-900">{cert}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Idiomas */}
-            {coachProfile?.languages && Array.isArray(coachProfile.languages) && coachProfile.languages.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Idiomas</h2>
-                <div className="flex flex-wrap gap-2">
-                  {coachProfile.languages.map((lang, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-xl font-medium"
-                    >
-                      {lang}
-                    </span>
+              {/* Languages */}
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">Idiomas</h2>
+                <div className="flex flex-wrap gap-3">
+                  {coach.languages.map((lang, idx) => (
+                    <div key={idx} className="flex items-center space-x-2 px-4 py-2 bg-neutral-50 rounded-lg">
+                      <Languages className="w-5 h-5 text-primary-600" />
+                      <span className="font-medium text-neutral-900">{lang}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Galería de Imágenes */}
-            {profile.images && profile.images.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Galería</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {profile.images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Imagen ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-xl"
-                    />
+              {/* Availability */}
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">Disponibilidad</h2>
+                <div className="space-y-3">
+                  {coach.availability.map((slot, idx) => (
+                    <div key={idx} className="flex items-center space-x-3 p-4 bg-neutral-50 rounded-xl">
+                      <Clock className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                      <span className="text-neutral-900">{slot}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Reviews */}
-            {coachProfile?.show_reviews !== false && profile.reviews.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Reseñas</h2>
-                <div className="space-y-4">
-                  {profile.reviews.map((review) => (
-                    <div key={review.id} className="border-b border-neutral-200 pb-4 last:border-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        {review.player?.avatar_url ? (
-                          <img
-                            src={review.player.avatar_url}
-                            alt={review.player.full_name}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center">
-                            <Users className="w-5 h-5 text-neutral-500" />
-                          </div>
-                        )}
+              {/* Gallery */}
+              {coach.images.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-neutral-900 mb-4">Galería</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {coach.images.map((image, idx) => (
+                      <img
+                        key={idx}
+                        src={image}
+                        alt={`${coach.full_name} - Imagen ${idx + 1}`}
+                        className="w-full h-48 object-cover rounded-xl shadow-md hover:shadow-xl transition-shadow"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reviews */}
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-6">
+                  Valoraciones ({coach.reviews_count})
+                </h2>
+                <div className="space-y-6">
+                  {mockReviews.map((review) => (
+                    <div key={review.id} className="p-6 bg-neutral-50 rounded-xl">
+                      <div className="flex items-start space-x-4">
+                        <img
+                          src={review.avatar}
+                          alt={review.userName}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
                         <div className="flex-1">
-                          <p className="font-semibold text-neutral-900">
-                            {review.player?.full_name || 'Alumno'}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating
-                                      ? 'text-yellow-400 fill-yellow-400'
-                                      : 'text-neutral-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-neutral-500">
-                              {new Date(review.created_at).toLocaleDateString('es-ES')}
-                            </span>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-neutral-900">{review.userName}</h3>
+                            <span className="text-sm text-neutral-500">{review.date}</span>
                           </div>
+                          <div className="flex items-center space-x-1 mb-3">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-neutral-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-neutral-700">{review.comment}</p>
                         </div>
                       </div>
-                      {review.comment && (
-                        <p className="text-neutral-700 ml-13">{review.comment}</p>
-                      )}
-                      {review.positive_tags && review.positive_tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2 ml-13">
-                          {review.positive_tags.map((tag: string, i: number) => (
-                            <span
-                              key={i}
-                              className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Stats */}
-            {coachProfile?.show_stats !== false && coachProfile && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Estadísticas</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Alumnos</span>
-                    <span className="font-bold text-neutral-900">
-                      {coachProfile.total_students || 0}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Clases completadas</span>
-                    <span className="font-bold text-neutral-900">
-                      {coachProfile.total_sessions_completed || 0}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Alumnos recientes */}
-            {profile.recent_students.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">Alumnos recientes</h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {profile.recent_students.map((student: any, index: number) => (
-                    <div key={index} className="text-center">
-                      {student.avatar_url ? (
-                        <img
-                          src={student.avatar_url}
-                          alt={student.full_name}
-                          className="w-16 h-16 rounded-full object-cover mx-auto mb-2"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-full bg-neutral-200 flex items-center justify-center mx-auto mb-2">
-                          <Users className="w-8 h-8 text-neutral-500" />
-                        </div>
-                      )}
-                      <p className="text-xs text-neutral-600 truncate">{student.full_name}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
-      </main>
+      </section>
 
       <Footer />
     </div>

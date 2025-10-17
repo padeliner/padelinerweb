@@ -1,5 +1,5 @@
-import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/utils/supabase/server'
 
 export async function GET(
   request: NextRequest,
@@ -10,112 +10,81 @@ export async function GET(
     const coachId = params.id
 
     // Obtener datos del entrenador
-    const { data: coachData, error: coachError } = await supabase
+    const { data: coach, error } = await supabase
       .from('coaches')
       .select(`
         *,
-        user:user_id (
+        user:users!coaches_user_id_fkey (
           id,
           full_name,
-          avatar_url,
           email,
-          role,
+          avatar_url,
           created_at
         )
       `)
       .eq('user_id', coachId)
-      .eq('verified', true)
       .single()
 
-    if (coachError || !coachData) {
-      return NextResponse.json({ error: 'Entrenador no encontrado' }, { status: 404 })
-    }
-
-    // Obtener reseñas
-    let reviews: any[] = []
-    const { data: reviewsData } = await supabase
-      .from('reviews')
-      .select(`
-        id,
-        rating,
-        comment,
-        positive_tags,
-        created_at,
-        player:player_id (
-          id,
-          full_name,
-          avatar_url
-        )
-      `)
-      .eq('coach_id', coachId)
-      .eq('is_visible', true)
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    reviews = reviewsData || []
-
-    // Obtener alumnos recientes
-    let recentStudents: any[] = []
-    const { data: studentsData } = await supabase
-      .from('training_sessions')
-      .select(`
-        player:player_id (
-          id,
-          full_name,
-          avatar_url
-        )
-      `)
-      .eq('coach_id', coachId)
-      .eq('status', 'completed')
-      .order('start_time', { ascending: false })
-      .limit(20)
-
-    if (studentsData) {
-      // Eliminar duplicados
-      const validStudents = studentsData.filter((s: any) => s.player?.id)
-      const uniqueStudents = Array.from(
-        new Map(validStudents.map((s: any) => [s.player.id, s.player])).values()
+    if (error || !coach) {
+      return NextResponse.json(
+        { error: 'Entrenador no encontrado' },
+        { status: 404 }
       )
-      recentStudents = uniqueStudents.slice(0, 6)
     }
 
-    // Formatear respuesta
-    return NextResponse.json({
-      id: coachData.user_id,
-      full_name: coachData.user?.full_name,
-      avatar_url: coachData.avatar_url || coachData.user?.avatar_url,
-      email: coachData.user?.email,
-      role: coachData.user?.role,
-      created_at: coachData.user?.created_at,
-      coach_profile: {
-        bio: coachData.bio,
-        specialties: coachData.specialties || [],
-        experience_years: coachData.experience_years,
-        certifications: coachData.certifications || [],
-        languages: coachData.languages || [],
-        price_per_hour: parseFloat(coachData.price_per_hour),
-        offers_home_service: coachData.offers_home_service,
-        available_hours: coachData.availability,
-        city: coachData.location_city,
-        location: coachData.location,
-        location_formatted: coachData.location_city,
-        total_students: 0, // Podemos calcularlo después
-        total_sessions_completed: 0, // Podemos calcularlo después
-        average_rating: parseFloat(coachData.rating || '0'),
-        total_reviews: coachData.reviews_count || 0,
-        show_stats: true,
-        show_reviews: true,
-        is_featured: coachData.is_featured || false
-      },
-      images: coachData.images || [],
-      reviews,
-      recent_students: recentStudents
-    })
+    // Formatear disponibilidad
+    let formattedAvailability: string[] = []
+    if (coach.availability && typeof coach.availability === 'object') {
+      const days: Record<string, string> = {
+        monday: 'Lunes',
+        tuesday: 'Martes',
+        wednesday: 'Miércoles',
+        thursday: 'Jueves',
+        friday: 'Viernes',
+        saturday: 'Sábado',
+        sunday: 'Domingo'
+      }
 
+      Object.entries(coach.availability).forEach(([day, hours]) => {
+        if (Array.isArray(hours) && hours.length > 0) {
+          const dayName = days[day as keyof typeof days] || day
+          formattedAvailability.push(`${dayName}: ${hours.join(', ')}`)
+        }
+      })
+    }
+
+    // Construir respuesta
+    const response = {
+      user_id: coach.user_id,
+      full_name: coach.user?.full_name || 'Entrenador',
+      email: coach.user?.email,
+      avatar_url: coach.avatar_url || coach.user?.avatar_url,
+      bio: coach.bio,
+      experience_years: coach.experience_years || 0,
+      certifications: coach.certifications || [],
+      languages: coach.languages || [],
+      specialties: coach.specialties || [],
+      rating: parseFloat(coach.rating || '0'),
+      reviews_count: coach.reviews_count || 0,
+      price_per_hour: parseFloat(coach.price_per_hour || '0'),
+      location: coach.location || '',
+      location_city: coach.location_city || '',
+      location_lat: parseFloat(coach.location_lat || '0'),
+      location_lng: parseFloat(coach.location_lng || '0'),
+      offers_home_service: coach.offers_home_service || false,
+      is_featured: coach.is_featured || false,
+      images: coach.images || [],
+      availability: formattedAvailability,
+      verified: coach.verified || false,
+      verification_status: coach.verification_status,
+      created_at: coach.user?.created_at
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Error fetching coach:', error)
     return NextResponse.json(
-      { error: 'Error al obtener datos del entrenador' },
+      { error: 'Error al cargar datos del entrenador' },
       { status: 500 }
     )
   }
