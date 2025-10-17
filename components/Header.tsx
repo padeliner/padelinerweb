@@ -88,29 +88,24 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* Notifications & Messages Group */}
-              {isAuthenticated && (
-                <div className="flex items-center space-x-1">
-                  {/* Notification Bell */}
-                  <NotificationBell />
+            <div className="flex items-center space-x-1 sm:space-x-1.5">
+              {/* Notification Bell - Solo para usuarios autenticados */}
+              {isAuthenticated && <NotificationBell />}
 
-                  {/* Messages Button */}
-                  {!hideMessages && (
-                    <Link 
-                      href="/mensajes"
-                      className="relative p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-                      aria-label="Mensajes"
-                    >
-                      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700" />
-                      {unreadMessagesCount > 0 && (
-                        <span className="absolute bottom-0 right-0 w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                          {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
-                        </span>
-                      )}
-                    </Link>
+              {/* Messages Button - Solo para usuarios autenticados */}
+              {!hideMessages && isAuthenticated && (
+                <Link 
+                  href="/mensajes"
+                  className="relative p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                  aria-label="Mensajes"
+                >
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700" />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute bottom-0 right-0 w-5 h-5 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+                    </span>
                   )}
-                </div>
+                </Link>
               )}
 
               {/* Cart Button (Only in shop pages) */}
