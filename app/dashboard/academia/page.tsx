@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
-import { GraduationCap, Users, Calendar, TrendingUp, Eye, BookOpen, Award } from 'lucide-react'
+import { GraduationCap, Users, Calendar, TrendingUp, Eye, BookOpen, Award, LogOut } from 'lucide-react'
 
 export default function DashboardAcademia() {
   const router = useRouter()
@@ -61,6 +62,12 @@ export default function DashboardAcademia() {
     }
   }
 
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -86,14 +93,23 @@ export default function DashboardAcademia() {
                 Bienvenido, {profile?.full_name || 'Academia'}
               </p>
             </div>
-            <a
-              href={`/academias/${user?.id}`}
-              target="_blank"
-              className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
-            >
-              <Eye className="w-4 h-4" />
-              <span className="hidden sm:inline">Ver mi perfil</span>
-            </a>
+            <div className="flex items-center gap-3">
+              <a
+                href={`/academias/${user?.id}`}
+                target="_blank"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Ver mi perfil</span>
+              </a>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Cerrar sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

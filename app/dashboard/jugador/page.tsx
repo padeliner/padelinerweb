@@ -227,6 +227,13 @@ export default function DashboardJugador() {
                 <Eye className="w-4 h-4" />
                 <span className="hidden sm:inline">Ver mi perfil</span>
               </a>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Cerrar sesión</span>
+              </button>
             </div>
           </div>
 

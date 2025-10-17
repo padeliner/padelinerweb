@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
-import { Building2, Users, Calendar, BarChart, Eye, Clock, Star } from 'lucide-react'
+import { Building2, Users, Calendar, BarChart, Eye, Clock, Star, LogOut } from 'lucide-react'
 
 export default function DashboardClub() {
   const router = useRouter()
@@ -62,6 +63,12 @@ export default function DashboardClub() {
     }
   }
 
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -87,14 +94,23 @@ export default function DashboardClub() {
                 Bienvenido, {profile?.full_name || 'Club'}
               </p>
             </div>
-            <a
-              href={`/clubes/${user?.id}`}
-              target="_blank"
-              className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
-            >
-              <Eye className="w-4 h-4" />
-              <span className="hidden sm:inline">Ver mi perfil</span>
-            </a>
+            <div className="flex items-center gap-3">
+              <a
+                href={`/clubes/${user?.id}`}
+                target="_blank"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Ver mi perfil</span>
+              </a>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Cerrar sesión</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
