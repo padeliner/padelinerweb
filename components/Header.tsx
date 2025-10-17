@@ -144,14 +144,18 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                 <Link href={(() => {
                   // Redirigir al dashboard correspondiente según el rol
                   switch (profile.role) {
+                    case 'entrenador':
                     case 'coach':
                       return '/dashboard/entrenador'
+                    case 'academia':
                     case 'academy':
                       return '/dashboard/academia'
                     case 'club':
                       return '/dashboard/club'
                     case 'admin':
                       return '/admin'
+                    case 'jugador':
+                    case 'player':
                     default:
                       return '/dashboard/jugador'
                   }

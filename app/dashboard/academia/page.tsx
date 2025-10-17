@@ -24,7 +24,7 @@ export default function DashboardAcademia() {
       return
     }
 
-    if (profile && profile.role !== 'academy') {
+    if (profile && profile.role !== 'academy' && profile.role !== 'academia') {
       router.push('/dashboard/jugador')
       return
     }

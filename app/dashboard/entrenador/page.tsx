@@ -25,7 +25,7 @@ export default function DashboardEntrenador() {
       return
     }
 
-    if (profile && profile.role !== 'coach') {
+    if (profile && profile.role !== 'coach' && profile.role !== 'entrenador') {
       router.push('/dashboard/jugador')
       return
     }
