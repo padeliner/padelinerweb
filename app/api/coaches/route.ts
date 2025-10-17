@@ -13,94 +13,106 @@ export async function GET(request: NextRequest) {
     const homeService = searchParams.get('homeService') === 'true'
     const city = searchParams.get('city')
 
-    // Construir query
-    let query = supabase
-      .from('users')
+    // Obtener entrenadores con datos de usuario
+    const { data: coaches, error } = await supabase
+      .from('coaches')
       .select(`
         *,
-        coach_profiles (
-          bio,
-          specialties,
-          experience_years,
-          certifications,
-          price_per_hour,
-          offers_home_service,
-          max_travel_distance,
-          city,
-          location_formatted,
-          country,
-          total_students,
-          total_sessions_completed,
-          average_rating,
-          total_reviews,
-          profile_visibility
+        user:user_id (
+          id,
+          full_name,
+          avatar_url,
+          email,
+          role,
+          created_at
         )
       `)
-      .eq('role', 'entrenador')
-      .neq('coach_profiles.profile_visibility', 'private')
-
-    // Filtros
-    if (search) {
-      query = query.ilike('full_name', `%${search}%`)
-    }
-
-    // Obtener datos
-    const { data: coaches, error } = await query
+      .eq('verified', true)
 
     if (error) {
       console.error('Error fetching coaches:', error)
       return NextResponse.json({ error: 'Error al obtener entrenadores' }, { status: 500 })
     }
 
-    // Filtrar en el cliente (postprocesamiento)
-    let filteredCoaches = coaches || []
+    // Filtrar datos
+    let filteredCoaches = (coaches || []).filter((coach: any) => coach.user)
+
+    // Filtro de búsqueda
+    if (search) {
+      filteredCoaches = filteredCoaches.filter((coach: any) =>
+        coach.user?.full_name?.toLowerCase().includes(search.toLowerCase())
+      )
+    }
 
     // Filtro de especialidad
     if (specialty && specialty !== 'all') {
-      filteredCoaches = filteredCoaches.filter((coach: any) => 
-        coach.coach_profiles?.[0]?.specialties?.includes(specialty)
+      filteredCoaches = filteredCoaches.filter((coach: any) =>
+        coach.specialties?.includes(specialty)
       )
     }
 
     // Filtro de precio
     if (minPrice !== null) {
       filteredCoaches = filteredCoaches.filter((coach: any) =>
-        coach.coach_profiles?.[0]?.price_per_hour >= minPrice
+        parseFloat(coach.price_per_hour) >= minPrice
       )
     }
     if (maxPrice !== null) {
       filteredCoaches = filteredCoaches.filter((coach: any) =>
-        coach.coach_profiles?.[0]?.price_per_hour <= maxPrice
+        parseFloat(coach.price_per_hour) <= maxPrice
       )
     }
 
     // Filtro de servicio a domicilio
     if (homeService) {
       filteredCoaches = filteredCoaches.filter((coach: any) =>
-        coach.coach_profiles?.[0]?.offers_home_service === true
+        coach.offers_home_service === true
       )
     }
 
     // Filtro de ciudad
     if (city) {
       filteredCoaches = filteredCoaches.filter((coach: any) =>
-        coach.coach_profiles?.[0]?.city?.toLowerCase().includes(city.toLowerCase())
+        coach.location_city?.toLowerCase().includes(city.toLowerCase())
       )
     }
 
     // Ordenar por valoración (mejor primero)
     filteredCoaches.sort((a: any, b: any) => {
-      const ratingA = a.coach_profiles?.[0]?.average_rating || 0
-      const ratingB = b.coach_profiles?.[0]?.average_rating || 0
+      const ratingA = parseFloat(a.rating || '0')
+      const ratingB = parseFloat(b.rating || '0')
       return ratingB - ratingA
     })
 
+    // Formatear respuesta
+    const formattedCoaches = filteredCoaches.map((coach: any) => ({
+      id: coach.user_id,
+      full_name: coach.user?.full_name,
+      avatar_url: coach.avatar_url || coach.user?.avatar_url,
+      email: coach.user?.email,
+      role: coach.user?.role,
+      created_at: coach.user?.created_at,
+      coach_profile: {
+        bio: coach.bio,
+        specialties: coach.specialties,
+        experience_years: coach.experience_years,
+        certifications: coach.certifications,
+        languages: coach.languages || [],
+        price_per_hour: parseFloat(coach.price_per_hour),
+        offers_home_service: coach.offers_home_service,
+        location: coach.location,
+        location_formatted: coach.location_city,
+        city: coach.location_city,
+        average_rating: parseFloat(coach.rating || '0'),
+        total_reviews: coach.reviews_count || 0,
+        is_featured: coach.is_featured || false
+      },
+      images: coach.images || []
+    }))
+
     return NextResponse.json({
-      coaches: filteredCoaches.map((coach: any) => ({
-        ...coach,
-        coach_profile: coach.coach_profiles?.[0] || null
-      })),
-      total: filteredCoaches.length
+      coaches: formattedCoaches,
+      total: formattedCoaches.length
     })
 
   } catch (error) {

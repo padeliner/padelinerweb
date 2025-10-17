@@ -8,20 +8,17 @@ import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
 import { 
   Star, 
-  Trophy, 
   Calendar, 
   Clock, 
   MapPin,
   Award,
-  Users,
   Heart,
   ArrowLeft,
   MessageCircle,
-  Check,
-  X,
-  Home,
-  BookOpen,
-  Target
+  CheckCircle,
+  Home as HomeIcon,
+  Languages,
+  Users
 } from 'lucide-react'
 
 interface CoachProfile {
@@ -36,11 +33,13 @@ interface CoachProfile {
     specialties: string[]
     experience_years: number
     certifications: string[]
+    languages: string[]
     price_per_hour: number
     offers_home_service: boolean
     max_travel_distance: number
     available_hours: any
     city: string | null
+    location: string | null
     location_formatted: string | null
     country: string | null
     total_students: number
@@ -50,7 +49,9 @@ interface CoachProfile {
     profile_visibility: string
     show_stats: boolean
     show_reviews: boolean
+    is_featured: boolean
   } | null
+  images: string[]
   reviews: any[]
   recent_students: any[]
 }
@@ -287,7 +288,13 @@ export default function CoachPage() {
 
               {/* Location & Price */}
               <div className="flex flex-wrap gap-4 mb-4">
-                {coachProfile?.location_formatted && (
+                {coachProfile?.location && (
+                  <div className="flex items-center gap-2 text-neutral-600">
+                    <MapPin className="w-4 h-4" />
+                    <span>{coachProfile.location}</span>
+                  </div>
+                )}
+                {!coachProfile?.location && coachProfile?.location_formatted && (
                   <div className="flex items-center gap-2 text-neutral-600">
                     <MapPin className="w-4 h-4" />
                     <span>{coachProfile.location_formatted}</span>
@@ -308,7 +315,7 @@ export default function CoachPage() {
                 )}
                 {coachProfile?.offers_home_service && (
                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
-                    <Home className="w-4 h-4" />
+                    <HomeIcon className="w-4 h-4" />
                     Servicio a domicilio
                   </span>
                 )}
@@ -337,10 +344,7 @@ export default function CoachPage() {
             {/* Especialidades */}
             {coachProfile?.specialties && Array.isArray(coachProfile.specialties) && coachProfile.specialties.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-neutral-900 mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary-600" />
-                  Especialidades
-                </h2>
+                <h2 className="text-xl font-bold text-neutral-900 mb-4">Especialidades</h2>
                 <div className="flex flex-wrap gap-2">
                   {coachProfile.specialties.map((specialty, index) => (
                     <span
@@ -364,9 +368,43 @@ export default function CoachPage() {
                 <div className="space-y-2">
                   {coachProfile.certifications.map((cert, index) => (
                     <div key={index} className="flex items-center gap-2 text-neutral-700">
-                      <Check className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-green-600" />
                       <span>{cert}</span>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Idiomas */}
+            {coachProfile?.languages && Array.isArray(coachProfile.languages) && coachProfile.languages.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-xl font-bold text-neutral-900 mb-4">Idiomas</h2>
+                <div className="flex flex-wrap gap-2">
+                  {coachProfile.languages.map((lang, index) => (
+                    <span
+                      key={index}
+                      className="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-xl font-medium"
+                    >
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Galería de Imágenes */}
+            {profile.images && profile.images.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-xl font-bold text-neutral-900 mb-4">Galería</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {profile.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Imagen ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-xl"
+                    />
                   ))}
                 </div>
               </div>
