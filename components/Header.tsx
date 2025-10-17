@@ -88,7 +88,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {/* Notifications & Messages Group */}
               {isAuthenticated && (
                 <div className="flex items-center space-x-1">
