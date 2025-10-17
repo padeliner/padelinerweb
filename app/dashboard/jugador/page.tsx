@@ -841,7 +841,12 @@ function FilterButton({ active, onClick, label, count, color }: any) {
   )
 }
 
-function ToggleOption({ label, description, checked, onChange }: any) {
+function ToggleOption({ label, description, checked, onChange }: {
+  label: string
+  description: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}) {
   return (
     <div className="flex items-center justify-between">
       <div>

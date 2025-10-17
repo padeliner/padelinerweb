@@ -67,7 +67,7 @@ export async function GET(
 
     // Identificar logros desbloqueados
     const unlockedIds = new Set(
-      unlockedAchievements?.map(ua => ua.achievement?.id).filter(Boolean) || []
+      unlockedAchievements?.map((ua: any) => ua.achievement?.id).filter(Boolean) || []
     )
 
     // Separar en desbloqueados y pendientes

@@ -105,7 +105,7 @@ export async function GET(
       .eq('player_id', playerId)
 
     // Obtener entrenadores favoritos (solo si es público)
-    let favoriteCoaches = []
+    let favoriteCoaches: any[] = []
     const { data: favorites } = await supabase
       .from('player_favorite_coaches')
       .select(`
@@ -163,7 +163,7 @@ export async function GET(
     }
 
     // Obtener progreso reciente (si es público, últimas 3 notas)
-    let recentProgress = []
+    let recentProgress: any[] = []
     const { data: progressData } = await supabase
       .from('player_progress_notes')
       .select(`

@@ -62,7 +62,7 @@ export async function GET(
     const sessionsByMonth: Record<string, number> = {}
     const coachFrequency: Record<string, { count: number; name: string; avatar?: string }> = {}
     
-    sessions?.forEach(session => {
+    sessions?.forEach((session: any) => {
       // Sesiones por mes
       const monthKey = new Date(session.start_time).toISOString().slice(0, 7)
       sessionsByMonth[monthKey] = (sessionsByMonth[monthKey] || 0) + 1
