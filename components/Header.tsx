@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
+import NotificationBell from '@/components/NotificationBell'
 
 interface HeaderProps {
   showCart?: boolean
@@ -88,6 +89,9 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3 sm:space-x-4">
+              {/* Notification Bell - Solo para usuarios autenticados */}
+              {isAuthenticated && <NotificationBell />}
+
               {/* Messages Button */}
               {!hideMessages && isAuthenticated && (
                 <Link 

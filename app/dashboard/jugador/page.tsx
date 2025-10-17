@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { Header } from '@/components/Header'
+import { Footer } from '@/components/Footer'
 import {
   Search, 
   Calendar, 
@@ -33,7 +35,6 @@ import {
   CreditCard,
   Home
 } from 'lucide-react'
-import NotificationBell from '@/components/NotificationBell'
 import { LocationSearch, LocationData } from '@/components/LocationSearch'
 import { AvatarUpload } from '@/components/AvatarUpload'
 
@@ -183,46 +184,33 @@ export default function DashboardJugador() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-neutral-50">
+      <Header />
+
+      {/* Dashboard Header */}
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900">Mi Dashboard</h1>
-              <p className="text-sm text-neutral-600">
+              <h1 className="text-3xl font-bold text-neutral-900">Mi Dashboard</h1>
+              <p className="text-neutral-600 mt-1">
                 Bienvenido, {profile?.display_name || user?.full_name}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <a
-                href="/"
-                className="flex items-center gap-2 px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold rounded-xl transition-colors"
-              >
-                <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Inicio</span>
-              </a>
-              <NotificationBell />
-              <a
                 href={`/jugadores/${user?.id}`}
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 font-semibold rounded-xl transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
               >
                 <Eye className="w-4 h-4" />
                 <span className="hidden sm:inline">Ver mi perfil</span>
               </a>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Salir</span>
-              </button>
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mt-4 overflow-x-auto">
+          {/* Navigation Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <TabButton
               active={activeTab === 'overview'}
               onClick={() => setActiveTab('overview')}
@@ -273,7 +261,7 @@ export default function DashboardJugador() {
             />
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -307,6 +295,8 @@ export default function DashboardJugador() {
           <ShopTab />
         )}
       </main>
+
+      <Footer />
     </div>
   )
 }
@@ -316,10 +306,10 @@ function TabButton({ active, onClick, icon, label }: any) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all whitespace-nowrap ${
         active 
-          ? 'bg-primary-500 text-white' 
-          : 'bg-white text-neutral-600 hover:bg-neutral-100'
+          ? 'bg-primary-500 text-white shadow-md' 
+          : 'bg-white text-neutral-700 hover:bg-neutral-50 border border-neutral-200'
       }`}
     >
       {icon}
@@ -361,21 +351,21 @@ function OverviewTab({ profile, sessions, counts }: any) {
       </div>
 
       {/* Próximas clases */}
-      <div className="bg-white rounded-2xl shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-neutral-900">Próximas Clases</h2>
-          <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-semibold rounded-full">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-neutral-900">Próximas Clases</h2>
+          <span className="px-4 py-2 bg-primary-100 text-primary-700 text-sm font-bold rounded-xl">
             {counts.upcoming} próximas
           </span>
         </div>
         {sessions.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {sessions.slice(0, 3).map((session: any) => (
               <SessionCard key={session.id} session={session} />
             ))}
           </div>
         ) : (
-          <p className="text-neutral-500 text-center py-8">No tienes clases programadas</p>
+          <p className="text-neutral-500 text-center py-12">No tienes clases programadas</p>
         )}
       </div>
 
@@ -430,7 +420,7 @@ function SessionsTab({ sessions, filter, setFilter, counts }: any) {
       </div>
 
       {/* Sessions List */}
-      <div className="bg-white rounded-2xl shadow-md p-6">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
         {sessions.length > 0 ? (
           <div className="space-y-4">
             {sessions.map((session: any) => (
@@ -500,7 +490,7 @@ function ProfileTab({ profile, user, onUpdate }: any) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-md p-6">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
         <h2 className="text-xl font-bold text-neutral-900 mb-6">Editar Perfil</h2>
         
         {/* Avatar Upload */}
@@ -635,7 +625,7 @@ function ProfileTab({ profile, user, onUpdate }: any) {
       </div>
 
       {/* Información de Contacto (Privada) */}
-      <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 mt-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-neutral-900">Información de Contacto</h2>
@@ -711,7 +701,7 @@ function ProfileTab({ profile, user, onUpdate }: any) {
 function PrivacyTab({ profile, onUpdate }: any) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl shadow-md p-6">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
         <h2 className="text-xl font-bold text-neutral-900 mb-6">Configuración de Privacidad</h2>
         
         <div className="space-y-6">
@@ -768,12 +758,12 @@ function PrivacyTab({ profile, onUpdate }: any) {
 // Helper Components
 function StatCard({ icon, label, value, color }: any) {
   return (
-    <div className="bg-white rounded-xl shadow-md p-4">
+    <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
       <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${color} mb-3`}>
         {icon}
       </div>
-      <p className="text-2xl font-bold text-neutral-900">{value}</p>
-      <p className="text-sm text-neutral-600">{label}</p>
+      <p className="text-3xl font-bold text-neutral-900 mb-1">{value}</p>
+      <p className="text-sm text-neutral-600 font-medium">{label}</p>
     </div>
   )
 }
@@ -787,17 +777,18 @@ function SessionCard({ session, detailed = false }: any) {
   }
 
   return (
-    <div className="flex items-center gap-4 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
-      <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-200 flex-shrink-0">
+    <div className="flex items-center gap-4 p-5 bg-white border-2 border-neutral-200 rounded-2xl hover:shadow-md transition-shadow">
+      <div className="w-14 h-14 rounded-full overflow-hidden bg-neutral-200 flex-shrink-0">
         {session.coach.avatar_url ? (
           <img src={session.coach.avatar_url} alt={session.coach.full_name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-neutral-400">👤</div>
+          <div className="w-full h-full flex items-center justify-center text-neutral-400 text-xl">👤</div>
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-neutral-900">{session.coach.full_name}</p>
-        <p className="text-sm text-neutral-600">
+        <p className="font-bold text-neutral-900 mb-1">{session.coach.full_name}</p>
+        <p className="text-sm text-neutral-600 flex items-center gap-2">
+          <Calendar className="w-4 h-4" />
           {new Date(session.start_time).toLocaleDateString('es-ES', { 
             weekday: 'short', 
             day: 'numeric', 
@@ -807,7 +798,7 @@ function SessionCard({ session, detailed = false }: any) {
           })}
         </p>
       </div>
-      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusColors[session.status as keyof typeof statusColors] || 'bg-neutral-100'}`}>
+      <span className={`px-4 py-2 text-xs font-bold rounded-xl ${statusColors[session.status as keyof typeof statusColors] || 'bg-neutral-100'}`}>
         {session.status}
       </span>
     </div>
@@ -948,7 +939,7 @@ function GoalsTab() {
 
       {/* Goals List */}
       {goals.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center">
+        <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-12 text-center">
           <Target className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
           <p className="text-neutral-600 mb-4">No tienes objetivos {showCompleted ? 'completados' : 'activos'}</p>
           <button className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl">
@@ -958,7 +949,7 @@ function GoalsTab() {
       ) : (
         <div className="grid gap-4">
           {goals.map((goal: any) => (
-            <div key={goal.id} className="bg-white rounded-2xl p-6 shadow-md">
+            <div key={goal.id} className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-neutral-900 mb-1">
@@ -1060,7 +1051,7 @@ function ProgressTab() {
       {summary.length > 0 && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {summary.map((item: any, idx: number) => (
-            <div key={idx} className="bg-white rounded-xl p-6 shadow-md">
+            <div key={idx} className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
               <h3 className="font-bold text-neutral-900 mb-4 capitalize">{item.skill_area}</h3>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -1085,7 +1076,7 @@ function ProgressTab() {
       )}
 
       {/* Progress Notes */}
-      <div className="bg-white rounded-2xl p-6 shadow-md">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-neutral-900 mb-6">Historial de Mejoras</h3>
         
         {progress.length === 0 ? (
@@ -1209,7 +1200,7 @@ function FavoritesTab() {
       </div>
 
       {favorites.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center">
+        <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-12 text-center">
           <Star className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
           <p className="text-neutral-600 mb-2">No tienes entrenadores favoritos aún</p>
           <p className="text-sm text-neutral-500 mb-4">
@@ -1225,7 +1216,7 @@ function FavoritesTab() {
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {favorites.map((fav: any) => (
-            <div key={fav.coach_id} className="bg-white rounded-2xl p-6 shadow-md">
+            <div key={fav.coach_id} className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
               <div className="flex items-start gap-4 mb-4">
                 {/* Coach Avatar */}
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-neutral-200 flex-shrink-0">
@@ -1367,7 +1358,7 @@ function ShopTab() {
       {/* Statistics */}
       {statistics && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-neutral-600">Total Pedidos</p>
@@ -1376,7 +1367,7 @@ function ShopTab() {
               <Package className="w-10 h-10 text-primary-600" />
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-neutral-600">Total Gastado</p>
@@ -1385,7 +1376,7 @@ function ShopTab() {
               <CreditCard className="w-10 h-10 text-green-600" />
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-neutral-600">Pendientes</p>
@@ -1398,7 +1389,7 @@ function ShopTab() {
       )}
 
       {/* Section Tabs */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg overflow-hidden">
         <div className="flex border-b border-neutral-200">
           <button
             onClick={() => setActiveSection('orders')}
