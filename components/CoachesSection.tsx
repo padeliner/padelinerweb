@@ -2,14 +2,49 @@
 
 import { motion } from 'framer-motion'
 import { Star, MapPin, Award, Heart } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { mockCoaches } from '@/lib/mock-data/coaches'
 
-// Mostrar solo coaches destacados
-const featuredCoaches = mockCoaches.filter(coach => coach.isFeatured).slice(0, 8)
+// Interface para los coaches de la API
+interface Coach {
+  id: string
+  name: string
+  specialties: string[]
+  experience: number
+  rating: number
+  reviewsCount: number
+  pricePerHour: number
+  location: string
+  city: string
+  lat: number
+  lng: number
+  imageUrl: string
+  isFeatured: boolean
+  offersHomeService: boolean
+  userId: string
+}
 
 export function CoachesSection() {
+  const [featuredCoaches, setFeaturedCoaches] = useState<Coach[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadFeaturedCoaches = async () => {
+      try {
+        const res = await fetch('/api/coaches?featured=true')
+        if (res.ok) {
+          const data = await res.json()
+          setFeaturedCoaches(data.slice(0, 8))
+        }
+      } catch (error) {
+        console.error('Error loading featured coaches:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadFeaturedCoaches()
+  }, [])
+
   return (
     <section id="entrenadores" className="py-20 px-4 sm:px-6 lg:px-8 bg-neutral-50">
       <div className="max-w-7xl mx-auto">
@@ -28,12 +63,24 @@ export function CoachesSection() {
           </p>
         </motion.div>
 
-        {/* Coaches Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredCoaches.map((coach, index) => (
-            <CoachCard key={coach.id} coach={coach} index={index} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-neutral-600">Cargando entrenadores...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Coaches Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredCoaches.map((coach, index) => (
+                <CoachCard key={coach.id} coach={coach} index={index} />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Ver más */}
         <motion.div
@@ -57,11 +104,11 @@ export function CoachesSection() {
   )
 }
 
-function CoachCard({ coach, index }: { coach: typeof mockCoaches[0]; index: number }) {
+function CoachCard({ coach, index }: { coach: Coach; index: number }) {
   const [isFavorite, setIsFavorite] = useState(false)
 
   return (
-    <Link href={`/entrenador/${coach.id}`}>
+    <Link href={`/entrenadores/${coach.id}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
