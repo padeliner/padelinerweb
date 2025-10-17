@@ -1,0 +1,5 @@
+tipo_enum,valores_posibles
+payment_status,"pending, paid, refunded"
+session_status,"pending, confirmed, cancelled, completed"
+user_role,"admin, alumno, entrenador, club, academia"
+verification_status,"pending, approved, rejected"

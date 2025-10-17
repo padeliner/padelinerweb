@@ -1,0 +1,789 @@
+nombre_funcion,codigo_completo
+calculate_haversine_distance,"CREATE OR REPLACE FUNCTION public.calculate_haversine_distance(lat1 double precision, lng1 double precision, lat2 double precision, lng2 double precision)
+ RETURNS double precision
+ LANGUAGE plpgsql
+ IMMUTABLE
+AS $function$
+DECLARE
+  r FLOAT := 6371; -- Radio de la Tierra en km
+  dlat FLOAT;
+  dlng FLOAT;
+  a FLOAT;
+  c FLOAT;
+BEGIN
+  dlat := radians(lat2 - lat1);
+  dlng := radians(lng2 - lng1);
+  
+  a := sin(dlat/2) * sin(dlat/2) + 
+       cos(radians(lat1)) * cos(radians(lat2)) * 
+       sin(dlng/2) * sin(dlng/2);
+  
+  c := 2 * atan2(sqrt(a), sqrt(1-a));
+  
+  RETURN r * c; -- Distancia en km
+END;
+$function$
+"
+cleanup_old_logs,"CREATE OR REPLACE FUNCTION public.cleanup_old_logs(days_to_keep integer DEFAULT 90)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM audit_logs
+  WHERE created_at < NOW() - (days_to_keep || ' days')::INTERVAL
+  AND level IN ('debug', 'info');
+  
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  
+  RETURN deleted_count;
+END;
+$function$
+"
+cleanup_old_typing_indicators,"CREATE OR REPLACE FUNCTION public.cleanup_old_typing_indicators()
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  -- Eliminar indicadores más antiguos de 10 segundos
+  DELETE FROM direct_typing_indicators
+  WHERE updated_at < NOW() - INTERVAL '10 seconds';
+END;
+$function$
+"
+create_audit_log,"CREATE OR REPLACE FUNCTION public.create_audit_log(p_user_id uuid, p_action text, p_description text, p_entity_type text DEFAULT NULL::text, p_entity_id text DEFAULT NULL::text, p_level text DEFAULT 'info'::text, p_status text DEFAULT 'success'::text, p_metadata jsonb DEFAULT '{}'::jsonb)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+  v_log_id UUID;
+  v_user_email TEXT;
+  v_user_role TEXT;
+BEGIN
+  -- Obtener info del usuario si existe
+  IF p_user_id IS NOT NULL THEN
+    SELECT email INTO v_user_email FROM auth.users WHERE id = p_user_id;
+    SELECT role INTO v_user_role FROM users WHERE id = p_user_id;
+  END IF;
+
+  -- Insertar log
+  INSERT INTO audit_logs (
+    user_id,
+    user_email,
+    user_role,
+    action,
+    entity_type,
+    entity_id,
+    description,
+    level,
+    status,
+    metadata
+  ) VALUES (
+    p_user_id,
+    v_user_email,
+    v_user_role,
+    p_action,
+    p_entity_type,
+    p_entity_id,
+    p_description,
+    p_level,
+    p_status,
+    p_metadata
+  )
+  RETURNING id INTO v_log_id;
+
+  RETURN v_log_id;
+END;
+$function$
+"
+estimate_travel_time,"CREATE OR REPLACE FUNCTION public.estimate_travel_time(distance_km double precision, traffic_buffer_pct integer DEFAULT 10)
+ RETURNS integer
+ LANGUAGE plpgsql
+ IMMUTABLE
+AS $function$
+DECLARE
+  avg_speed_kmh FLOAT := 40; -- Velocidad promedio en ciudad
+  base_time_minutes INTEGER;
+  buffered_time INTEGER;
+BEGIN
+  -- Calcular tiempo base (distancia / velocidad * 60)
+  base_time_minutes := CEIL((distance_km / avg_speed_kmh) * 60);
+  
+  -- Aplicar buffer de tráfico
+  buffered_time := CEIL(base_time_minutes * (1 + (traffic_buffer_pct::FLOAT / 100)));
+  
+  -- Mínimo 5 minutos
+  RETURN GREATEST(buffered_time, 5);
+END;
+$function$
+"
+find_direct_conversation,"CREATE OR REPLACE FUNCTION public.find_direct_conversation(user1_id uuid, user2_id uuid)
+ RETURNS uuid
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  conversation_id UUID;
+BEGIN
+  SELECT dc.id INTO conversation_id
+  FROM direct_conversations dc
+  WHERE EXISTS (
+    SELECT 1 FROM direct_conversation_participants
+    WHERE conversation_id = dc.id AND user_id = user1_id
+  )
+  AND EXISTS (
+    SELECT 1 FROM direct_conversation_participants
+    WHERE conversation_id = dc.id AND user_id = user2_id
+  )
+  LIMIT 1;
+  
+  RETURN conversation_id;
+END;
+$function$
+"
+generate_ticket_number,"CREATE OR REPLACE FUNCTION public.generate_ticket_number()
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  new_number TEXT;
+  counter INT;
+BEGIN
+  -- Obtener el contador del día
+  SELECT COUNT(*) + 1 INTO counter
+  FROM support_tickets
+  WHERE DATE(created_at) = CURRENT_DATE;
+  
+  -- Formato: TICKET-YYYYMMDD-####
+  new_number := 'TICKET-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || LPAD(counter::TEXT, 4, '0');
+  
+  RETURN new_number;
+END;
+$function$
+"
+get_active_locations_for_date,"CREATE OR REPLACE FUNCTION public.get_active_locations_for_date(p_coach_id uuid, p_date date)
+ RETURNS TABLE(location_id text, location_type text, location_data jsonb)
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+BEGIN
+  RETURN QUERY
+  WITH coach_locations AS (
+    SELECT jsonb_array_elements(locations) AS loc
+    FROM coaches
+    WHERE user_id = p_coach_id
+  ),
+  filtered_locations AS (
+    SELECT
+      loc->>'id' AS loc_id,
+      loc->>'type' AS loc_type,
+      loc,
+      (loc->>'priority')::INTEGER AS priority,
+      COALESCE((loc->>'is_temporary')::BOOLEAN, false) AS is_temporary,
+      (loc->>'start_date')::DATE AS start_date,
+      (loc->>'end_date')::DATE AS end_date,
+      COALESCE((loc->>'overrides_primary')::BOOLEAN, false) AS overrides_primary,
+      COALESCE((loc->>'active')::BOOLEAN, true) AS active
+    FROM coach_locations
+    WHERE COALESCE((loc->>'active')::BOOLEAN, true) = true
+  ),
+  -- Verificar si hay alguna secundaria activa en esta fecha que override la principal
+  has_override AS (
+    SELECT COUNT(*) > 0 AS has_active_override
+    FROM filtered_locations
+    WHERE loc_type = 'secondary'
+      AND is_temporary = true
+      AND overrides_primary = true
+      AND p_date BETWEEN start_date AND end_date
+  )
+  SELECT
+    fl.loc_id,
+    fl.loc_type,
+    fl.loc
+  FROM filtered_locations fl
+  CROSS JOIN has_override ho
+  WHERE 
+    -- Si es principal: solo mostrar si NO hay override activo
+    (fl.loc_type = 'primary' AND NOT ho.has_active_override)
+    OR
+    -- Si es secundaria: solo mostrar si está en el rango de fechas
+    (fl.loc_type = 'secondary' AND fl.is_temporary = true 
+     AND p_date BETWEEN fl.start_date AND fl.end_date)
+    OR
+    -- A domicilio siempre se muestra (es adicional)
+    (fl.loc_type = 'home_service')
+  ORDER BY fl.priority;
+END;
+$function$
+"
+get_travel_time_between_coach_locations,"CREATE OR REPLACE FUNCTION public.get_travel_time_between_coach_locations(p_coach_id uuid, p_from_location_id text, p_to_location_id text)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  v_coach_data RECORD;
+  v_from_location JSONB;
+  v_to_location JSONB;
+  v_distance_km FLOAT;
+  v_cached_time INTEGER;
+  v_logistics JSONB;
+  v_traffic_buffer INTEGER := 10; -- Default
+BEGIN
+  -- Si es la misma ubicación, tiempo = 0
+  IF p_from_location_id = p_to_location_id THEN
+    RETURN 0;
+  END IF;
+  
+  -- Intentar obtener de caché
+  SELECT estimated_time_minutes INTO v_cached_time
+  FROM location_distance_cache
+  WHERE coach_id = p_coach_id
+    AND from_location_id = p_from_location_id
+    AND to_location_id = p_to_location_id
+    AND calculated_at > NOW() - INTERVAL '30 days'; -- Cache válido por 30 días
+  
+  IF v_cached_time IS NOT NULL THEN
+    RETURN v_cached_time;
+  END IF;
+  
+  -- Obtener ubicaciones del coach
+  SELECT * INTO v_coach_data
+  FROM coaches
+  WHERE user_id = p_coach_id;
+  
+  -- Buscar las ubicaciones en el array
+  SELECT loc INTO v_from_location
+  FROM jsonb_array_elements(v_coach_data.locations) AS loc
+  WHERE loc->>'id' = p_from_location_id;
+  
+  SELECT loc INTO v_to_location
+  FROM jsonb_array_elements(v_coach_data.locations) AS loc
+  WHERE loc->>'id' = p_to_location_id;
+  
+  -- Validar que existen
+  IF v_from_location IS NULL OR v_to_location IS NULL THEN
+    RETURN 999999; -- Valor alto para marcar como inviable
+  END IF;
+  
+  -- Obtener logistics de la ubicación destino (o usar defaults)
+  v_logistics := v_to_location->'logistics';
+  IF v_logistics IS NOT NULL AND v_logistics->>'traffic_buffer_pct' IS NOT NULL THEN
+    v_traffic_buffer := (v_logistics->>'traffic_buffer_pct')::INTEGER;
+  END IF;
+  
+  -- Calcular distancia
+  v_distance_km := calculate_haversine_distance(
+    (v_from_location->>'lat')::FLOAT,
+    (v_from_location->>'lng')::FLOAT,
+    (v_to_location->>'lat')::FLOAT,
+    (v_to_location->>'lng')::FLOAT
+  );
+  
+  -- Estimar tiempo con buffer
+  v_cached_time := estimate_travel_time(v_distance_km, v_traffic_buffer);
+  
+  -- Guardar en caché
+  INSERT INTO location_distance_cache (
+    coach_id,
+    from_location_id,
+    to_location_id,
+    distance_km,
+    estimated_time_minutes
+  ) VALUES (
+    p_coach_id,
+    p_from_location_id,
+    p_to_location_id,
+    v_distance_km,
+    v_cached_time
+  ) ON CONFLICT (coach_id, from_location_id, to_location_id) 
+  DO UPDATE SET
+    distance_km = EXCLUDED.distance_km,
+    estimated_time_minutes = EXCLUDED.estimated_time_minutes,
+    calculated_at = NOW();
+  
+  RETURN v_cached_time;
+END;
+$function$
+"
+handle_new_user,"CREATE OR REPLACE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
+  v_user_role TEXT;
+  v_user_name TEXT;
+BEGIN
+  -- Extraer rol y nombre del metadata
+  v_user_role := NEW.raw_user_meta_data->>'role';
+  v_user_name := NEW.raw_user_meta_data->>'full_name';
+  
+  RAISE LOG 'Creating user profile: id=%, email=%, role=%, name=%', 
+    NEW.id, NEW.email, v_user_role, v_user_name;
+
+  -- Solo crear perfil si hay rol definido
+  IF v_user_role IS NOT NULL THEN
+    -- Insertar en public.users
+    INSERT INTO public.users (id, email, role, full_name)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      v_user_role::public.user_role,
+      COALESCE(v_user_name, split_part(NEW.email, '@', 1))  -- Usar email si no hay nombre
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      role = EXCLUDED.role,
+      full_name = COALESCE(EXCLUDED.full_name, public.users.full_name),
+      updated_at = NOW();
+    
+    RAISE LOG 'User profile created successfully: id=%', NEW.id;
+  ELSE
+    RAISE LOG 'User profile NOT created (no role specified): id=%, email=%', NEW.id, NEW.email;
+    
+    -- Si no hay rol, crear con rol por defecto 'alumno'
+    INSERT INTO public.users (id, email, role, full_name)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      'alumno'::public.user_role,
+      COALESCE(v_user_name, split_part(NEW.email, '@', 1))
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      updated_at = NOW();
+      
+    RAISE LOG 'User profile created with default role alumno: id=%', NEW.id;
+  END IF;
+  
+  RETURN NEW;
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE LOG 'Error in handle_new_user: %, SQLSTATE: %', SQLERRM, SQLSTATE;
+    RAISE WARNING 'Failed to create user profile for %: %', NEW.email, SQLERRM;
+    RETURN NEW;
+END;
+$function$
+"
+handle_user_role_change,"CREATE OR REPLACE FUNCTION public.handle_user_role_change()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  -- Actualizar el raw_app_meta_data del usuario en auth.users
+  UPDATE auth.users
+  SET raw_app_meta_data = 
+    COALESCE(raw_app_meta_data, '{}'::jsonb) || 
+    jsonb_build_object('role', NEW.role)
+  WHERE id = NEW.id;
+  
+  RETURN NEW;
+END;
+$function$
+"
+increment_blog_comment_count,"CREATE OR REPLACE FUNCTION public.increment_blog_comment_count()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  IF TG_OP = 'INSERT' AND NEW.approved = true THEN
+    UPDATE blogs 
+    SET comment_count = COALESCE(comment_count, 0) + 1
+    WHERE id = NEW.blog_id;
+  ELSIF TG_OP = 'DELETE' AND OLD.approved = true THEN
+    UPDATE blogs 
+    SET comment_count = GREATEST(COALESCE(comment_count, 0) - 1, 0)
+    WHERE id = OLD.blog_id;
+  END IF;
+  RETURN NULL;
+END;
+$function$
+"
+is_conversation_participant,"CREATE OR REPLACE FUNCTION public.is_conversation_participant(conversation_uuid uuid, user_uuid uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  SELECT EXISTS (
+    SELECT 1 
+    FROM direct_conversation_participants
+    WHERE conversation_id = conversation_uuid 
+    AND user_id = user_uuid
+  );
+$function$
+"
+is_slot_viable_for_coach,"CREATE OR REPLACE FUNCTION public.is_slot_viable_for_coach(p_coach_id uuid, p_location_id text, p_start_time timestamp with time zone, p_duration_minutes integer)
+ RETURNS boolean
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+DECLARE
+  v_end_time TIMESTAMPTZ;
+  v_location JSONB;
+  v_logistics JSONB;
+  v_prep_time INTEGER := 10; -- Default
+  v_cleanup_time INTEGER := 10; -- Default
+  v_previous_session RECORD;
+  v_next_session RECORD;
+  v_travel_time_from_previous INTEGER := 0;
+  v_travel_time_to_next INTEGER := 0;
+  v_required_gap_before INTEGER;
+  v_required_gap_after INTEGER;
+BEGIN
+  v_end_time := p_start_time + (p_duration_minutes || ' minutes')::INTERVAL;
+  
+  -- Obtener logistics de la ubicación
+  SELECT loc INTO v_location
+  FROM coaches c, jsonb_array_elements(c.locations) AS loc
+  WHERE c.user_id = p_coach_id
+    AND loc->>'id' = p_location_id;
+  
+  IF v_location IS NOT NULL THEN
+    v_logistics := v_location->'logistics';
+    IF v_logistics IS NOT NULL THEN
+      v_prep_time := COALESCE((v_logistics->>'prep_time')::INTEGER, 10);
+      v_cleanup_time := COALESCE((v_logistics->>'cleanup_time')::INTEGER, 10);
+    END IF;
+  END IF;
+  
+  -- Buscar sesión anterior más cercana
+  SELECT s.*, s.end_time, 
+         COALESCE(s.location_id, 'unknown') AS prev_location_id
+  INTO v_previous_session
+  FROM sessions s
+  WHERE s.coach_id = p_coach_id
+    AND s.end_time <= p_start_time
+    AND s.status != 'cancelled'
+  ORDER BY s.end_time DESC
+  LIMIT 1;
+  
+  -- Si hay sesión anterior, calcular tiempo de viaje necesario
+  IF v_previous_session IS NOT NULL THEN
+    IF v_previous_session.prev_location_id != p_location_id THEN
+      v_travel_time_from_previous := get_travel_time_between_coach_locations(
+        p_coach_id,
+        v_previous_session.prev_location_id,
+        p_location_id
+      );
+    END IF;
+    
+    -- Gap requerido: cleanup de anterior + viaje + prep de esta
+    v_required_gap_before := v_cleanup_time + v_travel_time_from_previous + v_prep_time;
+    
+    -- Verificar que hay tiempo suficiente
+    IF EXTRACT(EPOCH FROM (p_start_time - v_previous_session.end_time)) / 60 < v_required_gap_before THEN
+      RETURN FALSE; -- No hay tiempo suficiente
+    END IF;
+  END IF;
+  
+  -- Buscar sesión siguiente más cercana
+  SELECT s.*, s.start_time,
+         COALESCE(s.location_id, 'unknown') AS next_location_id
+  INTO v_next_session
+  FROM sessions s
+  WHERE s.coach_id = p_coach_id
+    AND s.start_time >= v_end_time
+    AND s.status != 'cancelled'
+  ORDER BY s.start_time ASC
+  LIMIT 1;
+  
+  -- Si hay sesión siguiente, calcular tiempo de viaje necesario
+  IF v_next_session IS NOT NULL THEN
+    IF v_next_session.next_location_id != p_location_id THEN
+      v_travel_time_to_next := get_travel_time_between_coach_locations(
+        p_coach_id,
+        p_location_id,
+        v_next_session.next_location_id
+      );
+    END IF;
+    
+    -- Gap requerido: cleanup de esta + viaje + prep de siguiente
+    v_required_gap_after := v_cleanup_time + v_travel_time_to_next + v_prep_time;
+    
+    -- Verificar que hay tiempo suficiente
+    IF EXTRACT(EPOCH FROM (v_next_session.start_time - v_end_time)) / 60 < v_required_gap_after THEN
+      RETURN FALSE; -- No hay tiempo suficiente
+    END IF;
+  END IF;
+  
+  -- Si llegamos aquí, el slot es viable
+  RETURN TRUE;
+END;
+$function$
+"
+is_student_in_home_service_area,"CREATE OR REPLACE FUNCTION public.is_student_in_home_service_area(p_coach_id uuid, p_student_lat double precision, p_student_lng double precision)
+ RETURNS TABLE(in_area boolean, location_id text, distance_km double precision)
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+BEGIN
+  RETURN QUERY
+  WITH home_service_locations AS (
+    SELECT 
+      loc->>'id' AS loc_id,
+      (loc->>'lat')::FLOAT AS center_lat,
+      (loc->>'lng')::FLOAT AS center_lng,
+      (loc->>'radius')::FLOAT AS radius_km,
+      COALESCE((loc->>'active')::BOOLEAN, true) AS active
+    FROM coaches c,
+         jsonb_array_elements(c.locations) AS loc
+    WHERE c.user_id = p_coach_id
+      AND loc->>'type' = 'home_service'
+      AND COALESCE((loc->>'active')::BOOLEAN, true) = true
+  ),
+  distances AS (
+    SELECT
+      hsl.loc_id,
+      calculate_haversine_distance(
+        hsl.center_lat,
+        hsl.center_lng,
+        p_student_lat,
+        p_student_lng
+      ) AS dist_km,
+      hsl.radius_km
+    FROM home_service_locations hsl
+  )
+  SELECT
+    (dist_km <= radius_km) AS in_area,
+    loc_id,
+    dist_km
+  FROM distances
+  WHERE dist_km <= radius_km
+  ORDER BY dist_km ASC
+  LIMIT 1; -- Retornar la ubicación más cercana
+END;
+$function$
+"
+log_conversation_activity,"CREATE OR REPLACE FUNCTION public.log_conversation_activity()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    -- Log status change
+    IF OLD.status != NEW.status THEN
+      INSERT INTO conversation_activities (conversation_id, user_id, action, details)
+      VALUES (NEW.id, auth.uid(), 'status_changed', json_build_object('from', OLD.status, 'to', NEW.status)::jsonb);
+    END IF;
+    
+    -- Log assignment change
+    IF OLD.assigned_to IS DISTINCT FROM NEW.assigned_to THEN
+      INSERT INTO conversation_activities (conversation_id, user_id, action, details)
+      VALUES (NEW.id, auth.uid(), 'assigned', json_build_object('to', NEW.assigned_to)::jsonb);
+    END IF;
+    
+    -- Log priority change
+    IF OLD.priority != NEW.priority THEN
+      INSERT INTO conversation_activities (conversation_id, user_id, action, details)
+      VALUES (NEW.id, auth.uid(), 'priority_changed', json_build_object('from', OLD.priority, 'to', NEW.priority)::jsonb);
+    END IF;
+  END IF;
+  
+  RETURN NEW;
+END;
+$function$
+"
+log_user_role_change,"CREATE OR REPLACE FUNCTION public.log_user_role_change()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  IF OLD.role IS DISTINCT FROM NEW.role THEN
+    PERFORM create_audit_log(
+      NEW.id,
+      'role_change',
+      format('Role changed from %s to %s', OLD.role, NEW.role),
+      'user',
+      NEW.id::TEXT,
+      'warning',
+      'success',
+      jsonb_build_object(
+        'old_role', OLD.role,
+        'new_role', NEW.role
+      )
+    );
+  END IF;
+  RETURN NEW;
+END;
+$function$
+"
+mark_inactive_users_offline,"CREATE OR REPLACE FUNCTION public.mark_inactive_users_offline()
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  UPDATE public.user_presence
+  SET 
+    status = 'offline',
+    updated_at = NOW()
+  WHERE 
+    status = 'online'
+    AND last_seen < NOW() - INTERVAL '2 minutes';
+END;
+$function$
+"
+set_blog_published_at,"CREATE OR REPLACE FUNCTION public.set_blog_published_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  IF NEW.published = true AND OLD.published = false THEN
+    NEW.published_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$function$
+"
+set_ticket_number,"CREATE OR REPLACE FUNCTION public.set_ticket_number()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  IF NEW.ticket_number IS NULL THEN
+    NEW.ticket_number := generate_ticket_number();
+  END IF;
+  RETURN NEW;
+END;
+$function$
+"
+update_blog_comments_updated_at,"CREATE OR REPLACE FUNCTION public.update_blog_comments_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_blog_config_updated_at,"CREATE OR REPLACE FUNCTION public.update_blog_config_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_blogs_updated_at,"CREATE OR REPLACE FUNCTION public.update_blogs_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_conversation_counters,"CREATE OR REPLACE FUNCTION public.update_conversation_counters()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE conversations
+    SET 
+      message_count = message_count + 1,
+      last_message_at = NEW.created_at,
+      unread_count = CASE 
+        WHEN NEW.is_from_customer THEN unread_count + 1 
+        ELSE unread_count 
+      END,
+      first_response_at = CASE
+        WHEN first_response_at IS NULL AND NOT NEW.is_from_customer THEN NEW.created_at
+        ELSE first_response_at
+      END
+    WHERE id = NEW.conversation_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$function$
+"
+update_direct_conversation_timestamp,"CREATE OR REPLACE FUNCTION public.update_direct_conversation_timestamp()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  UPDATE direct_conversations
+  SET updated_at = NOW()
+  WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$function$
+"
+update_email_templates_updated_at,"CREATE OR REPLACE FUNCTION public.update_email_templates_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_report_timestamp,"CREATE OR REPLACE FUNCTION public.update_report_timestamp()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_support_ticket_timestamp,"CREATE OR REPLACE FUNCTION public.update_support_ticket_timestamp()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_updated_at,"CREATE OR REPLACE FUNCTION public.update_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_updated_at_column,"CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$function$
+"
+update_user_presence,"CREATE OR REPLACE FUNCTION public.update_user_presence(p_status text DEFAULT 'online'::text)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+BEGIN
+  INSERT INTO public.user_presence (user_id, status, last_seen, updated_at)
+  VALUES (auth.uid(), p_status, NOW(), NOW())
+  ON CONFLICT (user_id)
+  DO UPDATE SET
+    status = EXCLUDED.status,
+    last_seen = NOW(),
+    updated_at = NOW();
+END;
+$function$
+"

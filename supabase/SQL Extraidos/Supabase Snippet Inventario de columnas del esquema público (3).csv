@@ -1,0 +1,32 @@
+funcion,argumentos,retorna,lenguaje,volatilidad
+calculate_haversine_distance,"lat1 double precision, lng1 double precision, lat2 double precision, lng2 double precision",double precision,plpgsql,IMMUTABLE
+cleanup_old_logs,days_to_keep integer DEFAULT 90,integer,plpgsql,VOLATILE
+cleanup_old_typing_indicators,,void,plpgsql,VOLATILE
+create_audit_log,"p_user_id uuid, p_action text, p_description text, p_entity_type text DEFAULT NULL::text, p_entity_id text DEFAULT NULL::text, p_level text DEFAULT 'info'::text, p_status text DEFAULT 'success'::text, p_metadata jsonb DEFAULT '{}'::jsonb",uuid,plpgsql,VOLATILE
+estimate_travel_time,"distance_km double precision, traffic_buffer_pct integer DEFAULT 10",integer,plpgsql,IMMUTABLE
+find_direct_conversation,"user1_id uuid, user2_id uuid",uuid,plpgsql,VOLATILE
+generate_ticket_number,,text,plpgsql,VOLATILE
+get_active_locations_for_date,"p_coach_id uuid, p_date date","TABLE(location_id text, location_type text, location_data jsonb)",plpgsql,STABLE
+get_travel_time_between_coach_locations,"p_coach_id uuid, p_from_location_id text, p_to_location_id text",integer,plpgsql,VOLATILE
+handle_new_user,,trigger,plpgsql,VOLATILE
+handle_user_role_change,,trigger,plpgsql,VOLATILE
+increment_blog_comment_count,,trigger,plpgsql,VOLATILE
+is_conversation_participant,"conversation_uuid uuid, user_uuid uuid",boolean,sql,STABLE
+is_slot_viable_for_coach,"p_coach_id uuid, p_location_id text, p_start_time timestamp with time zone, p_duration_minutes integer",boolean,plpgsql,STABLE
+is_student_in_home_service_area,"p_coach_id uuid, p_student_lat double precision, p_student_lng double precision","TABLE(in_area boolean, location_id text, distance_km double precision)",plpgsql,STABLE
+log_conversation_activity,,trigger,plpgsql,VOLATILE
+log_user_role_change,,trigger,plpgsql,VOLATILE
+mark_inactive_users_offline,,void,plpgsql,VOLATILE
+set_blog_published_at,,trigger,plpgsql,VOLATILE
+set_ticket_number,,trigger,plpgsql,VOLATILE
+update_blog_comments_updated_at,,trigger,plpgsql,VOLATILE
+update_blog_config_updated_at,,trigger,plpgsql,VOLATILE
+update_blogs_updated_at,,trigger,plpgsql,VOLATILE
+update_conversation_counters,,trigger,plpgsql,VOLATILE
+update_direct_conversation_timestamp,,trigger,plpgsql,VOLATILE
+update_email_templates_updated_at,,trigger,plpgsql,VOLATILE
+update_report_timestamp,,trigger,plpgsql,VOLATILE
+update_support_ticket_timestamp,,trigger,plpgsql,VOLATILE
+update_updated_at,,trigger,plpgsql,VOLATILE
+update_updated_at_column,,trigger,plpgsql,VOLATILE
+update_user_presence,p_status text DEFAULT 'online'::text,void,plpgsql,VOLATILE

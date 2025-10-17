@@ -1,0 +1,203 @@
+schema,tabla,politica,permisiva,roles,comando,condicion_using,condicion_check
+public,academies,Academies can manage own profile,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,academies,Admins can manage all academies,PERMISSIVE,{authenticated},ALL,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,academies,Admins can view all academies,PERMISSIVE,{authenticated},SELECT,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,academies,Anyone can view verified academies,PERMISSIVE,{public},SELECT,(verified = true),null
+public,audit_logs,Admins can view all logs,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,audit_logs,System can insert logs,PERMISSIVE,{public},INSERT,null,true
+public,blog_comments,Admins can delete comments,PERMISSIVE,{public},DELETE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,blog_comments,Admins can view all comments,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,blog_comments,Only authenticated users can create comments,PERMISSIVE,{public},INSERT,null,(auth.uid() IS NOT NULL)
+public,blog_comments,Public can view approved comments,PERMISSIVE,{public},SELECT,(approved = true),null
+public,blog_comments,Users can update own comments,PERMISSIVE,{public},UPDATE,"((user_id = auth.uid()) OR (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role)))))",null
+public,blog_config,Admins can manage blog config,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,blogs,Admins can do everything with blogs,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,blogs,Anyone can view published blogs,PERMISSIVE,{public},SELECT,(published = true),null
+public,blogs,Authors can view their own blogs,PERMISSIVE,{public},SELECT,(author_id = auth.uid()),null
+public,clubs,Admins can manage all clubs,PERMISSIVE,{authenticated},ALL,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,clubs,Admins can view all clubs,PERMISSIVE,{authenticated},SELECT,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,clubs,Anyone can view verified clubs,PERMISSIVE,{public},SELECT,(verified = true),null
+public,clubs,Clubs can manage own profile,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,coaches,Admins can manage all coaches,PERMISSIVE,{authenticated},ALL,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,coaches,Admins can view all coaches,PERMISSIVE,{authenticated},SELECT,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,coaches,Anyone can view coaches,PERMISSIVE,{authenticated},SELECT,true,null
+public,coaches,Anyone can view verified coaches,PERMISSIVE,{public},SELECT,(verified = true),null
+public,coaches,Coaches can manage own profile,PERMISSIVE,{public},ALL,(auth.uid() = user_id),null
+public,coaches,Coaches can update own profile,PERMISSIVE,{authenticated},UPDATE,(auth.uid() = user_id),(auth.uid() = user_id)
+public,content_reports,Los admins pueden actualizar reportes,PERMISSIVE,{authenticated},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,content_reports,Los admins pueden ver todos los reportes,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,content_reports,Los usuarios pueden crear reportes,PERMISSIVE,{authenticated},INSERT,null,(auth.uid() = reporter_id)
+public,content_reports,Los usuarios pueden ver sus propios reportes,PERMISSIVE,{authenticated},SELECT,(auth.uid() = reporter_id),null
+public,conversation_activities,System can insert activities,PERMISSIVE,{public},INSERT,null,true
+public,conversation_activities,Team members can view activities,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM conversations
+  WHERE (conversations.id = conversation_activities.conversation_id)))",null
+public,conversation_notes,Admins can manage notes,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,conversation_notes,Team members can view notes,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM conversations
+  WHERE (conversations.id = conversation_notes.conversation_id)))",null
+public,conversation_sla_status,Team members can view SLA status,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM conversations
+  WHERE (conversations.id = conversation_sla_status.conversation_id)))",null
+public,conversations,Admins can manage conversations,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,conversations,Admins can view all conversations,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,conversations,Team members can view team conversations,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM team_members
+  WHERE ((team_members.user_id = auth.uid()) AND (team_members.team_id = conversations.team_id) AND (team_members.is_active = true))))",null
+public,conversations,Users can view assigned conversations,PERMISSIVE,{public},SELECT,(assigned_to = auth.uid()),null
+public,direct_conversation_participants,insert_participants_policy,PERMISSIVE,{authenticated},INSERT,null,true
+public,direct_conversation_participants,select_participants_policy,PERMISSIVE,{authenticated},SELECT,"is_conversation_participant(conversation_id, auth.uid())",null
+public,direct_conversation_participants,update_participants_policy,PERMISSIVE,{authenticated},UPDATE,(user_id = auth.uid()),(user_id = auth.uid())
+public,direct_conversations,insert_conversations_policy,PERMISSIVE,{public},INSERT,null,true
+public,direct_conversations,select_conversations_policy,PERMISSIVE,{authenticated},SELECT,"is_conversation_participant(id, auth.uid())",null
+public,direct_conversations,update_conversations_policy,PERMISSIVE,{authenticated},UPDATE,"is_conversation_participant(id, auth.uid())",null
+public,direct_messages,insert_messages_policy,PERMISSIVE,{authenticated},INSERT,null,"((sender_id = auth.uid()) AND is_conversation_participant(conversation_id, auth.uid()))"
+public,direct_messages,select_messages_policy,PERMISSIVE,{authenticated},SELECT,"is_conversation_participant(conversation_id, auth.uid())",null
+public,email_replies,Admins can insert email replies,PERMISSIVE,{public},INSERT,null,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))"
+public,email_replies,Admins can view email replies,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,email_templates,Los admins pueden actualizar plantillas,PERMISSIVE,{authenticated},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,email_templates,Los admins pueden crear plantillas,PERMISSIVE,{authenticated},INSERT,null,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))"
+public,email_templates,Los admins pueden eliminar plantillas,PERMISSIVE,{authenticated},DELETE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,email_templates,Los admins pueden ver todas las plantillas,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,incoming_emails,Admins can update incoming emails,PERMISSIVE,{public},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,incoming_emails,Admins can view incoming emails,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,incoming_emails,System can insert incoming emails,PERMISSIVE,{public},INSERT,null,true
+public,message_templates,Admins can manage templates,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,message_templates,Admins can view templates,PERMISSIVE,{public},SELECT,"((is_active = true) AND (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role)))))",null
+public,messages,Admins can manage messages,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,messages,Users can view messages of visible conversations,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM conversations
+  WHERE (conversations.id = messages.conversation_id)))",null
+public,moderation_actions,Los admins pueden crear acciones de moderación,PERMISSIVE,{authenticated},INSERT,null,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))"
+public,moderation_actions,Los admins pueden ver acciones de moderación,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,newsletter_campaigns,Admins can manage campaigns,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,newsletter_sends,Admins can view sends,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,newsletter_subscribers,Admins can update subscribers,PERMISSIVE,{public},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,newsletter_subscribers,Admins can view subscribers,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,newsletter_subscribers,Anyone can subscribe,PERMISSIVE,{public},INSERT,null,true
+public,newsletter_subscribers,Users can unsubscribe themselves,PERMISSIVE,{public},UPDATE,"(email = ((current_setting('request.jwt.claims'::text, true))::json ->> 'email'::text))",null
+public,saved_replies,Users can manage their snippets,PERMISSIVE,{public},ALL,(user_id = auth.uid()),null
+public,saved_replies,Users can view their snippets,PERMISSIVE,{public},SELECT,((user_id = auth.uid()) OR (is_global = true)),null
+public,sessions,Admins can manage all sessions,PERMISSIVE,{authenticated},ALL,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,sessions,Admins can view all sessions,PERMISSIVE,{authenticated},SELECT,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,sessions,Participants can update sessions,PERMISSIVE,{public},UPDATE,((auth.uid() = coach_id) OR (auth.uid() = student_id)),null
+public,sessions,Participants can view sessions,PERMISSIVE,{public},SELECT,((auth.uid() = coach_id) OR (auth.uid() = student_id)),null
+public,sessions,Students can create sessions,PERMISSIVE,{public},INSERT,null,"((auth.uid() = student_id) AND (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'alumno'::user_role)))))"
+public,sla_rules,Admins can manage SLA rules,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,sla_rules,Admins can view SLA rules,PERMISSIVE,{public},SELECT,"((is_active = true) AND (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role)))))",null
+public,support_messages,Los usuarios pueden crear mensajes en sus tickets,PERMISSIVE,{authenticated},INSERT,null,"((EXISTS ( SELECT 1
+   FROM support_tickets
+  WHERE ((support_tickets.id = support_messages.ticket_id) AND (support_tickets.user_id = auth.uid())))) OR (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role)))))"
+public,support_messages,Los usuarios pueden ver mensajes de sus tickets,PERMISSIVE,{authenticated},SELECT,"((EXISTS ( SELECT 1
+   FROM support_tickets
+  WHERE ((support_tickets.id = support_messages.ticket_id) AND ((support_tickets.user_id = auth.uid()) OR (EXISTS ( SELECT 1
+           FROM users
+          WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role)))))))) AND ((NOT is_internal) OR (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))))",null
+public,support_tickets,Los admins pueden actualizar tickets,PERMISSIVE,{authenticated},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,support_tickets,Los admins pueden ver todos los tickets,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,support_tickets,Los usuarios pueden crear tickets,PERMISSIVE,{authenticated},INSERT,null,(auth.uid() = user_id)
+public,support_tickets,Los usuarios pueden ver sus propios tickets,PERMISSIVE,{authenticated},SELECT,(auth.uid() = user_id),null
+public,team_members,Admins can manage team members,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,team_members,Admins can view team members,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,teams,Admins can manage teams,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,teams,Admins can view teams,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,user_presence,Users can update own presence,PERMISSIVE,{authenticated},ALL,(auth.uid() = user_id),(auth.uid() = user_id)
+public,user_presence,Users can view presence of others,PERMISSIVE,{authenticated},SELECT,true,null
+public,user_suspensions,Los admins pueden actualizar suspensiones,PERMISSIVE,{authenticated},UPDATE,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,user_suspensions,Los admins pueden crear suspensiones,PERMISSIVE,{authenticated},INSERT,null,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))"
+public,user_suspensions,Los admins pueden ver suspensiones,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::user_role))))",null
+public,users,Admins can delete users,PERMISSIVE,{authenticated},DELETE,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,users,Admins can update all users,PERMISSIVE,{authenticated},UPDATE,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,users,Admins can view all users,PERMISSIVE,{authenticated},SELECT,((auth.jwt() ->> 'role'::text) = 'admin'::text),null
+public,users,Allow user creation via trigger,PERMISSIVE,{public},INSERT,null,true
+public,users,Anyone can view verified coaches/clubs/academies,PERMISSIVE,{public},SELECT,"(role = ANY (ARRAY['entrenador'::user_role, 'club'::user_role, 'academia'::user_role]))",null
+public,users,Users can update own profile,PERMISSIVE,{public},UPDATE,(auth.uid() = id),null
+public,users,Users can view conversation participants,PERMISSIVE,{authenticated},SELECT,"((auth.uid() = id) OR (EXISTS ( SELECT 1
+   FROM (direct_conversation_participants dcp1
+     JOIN direct_conversation_participants dcp2 ON ((dcp1.conversation_id = dcp2.conversation_id)))
+  WHERE ((dcp1.user_id = auth.uid()) AND (dcp2.user_id = users.id)))))",null
+public,users,Users can view own profile,PERMISSIVE,{public},SELECT,(auth.uid() = id),null

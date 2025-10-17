@@ -1,0 +1,424 @@
+tabla,columna,tipo,tipo_completo,nullable,valor_default,posicion
+academies,user_id,uuid,uuid,NO,null,1
+academies,name,text,text,NO,null,2
+academies,description,text,text,SÍ,null,3
+academies,address,text,text,NO,null,4
+academies,lat,double precision,double precision,NO,null,5
+academies,lng,double precision,double precision,NO,null,6
+academies,phone,text,text,SÍ,null,7
+academies,website,text,text,SÍ,null,8
+academies,programs,ARRAY,ARRAY,SÍ,null,9
+academies,verified,boolean,boolean,SÍ,false,10
+academies,verification_status,USER-DEFINED,USER-DEFINED,SÍ,'pending'::verification_status,11
+academies,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),12
+academies,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),13
+admin_emails,id,uuid,uuid,NO,uuid_generate_v4(),1
+admin_emails,email_id,text,text,SÍ,null,2
+admin_emails,from_user_id,uuid,uuid,SÍ,null,3
+admin_emails,to_addresses,ARRAY,ARRAY,NO,null,4
+admin_emails,subject,text,text,NO,null,5
+admin_emails,html_content,text,text,NO,null,6
+admin_emails,status,text,text,SÍ,'sent'::text,7
+admin_emails,sent_at,timestamp with time zone,timestamp with time zone,SÍ,null,8
+admin_emails,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),9
+admin_emails,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),10
+audit_logs,id,uuid,uuid,NO,gen_random_uuid(),1
+audit_logs,user_id,uuid,uuid,SÍ,null,2
+audit_logs,user_email,text,text,SÍ,null,3
+audit_logs,user_role,text,text,SÍ,null,4
+audit_logs,action,text,text,NO,null,5
+audit_logs,entity_type,text,text,SÍ,null,6
+audit_logs,entity_id,text,text,SÍ,null,7
+audit_logs,description,text,text,NO,null,8
+audit_logs,metadata,jsonb,jsonb,SÍ,'{}'::jsonb,9
+audit_logs,level,text,text,SÍ,'info'::text,10
+audit_logs,ip_address,text,text,SÍ,null,11
+audit_logs,user_agent,text,text,SÍ,null,12
+audit_logs,request_path,text,text,SÍ,null,13
+audit_logs,request_method,text,text,SÍ,null,14
+audit_logs,status,text,text,SÍ,'success'::text,15
+audit_logs,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),16
+blog_comments,id,uuid,uuid,NO,gen_random_uuid(),1
+blog_comments,blog_id,uuid,uuid,NO,null,2
+blog_comments,user_id,uuid,uuid,SÍ,null,3
+blog_comments,parent_comment_id,uuid,uuid,SÍ,null,4
+blog_comments,author_name,text,text,NO,null,5
+blog_comments,author_email,text,text,NO,null,6
+blog_comments,content,text,text,NO,null,7
+blog_comments,approved,boolean,boolean,SÍ,false,8
+blog_comments,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),9
+blog_comments,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),10
+blog_config,id,uuid,uuid,NO,gen_random_uuid(),1
+blog_config,auto_generate_enabled,boolean,boolean,SÍ,false,2
+blog_config,last_auto_generation,timestamp with time zone,timestamp with time zone,SÍ,null,3
+blog_config,total_auto_generated,integer,integer,SÍ,0,4
+blog_config,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),5
+blog_config,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),6
+blogs,id,uuid,uuid,NO,gen_random_uuid(),1
+blogs,title,text,text,NO,null,2
+blogs,slug,text,text,NO,null,3
+blogs,excerpt,text,text,SÍ,null,4
+blogs,content,text,text,NO,null,5
+blogs,cover_image,text,text,SÍ,null,6
+blogs,author_id,uuid,uuid,SÍ,null,7
+blogs,category,text,text,NO,'general'::text,8
+blogs,tags,ARRAY,ARRAY,SÍ,'{}'::text[],9
+blogs,published,boolean,boolean,SÍ,false,10
+blogs,published_at,timestamp with time zone,timestamp with time zone,SÍ,null,11
+blogs,seo_title,text,text,SÍ,null,12
+blogs,seo_description,text,text,SÍ,null,13
+blogs,views_count,integer,integer,SÍ,0,14
+blogs,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),15
+blogs,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),16
+blogs,comment_count,integer,integer,SÍ,0,17
+clubs,user_id,uuid,uuid,NO,null,1
+clubs,name,text,text,NO,null,2
+clubs,description,text,text,SÍ,null,3
+clubs,address,text,text,NO,null,4
+clubs,lat,double precision,double precision,NO,null,5
+clubs,lng,double precision,double precision,NO,null,6
+clubs,phone,text,text,SÍ,null,7
+clubs,website,text,text,SÍ,null,8
+clubs,amenities,ARRAY,ARRAY,SÍ,null,9
+clubs,verified,boolean,boolean,SÍ,false,10
+clubs,verification_status,USER-DEFINED,USER-DEFINED,SÍ,'pending'::verification_status,11
+clubs,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),12
+clubs,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),13
+coaches,user_id,uuid,uuid,NO,null,1
+coaches,bio,text,text,SÍ,null,2
+coaches,experience_years,integer,integer,SÍ,null,3
+coaches,certifications,ARRAY,ARRAY,SÍ,null,4
+coaches,languages,ARRAY,ARRAY,SÍ,ARRAY['Español'::text],5
+coaches,nif,text,text,SÍ,null,6
+coaches,verified,boolean,boolean,SÍ,false,7
+coaches,verification_status,USER-DEFINED,USER-DEFINED,SÍ,'pending'::verification_status,8
+coaches,services,jsonb,jsonb,SÍ,'[]'::jsonb,9
+coaches,locations,jsonb,jsonb,SÍ,'[]'::jsonb,10
+coaches,min_advance_minutes,integer,integer,SÍ,120,11
+coaches,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),12
+coaches,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),13
+coaches,specialties,ARRAY,ARRAY,SÍ,null,14
+coaches,rating,numeric,numeric,SÍ,0.0,15
+coaches,reviews_count,integer,integer,SÍ,0,16
+coaches,price_per_hour,numeric,numeric,SÍ,null,17
+coaches,location_city,text,text,SÍ,null,18
+coaches,location_lat,numeric,numeric,SÍ,null,19
+coaches,location_lng,numeric,numeric,SÍ,null,20
+coaches,avatar_url,text,text,SÍ,null,21
+coaches,offers_home_service,boolean,boolean,SÍ,false,22
+coaches,is_featured,boolean,boolean,SÍ,false,23
+coaches,availability,jsonb,jsonb,SÍ,'{}'::jsonb,24
+coaches,images,ARRAY,ARRAY,SÍ,null,25
+content_reports,id,uuid,uuid,NO,gen_random_uuid(),1
+content_reports,reporter_id,uuid,uuid,NO,null,2
+content_reports,reported_entity_type,text,text,NO,null,3
+content_reports,reported_entity_id,uuid,uuid,NO,null,4
+content_reports,reported_user_id,uuid,uuid,SÍ,null,5
+content_reports,reason,text,text,NO,null,6
+content_reports,description,text,text,NO,null,7
+content_reports,status,text,text,NO,'pendiente'::text,8
+content_reports,priority,text,text,NO,'media'::text,9
+content_reports,evidence_urls,jsonb,jsonb,SÍ,'[]'::jsonb,10
+content_reports,assigned_to,uuid,uuid,SÍ,null,11
+content_reports,reviewed_at,timestamp with time zone,timestamp with time zone,SÍ,null,12
+content_reports,resolved_at,timestamp with time zone,timestamp with time zone,SÍ,null,13
+content_reports,created_at,timestamp with time zone,timestamp with time zone,NO,now(),14
+content_reports,updated_at,timestamp with time zone,timestamp with time zone,NO,now(),15
+conversation_activities,id,uuid,uuid,NO,gen_random_uuid(),1
+conversation_activities,conversation_id,uuid,uuid,SÍ,null,2
+conversation_activities,user_id,uuid,uuid,SÍ,null,3
+conversation_activities,action,text,text,NO,null,4
+conversation_activities,details,jsonb,jsonb,SÍ,'{}'::jsonb,5
+conversation_activities,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),6
+conversation_notes,id,uuid,uuid,NO,gen_random_uuid(),1
+conversation_notes,conversation_id,uuid,uuid,SÍ,null,2
+conversation_notes,user_id,uuid,uuid,SÍ,null,3
+conversation_notes,content,text,text,NO,null,4
+conversation_notes,is_pinned,boolean,boolean,SÍ,false,5
+conversation_notes,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),6
+conversation_sla_status,id,uuid,uuid,NO,gen_random_uuid(),1
+conversation_sla_status,conversation_id,uuid,uuid,SÍ,null,2
+conversation_sla_status,sla_rule_id,uuid,uuid,SÍ,null,3
+conversation_sla_status,first_response_due_at,timestamp with time zone,timestamp with time zone,SÍ,null,4
+conversation_sla_status,first_response_breached,boolean,boolean,SÍ,false,5
+conversation_sla_status,resolution_due_at,timestamp with time zone,timestamp with time zone,SÍ,null,6
+conversation_sla_status,resolution_breached,boolean,boolean,SÍ,false,7
+conversation_sla_status,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),8
+conversation_stats,id,uuid,uuid,SÍ,null,1
+conversation_stats,status,text,text,SÍ,null,2
+conversation_stats,priority,text,text,SÍ,null,3
+conversation_stats,team_id,uuid,uuid,SÍ,null,4
+conversation_stats,assigned_to,uuid,uuid,SÍ,null,5
+conversation_stats,message_count,integer,integer,SÍ,null,6
+conversation_stats,unread_count,integer,integer,SÍ,null,7
+conversation_stats,first_message_at,timestamp with time zone,timestamp with time zone,SÍ,null,8
+conversation_stats,last_message_at,timestamp with time zone,timestamp with time zone,SÍ,null,9
+conversation_stats,first_response_at,timestamp with time zone,timestamp with time zone,SÍ,null,10
+conversation_stats,closed_at,timestamp with time zone,timestamp with time zone,SÍ,null,11
+conversation_stats,first_response_minutes,numeric,numeric,SÍ,null,12
+conversation_stats,resolution_minutes,numeric,numeric,SÍ,null,13
+conversation_stats,sla_status,text,text,SÍ,null,14
+conversations,id,uuid,uuid,NO,gen_random_uuid(),1
+conversations,contact_email,text,text,NO,null,2
+conversations,contact_name,text,text,SÍ,null,3
+conversations,contact_phone,text,text,SÍ,null,4
+conversations,subject,text,text,SÍ,null,5
+conversations,team_id,uuid,uuid,SÍ,null,6
+conversations,category,text,text,SÍ,'general'::text,7
+conversations,source,text,text,SÍ,'email'::text,8
+conversations,assigned_to,uuid,uuid,SÍ,null,9
+conversations,assigned_at,timestamp with time zone,timestamp with time zone,SÍ,null,10
+conversations,status,text,text,SÍ,'new'::text,11
+conversations,priority,text,text,SÍ,'normal'::text,12
+conversations,tags,ARRAY,ARRAY,SÍ,'{}'::text[],13
+conversations,first_message_at,timestamp with time zone,timestamp with time zone,SÍ,now(),14
+conversations,last_message_at,timestamp with time zone,timestamp with time zone,SÍ,now(),15
+conversations,first_response_at,timestamp with time zone,timestamp with time zone,SÍ,null,16
+conversations,closed_at,timestamp with time zone,timestamp with time zone,SÍ,null,17
+conversations,message_count,integer,integer,SÍ,0,18
+conversations,unread_count,integer,integer,SÍ,0,19
+conversations,metadata,jsonb,jsonb,SÍ,'{}'::jsonb,20
+conversations,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),21
+conversations,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),22
+direct_conversation_participants,id,uuid,uuid,NO,gen_random_uuid(),1
+direct_conversation_participants,conversation_id,uuid,uuid,NO,null,2
+direct_conversation_participants,user_id,uuid,uuid,NO,null,3
+direct_conversation_participants,joined_at,timestamp with time zone,timestamp with time zone,SÍ,now(),4
+direct_conversation_participants,last_read_at,timestamp with time zone,timestamp with time zone,SÍ,null,5
+direct_conversations,id,uuid,uuid,NO,gen_random_uuid(),1
+direct_conversations,created_by,uuid,uuid,SÍ,null,2
+direct_conversations,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),3
+direct_conversations,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),4
+direct_messages,id,uuid,uuid,NO,gen_random_uuid(),1
+direct_messages,conversation_id,uuid,uuid,NO,null,2
+direct_messages,sender_id,uuid,uuid,NO,null,3
+direct_messages,content,text,text,NO,null,4
+direct_messages,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),5
+direct_messages,delivered_at,timestamp with time zone,timestamp with time zone,SÍ,null,6
+direct_messages,read_at,timestamp with time zone,timestamp with time zone,SÍ,null,7
+direct_messages,reply_to_message_id,uuid,uuid,SÍ,null,8
+direct_typing_indicators,id,uuid,uuid,NO,gen_random_uuid(),1
+direct_typing_indicators,conversation_id,uuid,uuid,NO,null,2
+direct_typing_indicators,user_id,uuid,uuid,NO,null,3
+direct_typing_indicators,is_typing,boolean,boolean,SÍ,true,4
+direct_typing_indicators,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),5
+email_replies,id,uuid,uuid,NO,gen_random_uuid(),1
+email_replies,incoming_email_id,uuid,uuid,NO,null,2
+email_replies,admin_id,uuid,uuid,NO,null,3
+email_replies,to_email,text,text,NO,null,4
+email_replies,subject,text,text,SÍ,null,5
+email_replies,content,text,text,NO,null,6
+email_replies,sent_at,timestamp with time zone,timestamp with time zone,SÍ,now(),7
+email_templates,id,uuid,uuid,NO,gen_random_uuid(),1
+email_templates,name,text,text,NO,null,2
+email_templates,description,text,text,SÍ,null,3
+email_templates,subject,text,text,NO,null,4
+email_templates,html_content,text,text,NO,null,5
+email_templates,category,text,text,SÍ,'general'::text,6
+email_templates,is_active,boolean,boolean,SÍ,true,7
+email_templates,created_by,uuid,uuid,SÍ,null,8
+email_templates,created_at,timestamp with time zone,timestamp with time zone,NO,now(),9
+email_templates,updated_at,timestamp with time zone,timestamp with time zone,NO,now(),10
+incoming_emails,id,uuid,uuid,NO,gen_random_uuid(),1
+incoming_emails,from_email,text,text,NO,null,2
+incoming_emails,from_name,text,text,SÍ,null,3
+incoming_emails,to_email,text,text,NO,null,4
+incoming_emails,subject,text,text,SÍ,null,5
+incoming_emails,text_content,text,text,SÍ,null,6
+incoming_emails,html_content,text,text,SÍ,null,7
+incoming_emails,raw_email,jsonb,jsonb,SÍ,null,8
+incoming_emails,read,boolean,boolean,SÍ,false,9
+incoming_emails,replied,boolean,boolean,SÍ,false,10
+incoming_emails,assigned_to,uuid,uuid,SÍ,null,11
+incoming_emails,category,text,text,SÍ,null,12
+incoming_emails,priority,text,text,SÍ,'normal'::text,13
+incoming_emails,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),14
+incoming_emails,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),15
+location_distance_cache,id,uuid,uuid,NO,gen_random_uuid(),1
+location_distance_cache,coach_id,uuid,uuid,SÍ,null,2
+location_distance_cache,from_location_id,text,text,NO,null,3
+location_distance_cache,to_location_id,text,text,NO,null,4
+location_distance_cache,distance_km,double precision,double precision,NO,null,5
+location_distance_cache,estimated_time_minutes,integer,integer,NO,null,6
+location_distance_cache,calculated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),7
+logs_by_action,action,text,text,SÍ,null,1
+logs_by_action,count,bigint,bigint,SÍ,null,2
+logs_by_action,failures,bigint,bigint,SÍ,null,3
+logs_by_day,log_date,date,date,SÍ,null,1
+logs_by_day,total_logs,bigint,bigint,SÍ,null,2
+logs_by_day,error_count,bigint,bigint,SÍ,null,3
+logs_by_day,warning_count,bigint,bigint,SÍ,null,4
+logs_by_day,info_count,bigint,bigint,SÍ,null,5
+logs_by_user,user_email,text,text,SÍ,null,1
+logs_by_user,user_role,text,text,SÍ,null,2
+logs_by_user,action_count,bigint,bigint,SÍ,null,3
+logs_by_user,last_activity,timestamp with time zone,timestamp with time zone,SÍ,null,4
+message_templates,id,uuid,uuid,NO,gen_random_uuid(),1
+message_templates,name,text,text,NO,null,2
+message_templates,subject,text,text,SÍ,null,3
+message_templates,content,text,text,NO,null,4
+message_templates,team_id,uuid,uuid,SÍ,null,5
+message_templates,created_by,uuid,uuid,SÍ,null,6
+message_templates,is_active,boolean,boolean,SÍ,true,7
+message_templates,usage_count,integer,integer,SÍ,0,8
+message_templates,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),9
+messages,id,uuid,uuid,NO,gen_random_uuid(),1
+messages,conversation_id,uuid,uuid,SÍ,null,2
+messages,from_email,text,text,NO,null,3
+messages,from_name,text,text,SÍ,null,4
+messages,to_email,text,text,NO,null,5
+messages,cc_emails,ARRAY,ARRAY,SÍ,'{}'::text[],6
+messages,bcc_emails,ARRAY,ARRAY,SÍ,'{}'::text[],7
+messages,subject,text,text,SÍ,null,8
+messages,content,text,text,NO,null,9
+messages,html_content,text,text,SÍ,null,10
+messages,type,text,text,SÍ,'message'::text,11
+messages,is_internal,boolean,boolean,SÍ,false,12
+messages,is_from_customer,boolean,boolean,SÍ,true,13
+messages,attachments,jsonb,jsonb,SÍ,'[]'::jsonb,14
+messages,headers,jsonb,jsonb,SÍ,'{}'::jsonb,15
+messages,raw_email,jsonb,jsonb,SÍ,null,16
+messages,read,boolean,boolean,SÍ,false,17
+messages,read_at,timestamp with time zone,timestamp with time zone,SÍ,null,18
+messages,read_by,uuid,uuid,SÍ,null,19
+messages,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),20
+moderation_actions,id,uuid,uuid,NO,gen_random_uuid(),1
+moderation_actions,report_id,uuid,uuid,SÍ,null,2
+moderation_actions,moderator_id,uuid,uuid,NO,null,3
+moderation_actions,action_type,text,text,NO,null,4
+moderation_actions,target_entity_type,text,text,NO,null,5
+moderation_actions,target_entity_id,uuid,uuid,NO,null,6
+moderation_actions,reason,text,text,NO,null,7
+moderation_actions,notes,text,text,SÍ,null,8
+moderation_actions,duration_days,integer,integer,SÍ,null,9
+moderation_actions,created_at,timestamp with time zone,timestamp with time zone,NO,now(),10
+newsletter_campaigns,id,uuid,uuid,NO,gen_random_uuid(),1
+newsletter_campaigns,name,text,text,NO,null,2
+newsletter_campaigns,subject,text,text,NO,null,3
+newsletter_campaigns,preview_text,text,text,SÍ,null,4
+newsletter_campaigns,content_html,text,text,NO,null,5
+newsletter_campaigns,content_text,text,text,SÍ,null,6
+newsletter_campaigns,status,text,text,SÍ,'draft'::text,7
+newsletter_campaigns,target_tags,ARRAY,ARRAY,SÍ,null,8
+newsletter_campaigns,target_all,boolean,boolean,SÍ,true,9
+newsletter_campaigns,total_recipients,integer,integer,SÍ,0,10
+newsletter_campaigns,sent_count,integer,integer,SÍ,0,11
+newsletter_campaigns,failed_count,integer,integer,SÍ,0,12
+newsletter_campaigns,opened_count,integer,integer,SÍ,0,13
+newsletter_campaigns,clicked_count,integer,integer,SÍ,0,14
+newsletter_campaigns,scheduled_at,timestamp with time zone,timestamp with time zone,SÍ,null,15
+newsletter_campaigns,sent_at,timestamp with time zone,timestamp with time zone,SÍ,null,16
+newsletter_campaigns,created_by,uuid,uuid,SÍ,null,17
+newsletter_campaigns,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),18
+newsletter_campaigns,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),19
+newsletter_sends,id,uuid,uuid,NO,gen_random_uuid(),1
+newsletter_sends,campaign_id,uuid,uuid,SÍ,null,2
+newsletter_sends,subscriber_id,uuid,uuid,SÍ,null,3
+newsletter_sends,status,text,text,SÍ,'pending'::text,4
+newsletter_sends,error_message,text,text,SÍ,null,5
+newsletter_sends,sent_at,timestamp with time zone,timestamp with time zone,SÍ,null,6
+newsletter_sends,opened_at,timestamp with time zone,timestamp with time zone,SÍ,null,7
+newsletter_sends,clicked_at,timestamp with time zone,timestamp with time zone,SÍ,null,8
+newsletter_sends,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),9
+newsletter_subscribers,id,uuid,uuid,NO,gen_random_uuid(),1
+newsletter_subscribers,email,text,text,NO,null,2
+newsletter_subscribers,name,text,text,SÍ,null,3
+newsletter_subscribers,status,text,text,SÍ,'active'::text,4
+newsletter_subscribers,source,text,text,SÍ,'website'::text,5
+newsletter_subscribers,tags,ARRAY,ARRAY,SÍ,null,6
+newsletter_subscribers,user_id,uuid,uuid,SÍ,null,7
+newsletter_subscribers,ip_address,text,text,SÍ,null,8
+newsletter_subscribers,user_agent,text,text,SÍ,null,9
+newsletter_subscribers,subscribed_at,timestamp with time zone,timestamp with time zone,SÍ,now(),10
+newsletter_subscribers,unsubscribed_at,timestamp with time zone,timestamp with time zone,SÍ,null,11
+newsletter_subscribers,confirmed,boolean,boolean,SÍ,false,12
+newsletter_subscribers,confirmation_token,text,text,SÍ,null,13
+newsletter_subscribers,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),14
+newsletter_subscribers,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),15
+saved_replies,id,uuid,uuid,NO,gen_random_uuid(),1
+saved_replies,user_id,uuid,uuid,SÍ,null,2
+saved_replies,shortcut,text,text,NO,null,3
+saved_replies,content,text,text,NO,null,4
+saved_replies,is_global,boolean,boolean,SÍ,false,5
+saved_replies,usage_count,integer,integer,SÍ,0,6
+saved_replies,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),7
+sessions,id,uuid,uuid,NO,gen_random_uuid(),1
+sessions,coach_id,uuid,uuid,NO,null,2
+sessions,student_id,uuid,uuid,NO,null,3
+sessions,service_id,text,text,NO,null,4
+sessions,location_id,text,text,NO,null,5
+sessions,start_time,timestamp with time zone,timestamp with time zone,NO,null,6
+sessions,end_time,timestamp with time zone,timestamp with time zone,NO,null,7
+sessions,status,USER-DEFINED,USER-DEFINED,SÍ,'pending'::session_status,8
+sessions,price,numeric,numeric,NO,null,9
+sessions,payment_status,USER-DEFINED,USER-DEFINED,SÍ,'pending'::payment_status,10
+sessions,notes,text,text,SÍ,null,11
+sessions,cancellation_reason,text,text,SÍ,null,12
+sessions,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),13
+sessions,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),14
+sla_rules,id,uuid,uuid,NO,gen_random_uuid(),1
+sla_rules,name,text,text,NO,null,2
+sla_rules,team_id,uuid,uuid,SÍ,null,3
+sla_rules,priority,text,text,SÍ,null,4
+sla_rules,first_response_minutes,integer,integer,SÍ,null,5
+sla_rules,resolution_minutes,integer,integer,SÍ,null,6
+sla_rules,is_active,boolean,boolean,SÍ,true,7
+sla_rules,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),8
+support_messages,id,uuid,uuid,NO,gen_random_uuid(),1
+support_messages,ticket_id,uuid,uuid,NO,null,2
+support_messages,user_id,uuid,uuid,NO,null,3
+support_messages,message,text,text,NO,null,4
+support_messages,is_internal,boolean,boolean,SÍ,false,5
+support_messages,attachments,jsonb,jsonb,SÍ,'[]'::jsonb,6
+support_messages,created_at,timestamp with time zone,timestamp with time zone,NO,now(),7
+support_tickets,id,uuid,uuid,NO,gen_random_uuid(),1
+support_tickets,ticket_number,text,text,NO,null,2
+support_tickets,user_id,uuid,uuid,SÍ,null,3
+support_tickets,subject,text,text,NO,null,4
+support_tickets,category,text,text,NO,null,5
+support_tickets,priority,text,text,NO,'media'::text,6
+support_tickets,status,text,text,NO,'abierto'::text,7
+support_tickets,description,text,text,NO,null,8
+support_tickets,assigned_to,uuid,uuid,SÍ,null,9
+support_tickets,resolved_at,timestamp with time zone,timestamp with time zone,SÍ,null,10
+support_tickets,closed_at,timestamp with time zone,timestamp with time zone,SÍ,null,11
+support_tickets,created_at,timestamp with time zone,timestamp with time zone,NO,now(),12
+support_tickets,updated_at,timestamp with time zone,timestamp with time zone,NO,now(),13
+team_members,id,uuid,uuid,NO,gen_random_uuid(),1
+team_members,team_id,uuid,uuid,SÍ,null,2
+team_members,user_id,uuid,uuid,SÍ,null,3
+team_members,role,text,text,SÍ,'member'::text,4
+team_members,is_active,boolean,boolean,SÍ,true,5
+team_members,joined_at,timestamp with time zone,timestamp with time zone,SÍ,now(),6
+teams,id,uuid,uuid,NO,gen_random_uuid(),1
+teams,name,text,text,NO,null,2
+teams,slug,text,text,NO,null,3
+teams,description,text,text,SÍ,null,4
+teams,email,text,text,SÍ,null,5
+teams,color,text,text,SÍ,'#059669'::text,6
+teams,icon,text,text,SÍ,'mail'::text,7
+teams,auto_assign,boolean,boolean,SÍ,true,8
+teams,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),9
+user_presence,user_id,uuid,uuid,NO,null,1
+user_presence,status,text,text,NO,'offline'::text,2
+user_presence,last_seen,timestamp with time zone,timestamp with time zone,NO,now(),3
+user_presence,updated_at,timestamp with time zone,timestamp with time zone,NO,now(),4
+user_suspensions,id,uuid,uuid,NO,gen_random_uuid(),1
+user_suspensions,user_id,uuid,uuid,NO,null,2
+user_suspensions,moderator_id,uuid,uuid,NO,null,3
+user_suspensions,reason,text,text,NO,null,4
+user_suspensions,notes,text,text,SÍ,null,5
+user_suspensions,suspended_at,timestamp with time zone,timestamp with time zone,NO,now(),6
+user_suspensions,expires_at,timestamp with time zone,timestamp with time zone,SÍ,null,7
+user_suspensions,is_active,boolean,boolean,SÍ,true,8
+user_suspensions,lifted_at,timestamp with time zone,timestamp with time zone,SÍ,null,9
+user_suspensions,lifted_by,uuid,uuid,SÍ,null,10
+users,id,uuid,uuid,NO,null,1
+users,email,text,text,NO,null,2
+users,role,USER-DEFINED,USER-DEFINED,NO,null,3
+users,full_name,text,text,SÍ,null,4
+users,avatar_url,text,text,SÍ,null,5
+users,phone,text,text,SÍ,null,6
+users,created_at,timestamp with time zone,timestamp with time zone,SÍ,now(),7
+users,updated_at,timestamp with time zone,timestamp with time zone,SÍ,now(),8
+users,is_verified,boolean,boolean,SÍ,false,9
