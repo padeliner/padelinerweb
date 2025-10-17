@@ -36,7 +36,8 @@ import {
   CheckCircle,
   MessageCircle,
   Calendar,
-  Shield
+  Shield,
+  Heart
 } from 'lucide-react'
 
 // Mock reviews
@@ -78,11 +79,13 @@ const mockReviews = [
 export default function EntrenadorPage() {
   const params = useParams()
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const coachId = params.id as string
   
   const [coach, setCoach] = useState<CoachProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   useEffect(() => {
     const loadCoach = async () => {
@@ -100,6 +103,47 @@ export default function EntrenadorPage() {
     }
     loadCoach()
   }, [coachId])
+
+  // Verificar si el entrenador está en favoritos
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!isAuthenticated || !user) return
+      
+      try {
+        const res = await fetch(`/api/players/favorites-coaches/${coachId}`)
+        if (res.ok) {
+          const data = await res.json()
+          setIsFavorite(data.isFavorite)
+        }
+      } catch (error) {
+        console.error('Error checking favorite:', error)
+      }
+    }
+    checkFavorite()
+  }, [coachId, isAuthenticated, user])
+
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+
+    setFavoriteLoading(true)
+    try {
+      const method = isFavorite ? 'DELETE' : 'POST'
+      const res = await fetch(`/api/players/favorites-coaches/${coachId}`, {
+        method
+      })
+
+      if (res.ok) {
+        setIsFavorite(!isFavorite)
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+    } finally {
+      setFavoriteLoading(false)
+    }
+  }
 
   const handleReservar = () => {
     if (!isAuthenticated) {
@@ -240,12 +284,25 @@ export default function EntrenadorPage() {
                     <span>Reservar Clase</span>
                   </button>
                   
-                  <Link href="/mensajes" className="block">
+                  <Link href="/mensajes" className="block mb-3">
                     <button className="w-full py-3.5 bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2">
                       <MessageCircle className="w-5 h-5" />
-                      <span>Contactar</span>
+                      <span>Enviar mensaje</span>
                     </button>
                   </Link>
+
+                  <button
+                    onClick={handleToggleFavorite}
+                    disabled={favoriteLoading}
+                    className={`w-full py-3.5 font-bold rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isFavorite
+                        ? 'bg-red-50 border-2 border-red-200 text-red-600 hover:bg-red-100'
+                        : 'bg-white border-2 border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                    }`}
+                  >
+                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-600' : ''}`} />
+                    <span>{favoriteLoading ? 'Actualizando...' : isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}</span>
+                  </button>
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 space-y-3 text-sm">

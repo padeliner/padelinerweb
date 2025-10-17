@@ -725,7 +725,7 @@ export default function PlayerPublicProfile() {
                   <button 
                     onClick={handleContactar}
                     disabled={contacting}
-                    className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-white border-2 border-primary-500 text-primary-600 hover:bg-primary-50 font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <MessageCircle className="w-5 h-5" />
                     <span>{contacting ? 'Abriendo chat...' : 'Enviar mensaje'}</span>
