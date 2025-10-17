@@ -141,7 +141,21 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
 
               {/* Acceder / Perfil Button */}
               {isAuthenticated && profile ? (
-                <Link href="/dashboard/jugador">
+                <Link href={(() => {
+                  // Redirigir al dashboard correspondiente según el rol
+                  switch (profile.role) {
+                    case 'coach':
+                      return '/dashboard/entrenador'
+                    case 'academy':
+                      return '/dashboard/academia'
+                    case 'club':
+                      return '/dashboard/club'
+                    case 'admin':
+                      return '/admin'
+                    default:
+                      return '/dashboard/jugador'
+                  }
+                })()}>
                   <button
                     className="flex items-center space-x-2 px-2 py-2 hover:bg-neutral-100 rounded-full transition-all duration-200"
                     aria-label="Mi Dashboard"

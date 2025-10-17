@@ -2,75 +2,128 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { Building2, Users, Calendar, BarChart, LogOut, Home } from 'lucide-react'
+import { Header } from '@/components/Header'
+import { Footer } from '@/components/Footer'
+import { useAuth } from '@/hooks/useAuth'
+import { Building2, Users, Calendar, BarChart, Eye, Clock, Star } from 'lucide-react'
 
 export default function DashboardClub() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, profile, isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalCourts: 0,
+    totalMembers: 0,
+    todayReservations: 0,
+    avgRating: 0
+  })
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      
-      if (!authUser) {
-        router.push('/login')
-        return
-      }
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .single()
-
-      setUser(userData)
-      setLoading(false)
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
     }
 
-    getUser()
-  }, [router])
+    if (profile && profile.role !== 'club') {
+      router.push('/dashboard/jugador')
+      return
+    }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    loadStats()
+  }, [isAuthenticated, profile, router])
+
+  const loadStats = async () => {
+    try {
+      setStats({
+        totalCourts: 0,
+        totalMembers: 0,
+        todayReservations: 0,
+        avgRating: 0
+      })
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-neutral-600">Cargando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600">Cargando...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-neutral-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-neutral-50">
+      <Header />
+
+      {/* Dashboard Header */}
+      <div className="bg-white border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900">Dashboard Club</h1>
-              <p className="text-sm text-neutral-600">Bienvenido, {user?.full_name}</p>
+              <h1 className="text-3xl font-bold text-neutral-900">Dashboard Club</h1>
+              <p className="text-neutral-600 mt-1">
+                Bienvenido, {profile?.full_name || 'Club'}
+              </p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
+            <a
+              href={`/clubes/${user?.id}`}
+              target="_blank"
+              className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
             >
-              <LogOut className="w-4 h-4" />
-              <span>Salir</span>
-            </button>
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">Ver mi perfil</span>
+            </a>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Instalaciones */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 text-blue-600 mb-3">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.totalCourts}</p>
+            <p className="text-sm text-neutral-600 font-medium">Pistas</p>
+          </div>
+          
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 text-green-600 mb-3">
+              <Users className="w-6 h-6" />
+            </div>
+            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.totalMembers}</p>
+            <p className="text-sm text-neutral-600 font-medium">Socios</p>
+          </div>
+          
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-purple-100 text-purple-600 mb-3">
+              <Clock className="w-6 h-6" />
+            </div>
+            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.todayReservations}</p>
+            <p className="text-sm text-neutral-600 font-medium">Reservas Hoy</p>
+          </div>
+          
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-100 text-orange-600 mb-3">
+              <Star className="w-6 h-6" />
+            </div>
+            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.avgRating || '-'}</p>
+            <p className="text-sm text-neutral-600 font-medium">Valoración</p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-4">
               <Building2 className="w-6 h-6 text-blue-600" />
             </div>
@@ -78,13 +131,12 @@ export default function DashboardClub() {
             <p className="text-neutral-600 mb-4">
               Gestiona pistas y áreas del club
             </p>
-            <button className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors">
+            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
               Gestionar
             </button>
           </div>
 
-          {/* Socios */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-4">
               <Users className="w-6 h-6 text-green-600" />
             </div>
@@ -92,13 +144,12 @@ export default function DashboardClub() {
             <p className="text-neutral-600 mb-4">
               Administra socios y membresías
             </p>
-            <button className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors">
+            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
               Ver Socios
             </button>
           </div>
 
-          {/* Reservas */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl mb-4">
               <Calendar className="w-6 h-6 text-purple-600" />
             </div>
@@ -106,52 +157,15 @@ export default function DashboardClub() {
             <p className="text-neutral-600 mb-4">
               Controla reservas de pistas
             </p>
-            <button className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-xl transition-colors">
+            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
               Ver Reservas
             </button>
           </div>
 
-          {/* Estadísticas */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-100 rounded-xl mb-4">
-              <BarChart className="w-6 h-6 text-orange-600" />
-            </div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-2">Estadísticas</h2>
-            <p className="text-neutral-600 mb-4">
-              Analiza métricas del club
-            </p>
-            <button className="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors">
-              Ver Estadísticas
-            </button>
-          </div>
-        </div>
-
-        {/* Info Card */}
-        <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-neutral-900 mb-4">Información del Club</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-neutral-50 rounded-xl">
-              <p className="text-sm font-semibold text-neutral-700">Email</p>
-              <p className="text-neutral-900">{user?.email}</p>
-            </div>
-            <div className="p-4 bg-neutral-50 rounded-xl">
-              <p className="text-sm font-semibold text-neutral-700">Rol</p>
-              <p className="text-neutral-900 capitalize">{user?.role}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Back Home Button */}
-        <div className="mt-6 flex justify-center">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center space-x-2 px-6 py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-900 font-semibold rounded-xl transition-colors"
-          >
-            <Home className="w-5 h-5" />
-            <span>Volver al Inicio</span>
-          </button>
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }
