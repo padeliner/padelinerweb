@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // GET /api/coaches/stats - Obtener estadísticas del entrenador
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {

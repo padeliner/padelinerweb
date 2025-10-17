@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // GET /api/coaches/calendar - Obtener vista de calendario
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transformar datos para el calendario
-    const events = []
+    const events: any[] = []
 
     // Añadir bookings como eventos
     bookings?.forEach((booking) => {

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // POST /api/coaches/availability/block - Bloquear una fecha
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 // DELETE /api/coaches/availability/block - Desbloquear una fecha
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {

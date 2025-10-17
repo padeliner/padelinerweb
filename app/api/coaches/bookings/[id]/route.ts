@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {
@@ -75,7 +75,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {

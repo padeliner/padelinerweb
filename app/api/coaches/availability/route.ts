@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // GET /api/coaches/availability - Obtener disponibilidad del entrenador
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/coaches/availability - Actualizar disponibilidad semanal
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Verificar autenticación
     const {
