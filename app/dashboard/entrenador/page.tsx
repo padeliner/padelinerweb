@@ -6,18 +6,23 @@ import { createClient } from '@/utils/supabase/client'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
-import { Users, Calendar, DollarSign, Settings, Eye, TrendingUp, Clock, Star, LogOut } from 'lucide-react'
+import { 
+  Users, Calendar, DollarSign, Settings, Eye, Clock, Star, LogOut, 
+  BarChart3, MessageCircle, ClipboardList, Bell
+} from 'lucide-react'
+
+// Componentes de tabs
+import TabResumen from '@/components/dashboard/entrenador/TabResumen'
+import TabCalendario from '@/components/dashboard/entrenador/TabCalendario'
+import TabReservas from '@/components/dashboard/entrenador/TabReservas'
+
+type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad' | 'finanzas' | 'mensajes' | 'config'
 
 export default function DashboardEntrenador() {
   const router = useRouter()
   const { user, profile, isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    upcomingSessions: 0,
-    monthlyEarnings: 0,
-    rating: 0
-  })
+  const [activeTab, setActiveTab] = useState<TabId>('resumen')
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -44,31 +49,25 @@ export default function DashboardEntrenador() {
       }
     }
 
-    loadStats()
+    setLoading(false)
   }, [isAuthenticated, profile, router])
-
-  const loadStats = async () => {
-    try {
-      // Aquí puedes cargar estadísticas reales desde la API
-      // Por ahora usamos datos placeholder
-      setStats({
-        totalStudents: 0,
-        upcomingSessions: 0,
-        monthlyEarnings: 0,
-        rating: 0
-      })
-    } catch (error) {
-      console.error('Error loading stats:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/')
   }
+
+  const tabs = [
+    { id: 'resumen' as TabId, label: 'Resumen', icon: BarChart3 },
+    { id: 'calendario' as TabId, label: 'Calendario', icon: Calendar },
+    { id: 'reservas' as TabId, label: 'Reservas', icon: ClipboardList },
+    { id: 'alumnos' as TabId, label: 'Alumnos', icon: Users },
+    { id: 'disponibilidad' as TabId, label: 'Disponibilidad', icon: Clock },
+    { id: 'finanzas' as TabId, label: 'Finanzas', icon: DollarSign },
+    { id: 'mensajes' as TabId, label: 'Mensajes', icon: MessageCircle },
+    { id: 'config' as TabId, label: 'Configuración', icon: Settings },
+  ]
 
   if (loading) {
     return (
@@ -86,114 +85,101 @@ export default function DashboardEntrenador() {
       <Header />
 
       {/* Dashboard Header */}
-      <div className="bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white border-b border-neutral-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-neutral-900">Dashboard Entrenador</h1>
-              <p className="text-neutral-600 mt-1">
-                Bienvenido, {profile?.full_name || 'Entrenador'}
+              <h1 className="text-2xl font-bold text-neutral-900">Dashboard Entrenador</h1>
+              <p className="text-neutral-600 text-sm mt-1">
+                Bienvenido, {profile?.nombre || 'Entrenador'}
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button className="relative p-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
               <a
                 href={`/entrenadores/${user?.id}`}
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Ver mi perfil</span>
+                <span className="hidden sm:inline">Ver perfil</span>
               </a>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Cerrar sesión</span>
+                <span className="hidden sm:inline">Salir</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
+                    ${isActive 
+                      ? 'border-primary-500 text-primary-600' 
+                      : 'border-transparent text-neutral-600 hover:text-neutral-900 hover:border-neutral-300'
+                    }
+                  `}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 text-blue-600 mb-3">
-              <Users className="w-6 h-6" />
-            </div>
-            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.totalStudents}</p>
-            <p className="text-sm text-neutral-600 font-medium">Alumnos</p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {activeTab === 'resumen' && <TabResumen />}
+        {activeTab === 'calendario' && <TabCalendario />}
+        {activeTab === 'reservas' && <TabReservas />}
+        {activeTab === 'alumnos' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Alumnos</h2>
+            <p className="text-neutral-600">Próximamente...</p>
           </div>
-          
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 text-green-600 mb-3">
-              <Calendar className="w-6 h-6" />
-            </div>
-            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.upcomingSessions}</p>
-            <p className="text-sm text-neutral-600 font-medium">Próximas Clases</p>
+        )}
+        {activeTab === 'disponibilidad' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Disponibilidad</h2>
+            <p className="text-neutral-600">Próximamente...</p>
           </div>
-          
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 mb-3">
-              <DollarSign className="w-6 h-6" />
-            </div>
-            <p className="text-3xl font-bold text-neutral-900 mb-1">€{stats.monthlyEarnings}</p>
-            <p className="text-sm text-neutral-600 font-medium">Este Mes</p>
+        )}
+        {activeTab === 'finanzas' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Finanzas</h2>
+            <p className="text-neutral-600">Próximamente...</p>
           </div>
-          
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-purple-100 text-purple-600 mb-3">
-              <Star className="w-6 h-6" />
-            </div>
-            <p className="text-3xl font-bold text-neutral-900 mb-1">{stats.rating || '-'}</p>
-            <p className="text-sm text-neutral-600 font-medium">Valoración</p>
+        )}
+        {activeTab === 'mensajes' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Mensajes</h2>
+            <p className="text-neutral-600">Integración con sistema de mensajería existente...</p>
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-4">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-2">Mis Alumnos</h2>
-            <p className="text-neutral-600 mb-4">
-              Gestiona tus alumnos y su progreso
-            </p>
-            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
-              Ver Alumnos
-            </button>
+        )}
+        {activeTab === 'config' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Configuración</h2>
+            <p className="text-neutral-600">Próximamente...</p>
           </div>
-
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-4">
-              <Calendar className="w-6 h-6 text-green-600" />
-            </div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-2">Horarios</h2>
-            <p className="text-neutral-600 mb-4">
-              Configura tu disponibilidad y clases
-            </p>
-            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
-              Gestionar
-            </button>
-          </div>
-
-          <div className="bg-white border-2 border-neutral-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl mb-4">
-              <Settings className="w-6 h-6 text-purple-600" />
-            </div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-2">Configuración</h2>
-            <p className="text-neutral-600 mb-4">
-              Ajusta tu perfil y preferencias
-            </p>
-            <button className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-colors">
-              Configurar
-            </button>
-          </div>
-        </div>
+        )}
       </main>
 
       <Footer />
