@@ -120,7 +120,7 @@ export default function NotificationBell() {
           />
           
           {/* Panel */}
-          <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-neutral-200 z-50 max-h-[600px] flex flex-col">
+          <div className="fixed sm:absolute right-1 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-0.5rem)] sm:w-96 bg-white rounded-xl shadow-2xl border border-neutral-200 z-50 max-h-[calc(100vh-5rem)] sm:max-h-[600px] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-neutral-200">
               <div>
