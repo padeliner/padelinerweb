@@ -137,10 +137,10 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
 
               {/* Acceder / Perfil Button */}
               {isAuthenticated && profile ? (
-                <Link href="/mi-perfil">
+                <Link href="/dashboard/jugador">
                   <button
                     className="flex items-center space-x-2 px-2 py-2 hover:bg-neutral-100 rounded-full transition-all duration-200"
-                    aria-label="Mi Perfil"
+                    aria-label="Mi Dashboard"
                   >
                     {(() => {
                       // Prioridad: 1. avatar_url del perfil, 2. avatar de Google, 3. inicial

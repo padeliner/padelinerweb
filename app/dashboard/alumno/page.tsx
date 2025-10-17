@@ -3,11 +3,38 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Search, Calendar, User, LogOut, Home } from 'lucide-react'
+import { 
+  Search, 
+  Calendar, 
+  User, 
+  LogOut, 
+  Home,
+  Trophy,
+  TrendingUp,
+  Clock,
+  Flame,
+  Award,
+  Settings,
+  Eye
+} from 'lucide-react'
 
-export default function DashboardAlumno() {
+interface PlayerProfile {
+  display_name: string
+  total_sessions_completed: number
+  total_hours_trained: number
+  current_streak_days: number
+  skill_level: string | null
+  stats: {
+    average_rating: number | null
+    total_reviews: number
+    achievements_unlocked: number
+  }
+}
+
+export default function DashboardJugador() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<PlayerProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
