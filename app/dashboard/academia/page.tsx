@@ -25,8 +25,22 @@ export default function DashboardAcademia() {
     }
 
     if (profile && profile.role !== 'academy' && profile.role !== 'academia') {
-      router.push('/dashboard/jugador')
-      return
+      // Redirigir al dashboard correcto según el rol
+      switch (profile.role) {
+        case 'entrenador':
+        case 'coach':
+          router.push('/dashboard/entrenador')
+          return
+        case 'club':
+          router.push('/dashboard/club')
+          return
+        case 'admin':
+          router.push('/admin')
+          return
+        default:
+          router.push('/dashboard/jugador')
+          return
+      }
     }
 
     loadStats()

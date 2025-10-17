@@ -118,6 +118,27 @@ export default function DashboardJugador() {
 
       setUser(userData)
 
+      // Validar que el usuario sea jugador/alumno
+      if (userData?.role && userData.role !== 'jugador' && userData.role !== 'player' && userData.role !== 'alumno') {
+        // Redirigir al dashboard correcto según el rol
+        switch (userData.role) {
+          case 'entrenador':
+          case 'coach':
+            router.push('/dashboard/entrenador')
+            return
+          case 'academia':
+          case 'academy':
+            router.push('/dashboard/academia')
+            return
+          case 'club':
+            router.push('/dashboard/club')
+            return
+          case 'admin':
+            router.push('/admin')
+            return
+        }
+      }
+
       // Cargar perfil completo
       const profileRes = await fetch('/api/players/me')
       if (profileRes.ok) {
