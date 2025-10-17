@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { LocationSearch, LocationData, calculateDistance } from '@/components/LocationSearch'
-import { mockCoaches } from '@/lib/mock-data/coaches'
+// import { mockCoaches } from '@/lib/mock-data/coaches' // Ya no necesitamos mock data
 import { Search, MapPin, Star, ChevronDown, SlidersHorizontal, CheckCircle, Calendar } from 'lucide-react'
 import { TimeSelector } from '@/components/TimeSelector'
 import DatePicker, { registerLocale } from 'react-datepicker'
@@ -28,6 +28,8 @@ function EntrenadoresContent() {
   const [maxPrice, setMaxPrice] = useState(75)
   const [showOnlyWithHomeService, setShowOnlyWithHomeService] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [coaches, setCoaches] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Configurar colores del calendario
   useEffect(() => {
@@ -45,6 +47,26 @@ function EntrenadoresContent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Cargar entrenadores al inicio
+  useEffect(() => {
+    loadCoaches()
+  }, [])
+
+  const loadCoaches = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch('/api/coaches')
+      if (res.ok) {
+        const data = await res.json()
+        setCoaches(data.coaches || [])
+      }
+    } catch (error) {
+      console.error('Error loading coaches:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Leer parámetros de la URL al cargar
   useEffect(() => {
@@ -81,44 +103,36 @@ function EntrenadoresContent() {
   // Categorías de entrenadores por público objetivo
   const specialties = ['all', 'Infantil', 'Junior', 'Adultos', 'Senior', 'Iniciación', 'Competición']
 
-  // Filtrar y ordenar entrenadores por distancia
-  let filteredCoaches = mockCoaches.filter(coach => {
-    const matchesSearch = coach.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar y ordenar entrenadores
+  let filteredCoaches = coaches.filter((coach: any) => {
+    const coachProfile = coach.coach_profile
+    if (!coachProfile) return false
+
+    const matchesSearch = coach.full_name.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesSpecialty = selectedSpecialty === 'all' || 
-                             coach.specialties.includes(selectedSpecialty)
-    const matchesPrice = coach.pricePerHour >= minPrice && coach.pricePerHour <= maxPrice
+                             coachProfile.specialties?.includes(selectedSpecialty)
+    const matchesPrice = coachProfile.price_per_hour >= minPrice && coachProfile.price_per_hour <= maxPrice
     
     // Filtro por disponibilidad de desplazamiento
-    const matchesHomeService = !showOnlyWithHomeService || coach.offersHomeService
+    const matchesHomeService = !showOnlyWithHomeService || coachProfile.offers_home_service
     
     // Filtro por distancia
     let matchesDistance = true
-    if (selectedLocation) {
-      const distance = calculateDistance(
-        selectedLocation.lat,
-        selectedLocation.lng,
-        coach.lat,
-        coach.lng
-      )
-      matchesDistance = distance <= maxDistance
+    if (selectedLocation && coachProfile.location_formatted) {
+      // Por ahora sin filtro de distancia geográfica ya que no tenemos lat/lng
+      matchesDistance = true
     }
     
     return matchesSearch && matchesSpecialty && matchesPrice && matchesHomeService && matchesDistance
   })
 
-  // Si hay ubicación seleccionada, ordenar por distancia
-  if (selectedLocation) {
-    filteredCoaches = filteredCoaches.map(coach => ({
-      ...coach,
-      distance: calculateDistance(
-        selectedLocation.lat,
-        selectedLocation.lng,
-        coach.lat,
-        coach.lng
-      )
-    })).sort((a, b) => a.distance - b.distance)
-  }
+  // Ordenar por valoración
+  filteredCoaches.sort((a: any, b: any) => {
+    const ratingA = a.coach_profile?.average_rating || 0
+    const ratingB = b.coach_profile?.average_rating || 0
+    return ratingB - ratingA
+  })
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -132,7 +146,7 @@ function EntrenadoresContent() {
               Encuentra tu Entrenador de Pádel
             </h1>
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-primary-100 mb-6 md:mb-8 max-w-3xl mx-auto">
-              {mockCoaches.length} entrenadores profesionales esperando para ayudarte a mejorar tu juego
+              {coaches.length} entrenadores profesionales esperando para ayudarte a mejorar tu juego
             </p>
             
             {/* Location Search */}
@@ -362,83 +376,101 @@ function EntrenadoresContent() {
                 Ver todos los entrenadores
               </button>
             </div>
+          ) : loading ? (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-neutral-600">Cargando entrenadores...</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {filteredCoaches.map((coach) => (
-                <Link
-                  key={coach.id}
-                  href={`/entrenador/${coach.id}`}
-                  className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
-                >
-                  {/* Image */}
-                  <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
-                    <img
-                      src={coach.imageUrl}
-                      alt={coach.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    {coach.isFeatured && (
-                      <div className="absolute top-3 left-3 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                        ⭐ DESTACADO
-                      </div>
-                    )}
-                    <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-white rounded-lg shadow-lg">
-                      <p className="text-sm font-bold text-primary-600">{coach.pricePerHour}€/h</p>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4 md:p-5">
-                    <h3 className="text-lg md:text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
-                      {coach.name}
-                    </h3>
-                    
-                    <div className="flex items-center space-x-1 mb-3">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-semibold text-neutral-900">{coach.rating}</span>
-                      <span className="text-sm text-neutral-500">({coach.reviewsCount})</span>
-                    </div>
-
-                    <div className="flex items-center text-sm text-neutral-600 mb-3">
-                      <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                      <span className="truncate">{coach.city}</span>
-                      {'distance' in coach && typeof coach.distance === 'number' && (
-                        <span className="ml-auto text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                          {coach.distance.toFixed(1)} km
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {coach.specialties.slice(0, 2).map((specialty, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                      {coach.specialties.length > 2 && (
-                        <span className="px-2.5 py-1 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-full">
-                          +{coach.specialties.length - 2}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-neutral-500">
-                        {coach.experience} años de experiencia
-                      </p>
-                      {coach.offersHomeService && (
-                        <div className="flex items-center text-xs text-green-600" title="Se desplaza a domicilio">
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          <span className="font-medium">Desplazamiento</span>
+              {filteredCoaches.map((coach: any) => {
+                const coachProfile = coach.coach_profile
+                return (
+                  <Link
+                    key={coach.id}
+                    href={`/entrenadores/${coach.id}`}
+                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                  >
+                    {/* Image */}
+                    <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden bg-neutral-100">
+                      {coach.avatar_url ? (
+                        <img
+                          src={coach.avatar_url}
+                          alt={coach.full_name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200">
+                          <span className="text-6xl text-primary-600 font-bold">
+                            {coach.full_name.charAt(0)}
+                          </span>
                         </div>
                       )}
+                      <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-white rounded-lg shadow-lg">
+                        <p className="text-sm font-bold text-primary-600">{coachProfile?.price_per_hour || '-'}€/h</p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+
+                    {/* Content */}
+                    <div className="p-4 md:p-5">
+                      <h3 className="text-lg md:text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors">
+                        {coach.full_name}
+                      </h3>
+                      
+                      {coachProfile?.average_rating && (
+                        <div className="flex items-center space-x-1 mb-3">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-semibold text-neutral-900">
+                            {coachProfile.average_rating.toFixed(1)}
+                          </span>
+                          <span className="text-sm text-neutral-500">
+                            ({coachProfile.total_reviews})
+                          </span>
+                        </div>
+                      )}
+
+                      {coachProfile?.location_formatted && (
+                        <div className="flex items-center text-sm text-neutral-600 mb-3">
+                          <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{coachProfile.location_formatted}</span>
+                        </div>
+                      )}
+
+                      {coachProfile?.specialties && coachProfile.specialties.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {coachProfile.specialties.slice(0, 2).map((specialty: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full"
+                            >
+                              {specialty}
+                            </span>
+                          ))}
+                          {coachProfile.specialties.length > 2 && (
+                            <span className="px-2.5 py-1 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-full">
+                              +{coachProfile.specialties.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        {coachProfile?.experience_years && (
+                          <p className="text-sm text-neutral-500">
+                            {coachProfile.experience_years} años de experiencia
+                          </p>
+                        )}
+                        {coachProfile?.offers_home_service && (
+                          <div className="flex items-center text-xs text-green-600" title="Se desplaza a domicilio">
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            <span className="font-medium">Desplazamiento</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>
