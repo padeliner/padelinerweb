@@ -8,7 +8,7 @@ import { Footer } from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
 import { 
   Users, Calendar, DollarSign, Settings, Eye, Clock, Star, LogOut, 
-  BarChart3, MessageCircle, ClipboardList, Bell
+  BarChart3, ClipboardList
 } from 'lucide-react'
 
 // Componentes de tabs
@@ -17,7 +17,7 @@ import TabCalendario from '@/components/dashboard/entrenador/TabCalendario'
 import TabReservas from '@/components/dashboard/entrenador/TabReservas'
 import TabConfiguracion from '@/components/dashboard/entrenador/TabConfiguracion'
 
-type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad' | 'finanzas' | 'mensajes' | 'config'
+type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad' | 'finanzas' | 'config'
 
 export default function DashboardEntrenador() {
   const router = useRouter()
@@ -66,8 +66,7 @@ export default function DashboardEntrenador() {
     { id: 'alumnos' as TabId, label: 'Alumnos', icon: Users },
     { id: 'disponibilidad' as TabId, label: 'Disponibilidad', icon: Clock },
     { id: 'finanzas' as TabId, label: 'Finanzas', icon: DollarSign },
-    { id: 'mensajes' as TabId, label: 'Mensajes', icon: MessageCircle },
-    { id: 'config' as TabId, label: 'Configuración', icon: Settings },
+    { id: 'config' as TabId, label: 'Mi Perfil', icon: Settings },
   ]
 
   if (loading) {
@@ -96,10 +95,6 @@ export default function DashboardEntrenador() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="relative p-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
               <a
                 href={`/entrenadores/${user?.id}`}
                 target="_blank"
@@ -167,12 +162,6 @@ export default function DashboardEntrenador() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold mb-4">Finanzas</h2>
             <p className="text-neutral-600">Próximamente...</p>
-          </div>
-        )}
-        {activeTab === 'mensajes' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Mensajes</h2>
-            <p className="text-neutral-600">Integración con sistema de mensajería existente...</p>
           </div>
         )}
         {activeTab === 'config' && <TabConfiguracion />}

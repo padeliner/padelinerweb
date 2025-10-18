@@ -31,8 +31,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Obtener datos del coach
+    const { data: coachData, error: coachError } = await supabase
+      .from('coaches')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
+    if (coachError && coachError.code !== 'PGRST116') {
+      console.error('Error fetching coach:', coachError)
+    }
+
+    // Combinar datos
     return NextResponse.json({
-      profile: userData,
+      profile: {
+        ...userData,
+        ...coachData,
+      },
     })
   } catch (error) {
     console.error('Error in GET /api/coaches/profile:', error)
@@ -60,60 +75,95 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
 
-    // Campos permitidos para actualizar
-    const allowedFields = [
-      'nombre',
-      'apellido',
-      'telefono',
-      'ciudad',
+    // Campos de users
+    const userFields = ['full_name', 'phone', 'avatar_url']
+    const userData: any = {}
+    for (const field of userFields) {
+      if (body[field] !== undefined) {
+        userData[field] = body[field]
+      }
+    }
+
+    // Campos de coaches
+    const coachFields = [
       'bio',
-      'years_experience',
+      'experience_years',
       'certifications',
       'specialties',
       'languages',
       'price_per_hour',
       'offers_home_service',
-      'location_address',
+      'location',
+      'location_city',
       'location_lat',
       'location_lng',
-      'avatar_url',
-      'gallery_images',
+      'images',
     ]
-
-    // Filtrar solo campos permitidos
-    const updateData: any = {}
-    for (const field of allowedFields) {
+    const coachData: any = {}
+    for (const field of coachFields) {
       if (body[field] !== undefined) {
-        updateData[field] = body[field]
+        coachData[field] = body[field]
       }
     }
 
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(userData).length === 0 && Object.keys(coachData).length === 0) {
       return NextResponse.json(
         { error: 'No hay datos para actualizar' },
         { status: 400 }
       )
     }
 
-    // Actualizar en la base de datos
-    const { data: updatedUser, error: updateError } = await supabase
+    // Actualizar users
+    if (Object.keys(userData).length > 0) {
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update(userData)
+        .eq('id', user.id)
+
+      if (userUpdateError) {
+        console.error('Error updating user:', userUpdateError)
+        return NextResponse.json(
+          { error: 'Error al actualizar usuario' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Actualizar coaches
+    if (Object.keys(coachData).length > 0) {
+      const { error: coachUpdateError } = await supabase
+        .from('coaches')
+        .update(coachData)
+        .eq('user_id', user.id)
+
+      if (coachUpdateError) {
+        console.error('Error updating coach:', coachUpdateError)
+        return NextResponse.json(
+          { error: 'Error al actualizar perfil de entrenador' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Obtener datos actualizados
+    const { data: updatedUser } = await supabase
       .from('users')
-      .update(updateData)
+      .select('*')
       .eq('id', user.id)
-      .select()
       .single()
 
-    if (updateError) {
-      console.error('Error updating profile:', updateError)
-      return NextResponse.json(
-        { error: 'Error al actualizar perfil' },
-        { status: 500 }
-      )
-    }
+    const { data: updatedCoach } = await supabase
+      .from('coaches')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
 
     return NextResponse.json({
       success: true,
-      profile: updatedUser,
+      profile: {
+        ...updatedUser,
+        ...updatedCoach,
+      },
       message: 'Perfil actualizado exitosamente',
     })
   } catch (error) {

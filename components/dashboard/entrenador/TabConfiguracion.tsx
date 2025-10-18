@@ -4,35 +4,33 @@ import { useEffect, useState } from 'react'
 import { User, MapPin, DollarSign, Globe, Award, Image, Save } from 'lucide-react'
 
 interface ProfileData {
-  nombre: string
-  apellido: string
-  telefono: string
-  ciudad: string
+  full_name: string
+  phone: string
+  location_city: string
   bio: string
-  years_experience: number
+  experience_years: number
   certifications: string[]
   specialties: string[]
   languages: string[]
   price_per_hour: number
   offers_home_service: boolean
-  location_address: string
+  location: string
   avatar_url: string
 }
 
 export default function TabConfiguracion() {
   const [profile, setProfile] = useState<ProfileData>({
-    nombre: '',
-    apellido: '',
-    telefono: '',
-    ciudad: '',
+    full_name: '',
+    phone: '',
+    location_city: '',
     bio: '',
-    years_experience: 0,
+    experience_years: 0,
     certifications: [],
     specialties: [],
     languages: [],
     price_per_hour: 0,
     offers_home_service: false,
-    location_address: '',
+    location: '',
     avatar_url: '',
   })
   const [loading, setLoading] = useState(true)
@@ -49,18 +47,17 @@ export default function TabConfiguracion() {
       if (res.ok) {
         const data = await res.json()
         setProfile({
-          nombre: data.profile.nombre || '',
-          apellido: data.profile.apellido || '',
-          telefono: data.profile.telefono || '',
-          ciudad: data.profile.ciudad || '',
+          full_name: data.profile.full_name || '',
+          phone: data.profile.phone || '',
+          location_city: data.profile.location_city || '',
           bio: data.profile.bio || '',
-          years_experience: data.profile.years_experience || 0,
+          experience_years: data.profile.experience_years || 0,
           certifications: data.profile.certifications || [],
           specialties: data.profile.specialties || [],
           languages: data.profile.languages || [],
-          price_per_hour: data.profile.price_per_hour || 0,
+          price_per_hour: parseFloat(data.profile.price_per_hour) || 0,
           offers_home_service: data.profile.offers_home_service || false,
-          location_address: data.profile.location_address || '',
+          location: data.profile.location || '',
           avatar_url: data.profile.avatar_url || '',
         })
       }
@@ -160,29 +157,31 @@ export default function TabConfiguracion() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Nombre *
+              Avatar
             </label>
-            <input
-              type="text"
-              value={profile.nombre}
-              onChange={(e) => setProfile({ ...profile, nombre: e.target.value })}
-              className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Tu nombre"
-            />
+            {profile.avatar_url && (
+              <div className="mb-4">
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-neutral-200"
+                />
+              </div>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Apellido *
+              Nombre completo *
             </label>
             <input
               type="text"
-              value={profile.apellido}
-              onChange={(e) => setProfile({ ...profile, apellido: e.target.value })}
+              value={profile.full_name}
+              onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
               className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Tu apellido"
+              placeholder="Tu nombre completo"
             />
           </div>
 
@@ -192,8 +191,8 @@ export default function TabConfiguracion() {
             </label>
             <input
               type="tel"
-              value={profile.telefono}
-              onChange={(e) => setProfile({ ...profile, telefono: e.target.value })}
+              value={profile.phone}
+              onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
               className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="+34 612 345 678"
             />
@@ -205,8 +204,8 @@ export default function TabConfiguracion() {
             </label>
             <input
               type="text"
-              value={profile.ciudad}
-              onChange={(e) => setProfile({ ...profile, ciudad: e.target.value })}
+              value={profile.location_city}
+              onChange={(e) => setProfile({ ...profile, location_city: e.target.value })}
               className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Valencia"
             />
@@ -247,9 +246,9 @@ export default function TabConfiguracion() {
               type="number"
               min="0"
               max="50"
-              value={profile.years_experience}
+              value={profile.experience_years}
               onChange={(e) =>
-                setProfile({ ...profile, years_experience: parseInt(e.target.value) || 0 })
+                setProfile({ ...profile, experience_years: parseInt(e.target.value) || 0 })
               }
               className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
@@ -393,9 +392,9 @@ export default function TabConfiguracion() {
             </label>
             <input
               type="text"
-              value={profile.location_address}
+              value={profile.location}
               onChange={(e) =>
-                setProfile({ ...profile, location_address: e.target.value })
+                setProfile({ ...profile, location: e.target.value })
               }
               className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Ej: Valencia Padel Center, Calle Ejemplo 123"
