@@ -1,6 +1,49 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
+// GET /api/coaches/availability/blocked - Obtener fechas bloqueadas
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+
+    // Verificar autenticación
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    // Obtener fechas bloqueadas
+    const { data: blockedDates, error } = await supabase
+      .from('coach_blocked_dates')
+      .select('*')
+      .eq('coach_id', user.id)
+      .gte('blocked_date', new Date().toISOString().split('T')[0])
+      .order('blocked_date')
+
+    if (error) {
+      console.error('Error fetching blocked dates:', error)
+      return NextResponse.json(
+        { error: 'Error al obtener fechas bloqueadas' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      blockedDates: blockedDates || [],
+    })
+  } catch (error) {
+    console.error('Error in GET /api/coaches/availability/blocked:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    )
+  }
+}
+
 // POST /api/coaches/availability/block - Bloquear una fecha
 export async function POST(request: NextRequest) {
   try {

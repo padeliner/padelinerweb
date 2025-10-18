@@ -16,6 +16,9 @@ import TabResumen from '@/components/dashboard/entrenador/TabResumen'
 import TabCalendario from '@/components/dashboard/entrenador/TabCalendario'
 import TabReservas from '@/components/dashboard/entrenador/TabReservas'
 import TabConfiguracion from '@/components/dashboard/entrenador/TabConfiguracion'
+import TabDisponibilidad from '@/components/dashboard/entrenador/TabDisponibilidad'
+import TabAlumnos from '@/components/dashboard/entrenador/TabAlumnos'
+import TabFinanzas from '@/components/dashboard/entrenador/TabFinanzas'
 
 type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad' | 'finanzas' | 'config'
 
@@ -150,24 +153,9 @@ export default function DashboardEntrenador() {
         {activeTab === 'resumen' && <TabResumen />}
         {activeTab === 'calendario' && <TabCalendario />}
         {activeTab === 'reservas' && <TabReservas />}
-        {activeTab === 'alumnos' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Alumnos</h2>
-            <p className="text-neutral-600">Próximamente...</p>
-          </div>
-        )}
-        {activeTab === 'disponibilidad' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Disponibilidad</h2>
-            <p className="text-neutral-600">Próximamente...</p>
-          </div>
-        )}
-        {activeTab === 'finanzas' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Finanzas</h2>
-            <p className="text-neutral-600">Próximamente...</p>
-          </div>
-        )}
+        {activeTab === 'alumnos' && <TabAlumnos />}
+        {activeTab === 'disponibilidad' && <TabDisponibilidad />}
+        {activeTab === 'finanzas' && <TabFinanzas />}
         {activeTab === 'config' && <TabConfiguracion />}
       </main>
 
