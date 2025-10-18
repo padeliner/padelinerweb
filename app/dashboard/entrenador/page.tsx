@@ -91,7 +91,7 @@ export default function DashboardEntrenador() {
             <div>
               <h1 className="text-2xl font-bold text-neutral-900">Dashboard Entrenador</h1>
               <p className="text-neutral-600 text-sm mt-1">
-                Bienvenido, {profile?.nombre || 'Entrenador'}
+                Bienvenido, {profile?.full_name || 'Entrenador'}
               </p>
             </div>
             <div className="flex items-center gap-3">
