@@ -15,6 +15,7 @@ import {
 import TabResumen from '@/components/dashboard/entrenador/TabResumen'
 import TabCalendario from '@/components/dashboard/entrenador/TabCalendario'
 import TabReservas from '@/components/dashboard/entrenador/TabReservas'
+import TabConfiguracion from '@/components/dashboard/entrenador/TabConfiguracion'
 
 type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad' | 'finanzas' | 'mensajes' | 'config'
 
@@ -174,12 +175,7 @@ export default function DashboardEntrenador() {
             <p className="text-neutral-600">Integración con sistema de mensajería existente...</p>
           </div>
         )}
-        {activeTab === 'config' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Configuración</h2>
-            <p className="text-neutral-600">Próximamente...</p>
-          </div>
-        )}
+        {activeTab === 'config' && <TabConfiguracion />}
       </main>
 
       <Footer />
