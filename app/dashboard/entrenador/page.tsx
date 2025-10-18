@@ -16,7 +16,7 @@ import TabResumen from '@/components/dashboard/entrenador/TabResumen'
 import TabCalendario from '@/components/dashboard/entrenador/TabCalendario'
 import TabReservas from '@/components/dashboard/entrenador/TabReservas'
 import TabConfiguracion from '@/components/dashboard/entrenador/TabConfiguracion'
-import TabDisponibilidad from '@/components/dashboard/entrenador/TabDisponibilidad'
+import TabDisponibilidadPro from '@/components/dashboard/entrenador/TabDisponibilidadPro'
 import TabAlumnos from '@/components/dashboard/entrenador/TabAlumnos'
 import TabFinanzas from '@/components/dashboard/entrenador/TabFinanzas'
 
@@ -154,7 +154,7 @@ export default function DashboardEntrenador() {
         {activeTab === 'calendario' && <TabCalendario />}
         {activeTab === 'reservas' && <TabReservas />}
         {activeTab === 'alumnos' && <TabAlumnos />}
-        {activeTab === 'disponibilidad' && <TabDisponibilidad />}
+        {activeTab === 'disponibilidad' && <TabDisponibilidadPro />}
         {activeTab === 'finanzas' && <TabFinanzas />}
         {activeTab === 'config' && <TabConfiguracion />}
       </main>
