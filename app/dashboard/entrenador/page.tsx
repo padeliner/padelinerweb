@@ -21,16 +21,22 @@ type TabId = 'resumen' | 'calendario' | 'reservas' | 'alumnos' | 'disponibilidad
 
 export default function DashboardEntrenador() {
   const router = useRouter()
-  const { user, profile, isAuthenticated } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const { user, profile, isAuthenticated, loading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState<TabId>('resumen')
 
   useEffect(() => {
+    // Esperar a que termine de cargar la autenticación
+    if (authLoading) {
+      return
+    }
+
+    // Si no está autenticado, redirigir al login
     if (!isAuthenticated) {
       router.push('/login')
       return
     }
 
+    // Si ya tiene perfil cargado, verificar el rol
     if (profile && profile.role !== 'coach' && profile.role !== 'entrenador') {
       // Redirigir al dashboard correcto según el rol
       switch (profile.role) {
@@ -49,9 +55,7 @@ export default function DashboardEntrenador() {
           return
       }
     }
-
-    setLoading(false)
-  }, [isAuthenticated, profile, router])
+  }, [authLoading, isAuthenticated, profile, router])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -69,7 +73,7 @@ export default function DashboardEntrenador() {
     { id: 'config' as TabId, label: 'Mi Perfil', icon: Settings },
   ]
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center">
