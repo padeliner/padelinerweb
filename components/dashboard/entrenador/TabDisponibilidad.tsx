@@ -114,7 +114,7 @@ export default function TabDisponibilidad() {
       // Convertir schedule a formato de API
       const slots: any[] = []
       Object.entries(schedule).forEach(([day, timeSlots]) => {
-        timeSlots.forEach((slot) => {
+        timeSlots.forEach((slot: TimeSlot) => {
           slots.push({
             day_of_week: day.charAt(0).toUpperCase() + day.slice(1),
             start_time: slot.start,
