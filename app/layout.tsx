@@ -39,19 +39,19 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
-      { url: '/favicon.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon.png?v=3', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon.png?v=3', type: 'image/png', sizes: '16x16' },
     ],
-    shortcut: [{ url: '/favicon.png', type: 'image/png' }],
+    shortcut: [{ url: '/favicon.png?v=3', type: 'image/png' }],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon.png?v=3', sizes: '180x180', type: 'image/png' },
     ],
     other: [
       {
         rel: 'icon',
         type: 'image/png',
         sizes: '32x32',
-        url: '/favicon.png',
+        url: '/favicon.png?v=3',
       },
     ],
   },
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     description: 'Conecta con los mejores profesionales del pádel. Reserva clases, encuentra clubes y compra equipo de alta calidad.',
     images: [
       {
-        url: 'https://www.padeliner.com/og-image.png?v=2',
+        url: 'https://www.padeliner.com/og-image.png?v=3',
         width: 1200,
         height: 630,
         alt: 'Padeliner - Plataforma de Pádel',
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Padeliner - Plataforma Líder de Pádel en España',
     description: 'Descubre entrenadores, clubes y academias de pádel cerca de ti. Reserva, juega y mejora tu nivel.',
-    images: ['https://www.padeliner.com/og-image.png?v=2'],
+    images: ['https://www.padeliner.com/og-image.png?v=3'],
   },
   verification: {
     google: 'verification_token', // Añadir token real de Google Search Console
