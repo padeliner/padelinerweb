@@ -152,6 +152,7 @@ export function SearchSection() {
                 <button
                   key={type}
                   onClick={() => setServiceType(type)}
+                  aria-label={`Buscar ${service.label}`}
                   className={`
                     flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-semibold transition-all
                     ${isActive 
@@ -162,6 +163,7 @@ export function SearchSection() {
                 >
                   {service.icon}
                   <span className="hidden sm:inline">{service.label}</span>
+                  <span className="sm:hidden sr-only">{service.label}</span>
                 </button>
               )
             })}
@@ -225,6 +227,7 @@ export function SearchSection() {
                     <select
                       value={selectedSpecialty}
                       onChange={(e) => setSelectedSpecialty(e.target.value)}
+                      aria-label="Seleccionar público objetivo"
                       className="w-full appearance-none px-4 py-2.5 pr-10 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none bg-white"
                     >
                       <option value="all">Todos los públicos</option>
@@ -257,12 +260,10 @@ export function SearchSection() {
                           max="75"
                           step="5"
                           value={trainerMinPrice}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value)
-                            if (value <= trainerMaxPrice) setTrainerMinPrice(value)
-                          }}
-                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
-                          style={{ zIndex: trainerMinPrice > trainerMaxPrice - 10 ? 5 : 3 }}
+                          onChange={(e) => setTrainerMinPrice(parseInt(e.target.value))}
+                          aria-label="Precio mínimo"
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-auto"
+                          style={{ zIndex: 3 }}
                         />
                         <input
                           type="range"
@@ -274,6 +275,7 @@ export function SearchSection() {
                             const value = parseInt(e.target.value)
                             if (value >= trainerMinPrice) setTrainerMaxPrice(value)
                           }}
+                          aria-label="Precio máximo"
                           className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
                           style={{ zIndex: 4 }}
                         />
@@ -488,6 +490,7 @@ export function SearchSection() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSearch}
+            aria-label={`Buscar ${currentService.label}`}
             className={`
               w-full flex items-center justify-center space-x-2 px-8 py-4 font-semibold rounded-xl transition-all duration-200 shadow-lg
               ${serviceType === 'entrenadores' ? 'bg-primary-500 hover:bg-primary-600 shadow-primary-500/30' : ''}

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Star, MapPin, Award, Heart } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Interface para los coaches de la API
 interface Coach {
@@ -118,12 +119,23 @@ function CoachCard({ coach, index }: { coach: Coach; index: number }) {
         className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
       >
         {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden">
-          <img
-            src={coach.imageUrl}
-            alt={coach.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+        <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
+          {coach.imageUrl ? (
+            <Image
+              src={coach.imageUrl}
+              alt={coach.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              priority={index < 4}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200">
+              <span className="text-6xl font-bold text-primary-400">
+                {coach.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
           
           {/* Badge */}
           <div className="absolute top-4 left-4 px-3 py-2 bg-yellow-400 backdrop-blur-sm rounded-full text-xs font-bold text-yellow-900">

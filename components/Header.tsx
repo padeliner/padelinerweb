@@ -73,9 +73,9 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
               <Image 
                 src="/padeliner-logo.png" 
                 alt="Padeliner" 
-                width={150} 
-                height={40}
-                className="h-10 w-auto transition-transform group-hover:scale-105"
+                width={1262} 
+                height={347}
+                className="h-auto w-[150px] max-w-full transition-transform group-hover:scale-105"
                 priority
               />
             </Link>
@@ -192,6 +192,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
               ) : (
                 <Link href="/login">
                   <button
+                    aria-label="Iniciar sesión"
                     className={`
                       flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-2.5
                       bg-primary-500 hover:bg-primary-600 active:scale-95
@@ -203,6 +204,7 @@ export function Header({ showCart = false, onCartClick, cartItemsCount = 0, hide
                   >
                     <User className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span className="hidden sm:inline">Acceder</span>
+                    <span className="sm:hidden sr-only">Acceder</span>
                   </button>
                 </Link>
               )}
