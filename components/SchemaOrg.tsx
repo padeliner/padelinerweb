@@ -20,10 +20,10 @@ export function SchemaOrg() {
       addressCountry: 'ES'
     },
     sameAs: [
-      'https://www.facebook.com/padeliner',
-      'https://www.instagram.com/padeliner',
-      'https://twitter.com/padeliner',
-      'https://www.linkedin.com/company/padeliner'
+      'https://www.instagram.com/padeliner/',
+      'https://www.tiktok.com/@padeliner',
+      'https://www.youtube.com/@Padeliner',
+      'https://www.linkedin.com/company/padeliner/?viewAsMember=true'
     ],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -112,8 +112,10 @@ export function SchemaOrg() {
       closes: '23:59'
     },
     sameAs: [
-      'https://www.facebook.com/padeliner',
-      'https://www.instagram.com/padeliner'
+      'https://www.instagram.com/padeliner/',
+      'https://www.tiktok.com/@padeliner',
+      'https://www.youtube.com/@Padeliner',
+      'https://www.linkedin.com/company/padeliner/?viewAsMember=true'
     ]
   }
 
