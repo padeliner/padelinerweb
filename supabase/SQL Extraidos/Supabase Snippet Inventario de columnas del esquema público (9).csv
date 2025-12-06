@@ -1,0 +1,43 @@
+schema,vista,definicion
+public,conversation_stats," SELECT c.id,
+    c.status,
+    c.priority,
+    c.team_id,
+    c.assigned_to,
+    c.message_count,
+    c.unread_count,
+    c.first_message_at,
+    c.last_message_at,
+    c.first_response_at,
+    c.closed_at,
+    (EXTRACT(epoch FROM (c.first_response_at - c.first_message_at)) / (60)::numeric) AS first_response_minutes,
+    (EXTRACT(epoch FROM (c.closed_at - c.first_message_at)) / (60)::numeric) AS resolution_minutes,
+        CASE
+            WHEN s.first_response_breached THEN 'breached'::text
+            WHEN ((c.first_response_at IS NULL) AND (now() > s.first_response_due_at)) THEN 'at_risk'::text
+            ELSE 'on_track'::text
+        END AS sla_status
+   FROM (conversations c
+     LEFT JOIN conversation_sla_status s ON ((c.id = s.conversation_id)));"
+public,logs_by_action," SELECT action,
+    count(*) AS count,
+    count(*) FILTER (WHERE (status = 'failure'::text)) AS failures
+   FROM audit_logs
+  GROUP BY action
+  ORDER BY (count(*)) DESC;"
+public,logs_by_day," SELECT date(created_at) AS log_date,
+    count(*) AS total_logs,
+    count(*) FILTER (WHERE (level = 'error'::text)) AS error_count,
+    count(*) FILTER (WHERE (level = 'warning'::text)) AS warning_count,
+    count(*) FILTER (WHERE (level = 'info'::text)) AS info_count
+   FROM audit_logs
+  GROUP BY (date(created_at))
+  ORDER BY (date(created_at)) DESC;"
+public,logs_by_user," SELECT user_email,
+    user_role,
+    count(*) AS action_count,
+    max(created_at) AS last_activity
+   FROM audit_logs
+  WHERE (user_email IS NOT NULL)
+  GROUP BY user_email, user_role
+  ORDER BY (count(*)) DESC;"

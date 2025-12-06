@@ -1,0 +1,216 @@
+tabla,constraint,tipo,columna,condicion_check
+academies,2200_18578_1_not_null,CHECK,null,user_id IS NOT NULL
+academies,2200_18578_2_not_null,CHECK,null,name IS NOT NULL
+academies,2200_18578_4_not_null,CHECK,null,address IS NOT NULL
+academies,2200_18578_5_not_null,CHECK,null,lat IS NOT NULL
+academies,2200_18578_6_not_null,CHECK,null,lng IS NOT NULL
+academies,academies_pkey,PRIMARY KEY,user_id,null
+admin_emails,2200_23856_1_not_null,CHECK,null,id IS NOT NULL
+admin_emails,2200_23856_4_not_null,CHECK,null,to_addresses IS NOT NULL
+admin_emails,2200_23856_5_not_null,CHECK,null,subject IS NOT NULL
+admin_emails,2200_23856_6_not_null,CHECK,null,html_content IS NOT NULL
+admin_emails,admin_emails_status_check,CHECK,null,"(status = ANY (ARRAY['sent'::text, 'failed'::text, 'pending'::text]))"
+admin_emails,admin_emails_pkey,PRIMARY KEY,id,null
+audit_logs,2200_27560_1_not_null,CHECK,null,id IS NOT NULL
+audit_logs,2200_27560_5_not_null,CHECK,null,action IS NOT NULL
+audit_logs,2200_27560_8_not_null,CHECK,null,description IS NOT NULL
+audit_logs,audit_logs_level_check,CHECK,null,"(level = ANY (ARRAY['debug'::text, 'info'::text, 'warning'::text, 'error'::text, 'critical'::text]))"
+audit_logs,audit_logs_status_check,CHECK,null,"(status = ANY (ARRAY['success'::text, 'failure'::text, 'pending'::text]))"
+audit_logs,audit_logs_pkey,PRIMARY KEY,id,null
+blog_comments,2200_26666_1_not_null,CHECK,null,id IS NOT NULL
+blog_comments,2200_26666_2_not_null,CHECK,null,blog_id IS NOT NULL
+blog_comments,2200_26666_5_not_null,CHECK,null,author_name IS NOT NULL
+blog_comments,2200_26666_6_not_null,CHECK,null,author_email IS NOT NULL
+blog_comments,2200_26666_7_not_null,CHECK,null,content IS NOT NULL
+blog_comments,blog_comments_pkey,PRIMARY KEY,id,null
+blog_config,2200_26625_1_not_null,CHECK,null,id IS NOT NULL
+blog_config,blog_config_pkey,PRIMARY KEY,id,null
+blogs,2200_26569_1_not_null,CHECK,null,id IS NOT NULL
+blogs,2200_26569_2_not_null,CHECK,null,title IS NOT NULL
+blogs,2200_26569_3_not_null,CHECK,null,slug IS NOT NULL
+blogs,2200_26569_5_not_null,CHECK,null,content IS NOT NULL
+blogs,2200_26569_8_not_null,CHECK,null,category IS NOT NULL
+blogs,blogs_pkey,PRIMARY KEY,id,null
+blogs,blogs_slug_key,UNIQUE,slug,null
+clubs,2200_18558_1_not_null,CHECK,null,user_id IS NOT NULL
+clubs,2200_18558_2_not_null,CHECK,null,name IS NOT NULL
+clubs,2200_18558_4_not_null,CHECK,null,address IS NOT NULL
+clubs,2200_18558_5_not_null,CHECK,null,lat IS NOT NULL
+clubs,2200_18558_6_not_null,CHECK,null,lng IS NOT NULL
+clubs,clubs_pkey,PRIMARY KEY,user_id,null
+coaches,2200_18532_1_not_null,CHECK,null,user_id IS NOT NULL
+coaches,valid_advance_minutes,CHECK,null,((min_advance_minutes >= 30) AND (min_advance_minutes <= 43200))
+coaches,valid_experience,CHECK,null,(experience_years >= 0)
+coaches,coaches_pkey,PRIMARY KEY,user_id,null
+content_reports,2200_25340_14_not_null,CHECK,null,created_at IS NOT NULL
+content_reports,2200_25340_15_not_null,CHECK,null,updated_at IS NOT NULL
+content_reports,2200_25340_1_not_null,CHECK,null,id IS NOT NULL
+content_reports,2200_25340_2_not_null,CHECK,null,reporter_id IS NOT NULL
+content_reports,2200_25340_3_not_null,CHECK,null,reported_entity_type IS NOT NULL
+content_reports,2200_25340_4_not_null,CHECK,null,reported_entity_id IS NOT NULL
+content_reports,2200_25340_6_not_null,CHECK,null,reason IS NOT NULL
+content_reports,2200_25340_7_not_null,CHECK,null,description IS NOT NULL
+content_reports,2200_25340_8_not_null,CHECK,null,status IS NOT NULL
+content_reports,2200_25340_9_not_null,CHECK,null,priority IS NOT NULL
+content_reports,content_reports_priority_check,CHECK,null,"(priority = ANY (ARRAY['baja'::text, 'media'::text, 'alta'::text, 'urgente'::text]))"
+content_reports,content_reports_reason_check,CHECK,null,"(reason = ANY (ARRAY['spam'::text, 'abuso'::text, 'contenido_inapropiado'::text, 'informacion_falsa'::text, 'suplantacion'::text, 'otro'::text]))"
+content_reports,content_reports_reported_entity_type_check,CHECK,null,"(reported_entity_type = ANY (ARRAY['user'::text, 'review'::text, 'comment'::text, 'post'::text, 'academy'::text, 'club'::text, 'trainer'::text]))"
+content_reports,content_reports_status_check,CHECK,null,"(status = ANY (ARRAY['pendiente'::text, 'en_revision'::text, 'aprobado'::text, 'rechazado'::text, 'resuelto'::text]))"
+content_reports,content_reports_pkey,PRIMARY KEY,id,null
+conversation_activities,2200_27251_1_not_null,CHECK,null,id IS NOT NULL
+conversation_activities,2200_27251_4_not_null,CHECK,null,action IS NOT NULL
+conversation_activities,conversation_activities_pkey,PRIMARY KEY,id,null
+conversation_notes,2200_27228_1_not_null,CHECK,null,id IS NOT NULL
+conversation_notes,2200_27228_4_not_null,CHECK,null,content IS NOT NULL
+conversation_notes,conversation_notes_pkey,PRIMARY KEY,id,null
+conversation_sla_status,2200_27313_1_not_null,CHECK,null,id IS NOT NULL
+conversation_sla_status,conversation_sla_status_pkey,PRIMARY KEY,id,null
+conversation_sla_status,conversation_sla_status_conversation_id_key,UNIQUE,conversation_id,null
+conversations,2200_27131_1_not_null,CHECK,null,id IS NOT NULL
+conversations,2200_27131_2_not_null,CHECK,null,contact_email IS NOT NULL
+conversations,conversations_pkey,PRIMARY KEY,id,null
+direct_conversation_participants,2200_30503_1_not_null,CHECK,null,id IS NOT NULL
+direct_conversation_participants,2200_30503_2_not_null,CHECK,null,conversation_id IS NOT NULL
+direct_conversation_participants,2200_30503_3_not_null,CHECK,null,user_id IS NOT NULL
+direct_conversation_participants,direct_conversation_participants_pkey,PRIMARY KEY,id,null
+direct_conversation_participants,direct_conversation_participants_conversation_id_user_id_key,UNIQUE,user_id,null
+direct_conversation_participants,direct_conversation_participants_conversation_id_user_id_key,UNIQUE,conversation_id,null
+direct_conversations,2200_30490_1_not_null,CHECK,null,id IS NOT NULL
+direct_conversations,direct_conversations_pkey,PRIMARY KEY,id,null
+direct_messages,2200_30522_1_not_null,CHECK,null,id IS NOT NULL
+direct_messages,2200_30522_2_not_null,CHECK,null,conversation_id IS NOT NULL
+direct_messages,2200_30522_3_not_null,CHECK,null,sender_id IS NOT NULL
+direct_messages,2200_30522_4_not_null,CHECK,null,content IS NOT NULL
+direct_messages,direct_messages_pkey,PRIMARY KEY,id,null
+direct_typing_indicators,2200_30877_1_not_null,CHECK,null,id IS NOT NULL
+direct_typing_indicators,2200_30877_2_not_null,CHECK,null,conversation_id IS NOT NULL
+direct_typing_indicators,2200_30877_3_not_null,CHECK,null,user_id IS NOT NULL
+direct_typing_indicators,direct_typing_indicators_pkey,PRIMARY KEY,id,null
+direct_typing_indicators,direct_typing_indicators_conversation_id_user_id_key,UNIQUE,user_id,null
+direct_typing_indicators,direct_typing_indicators_conversation_id_user_id_key,UNIQUE,conversation_id,null
+email_replies,2200_27025_1_not_null,CHECK,null,id IS NOT NULL
+email_replies,2200_27025_2_not_null,CHECK,null,incoming_email_id IS NOT NULL
+email_replies,2200_27025_3_not_null,CHECK,null,admin_id IS NOT NULL
+email_replies,2200_27025_4_not_null,CHECK,null,to_email IS NOT NULL
+email_replies,2200_27025_6_not_null,CHECK,null,content IS NOT NULL
+email_replies,email_replies_pkey,PRIMARY KEY,id,null
+email_templates,2200_23942_10_not_null,CHECK,null,updated_at IS NOT NULL
+email_templates,2200_23942_1_not_null,CHECK,null,id IS NOT NULL
+email_templates,2200_23942_2_not_null,CHECK,null,name IS NOT NULL
+email_templates,2200_23942_4_not_null,CHECK,null,subject IS NOT NULL
+email_templates,2200_23942_5_not_null,CHECK,null,html_content IS NOT NULL
+email_templates,2200_23942_9_not_null,CHECK,null,created_at IS NOT NULL
+email_templates,email_templates_category_check,CHECK,null,"(category = ANY (ARRAY['bienvenida'::text, 'verificacion'::text, 'notificacion'::text, 'marketing'::text, 'soporte'::text, 'general'::text]))"
+email_templates,email_templates_pkey,PRIMARY KEY,id,null
+incoming_emails,2200_27000_1_not_null,CHECK,null,id IS NOT NULL
+incoming_emails,2200_27000_2_not_null,CHECK,null,from_email IS NOT NULL
+incoming_emails,2200_27000_4_not_null,CHECK,null,to_email IS NOT NULL
+incoming_emails,incoming_emails_pkey,PRIMARY KEY,id,null
+location_distance_cache,2200_18629_1_not_null,CHECK,null,id IS NOT NULL
+location_distance_cache,2200_18629_3_not_null,CHECK,null,from_location_id IS NOT NULL
+location_distance_cache,2200_18629_4_not_null,CHECK,null,to_location_id IS NOT NULL
+location_distance_cache,2200_18629_5_not_null,CHECK,null,distance_km IS NOT NULL
+location_distance_cache,2200_18629_6_not_null,CHECK,null,estimated_time_minutes IS NOT NULL
+location_distance_cache,location_distance_cache_pkey,PRIMARY KEY,id,null
+location_distance_cache,location_distance_cache_coach_id_from_location_id_to_locati_key,UNIQUE,to_location_id,null
+location_distance_cache,location_distance_cache_coach_id_from_location_id_to_locati_key,UNIQUE,from_location_id,null
+location_distance_cache,location_distance_cache_coach_id_from_location_id_to_locati_key,UNIQUE,coach_id,null
+message_templates,2200_27204_1_not_null,CHECK,null,id IS NOT NULL
+message_templates,2200_27204_2_not_null,CHECK,null,name IS NOT NULL
+message_templates,2200_27204_4_not_null,CHECK,null,content IS NOT NULL
+message_templates,message_templates_pkey,PRIMARY KEY,id,null
+messages,2200_27172_1_not_null,CHECK,null,id IS NOT NULL
+messages,2200_27172_3_not_null,CHECK,null,from_email IS NOT NULL
+messages,2200_27172_5_not_null,CHECK,null,to_email IS NOT NULL
+messages,2200_27172_9_not_null,CHECK,null,content IS NOT NULL
+messages,messages_pkey,PRIMARY KEY,id,null
+moderation_actions,2200_25372_10_not_null,CHECK,null,created_at IS NOT NULL
+moderation_actions,2200_25372_1_not_null,CHECK,null,id IS NOT NULL
+moderation_actions,2200_25372_3_not_null,CHECK,null,moderator_id IS NOT NULL
+moderation_actions,2200_25372_4_not_null,CHECK,null,action_type IS NOT NULL
+moderation_actions,2200_25372_5_not_null,CHECK,null,target_entity_type IS NOT NULL
+moderation_actions,2200_25372_6_not_null,CHECK,null,target_entity_id IS NOT NULL
+moderation_actions,2200_25372_7_not_null,CHECK,null,reason IS NOT NULL
+moderation_actions,moderation_actions_action_type_check,CHECK,null,"(action_type = ANY (ARRAY['aprobar_reporte'::text, 'rechazar_reporte'::text, 'eliminar_contenido'::text, 'suspender_usuario'::text, 'advertir_usuario'::text, 'restaurar_contenido'::text, 'desuspender_usuario'::text, 'otro'::text]))"
+moderation_actions,moderation_actions_target_entity_type_check,CHECK,null,"(target_entity_type = ANY (ARRAY['user'::text, 'review'::text, 'comment'::text, 'post'::text, 'academy'::text, 'club'::text, 'trainer'::text, 'report'::text]))"
+moderation_actions,moderation_actions_pkey,PRIMARY KEY,id,null
+newsletter_campaigns,2200_27482_1_not_null,CHECK,null,id IS NOT NULL
+newsletter_campaigns,2200_27482_2_not_null,CHECK,null,name IS NOT NULL
+newsletter_campaigns,2200_27482_3_not_null,CHECK,null,subject IS NOT NULL
+newsletter_campaigns,2200_27482_5_not_null,CHECK,null,content_html IS NOT NULL
+newsletter_campaigns,newsletter_campaigns_status_check,CHECK,null,"(status = ANY (ARRAY['draft'::text, 'scheduled'::text, 'sending'::text, 'sent'::text, 'failed'::text]))"
+newsletter_campaigns,newsletter_campaigns_pkey,PRIMARY KEY,id,null
+newsletter_sends,2200_27507_1_not_null,CHECK,null,id IS NOT NULL
+newsletter_sends,newsletter_sends_status_check,CHECK,null,"(status = ANY (ARRAY['pending'::text, 'sent'::text, 'failed'::text, 'bounced'::text]))"
+newsletter_sends,newsletter_sends_pkey,PRIMARY KEY,id,null
+newsletter_subscribers,2200_27457_1_not_null,CHECK,null,id IS NOT NULL
+newsletter_subscribers,2200_27457_2_not_null,CHECK,null,email IS NOT NULL
+newsletter_subscribers,newsletter_subscribers_status_check,CHECK,null,"(status = ANY (ARRAY['active'::text, 'unsubscribed'::text]))"
+newsletter_subscribers,newsletter_subscribers_pkey,PRIMARY KEY,id,null
+newsletter_subscribers,newsletter_subscribers_email_key,UNIQUE,email,null
+saved_replies,2200_27275_1_not_null,CHECK,null,id IS NOT NULL
+saved_replies,2200_27275_3_not_null,CHECK,null,shortcut IS NOT NULL
+saved_replies,2200_27275_4_not_null,CHECK,null,content IS NOT NULL
+saved_replies,saved_replies_pkey,PRIMARY KEY,id,null
+saved_replies,saved_replies_user_id_shortcut_key,UNIQUE,user_id,null
+saved_replies,saved_replies_user_id_shortcut_key,UNIQUE,shortcut,null
+sessions,2200_18598_1_not_null,CHECK,null,id IS NOT NULL
+sessions,2200_18598_2_not_null,CHECK,null,coach_id IS NOT NULL
+sessions,2200_18598_3_not_null,CHECK,null,student_id IS NOT NULL
+sessions,2200_18598_4_not_null,CHECK,null,service_id IS NOT NULL
+sessions,2200_18598_5_not_null,CHECK,null,location_id IS NOT NULL
+sessions,2200_18598_6_not_null,CHECK,null,start_time IS NOT NULL
+sessions,2200_18598_7_not_null,CHECK,null,end_time IS NOT NULL
+sessions,2200_18598_9_not_null,CHECK,null,price IS NOT NULL
+sessions,valid_price,CHECK,null,(price >= (0)::numeric)
+sessions,valid_session_time,CHECK,null,(end_time > start_time)
+sessions,sessions_pkey,PRIMARY KEY,id,null
+sla_rules,2200_27296_1_not_null,CHECK,null,id IS NOT NULL
+sla_rules,2200_27296_2_not_null,CHECK,null,name IS NOT NULL
+sla_rules,sla_rules_pkey,PRIMARY KEY,id,null
+support_messages,2200_25279_1_not_null,CHECK,null,id IS NOT NULL
+support_messages,2200_25279_2_not_null,CHECK,null,ticket_id IS NOT NULL
+support_messages,2200_25279_3_not_null,CHECK,null,user_id IS NOT NULL
+support_messages,2200_25279_4_not_null,CHECK,null,message IS NOT NULL
+support_messages,2200_25279_7_not_null,CHECK,null,created_at IS NOT NULL
+support_messages,support_messages_pkey,PRIMARY KEY,id,null
+support_tickets,2200_25252_12_not_null,CHECK,null,created_at IS NOT NULL
+support_tickets,2200_25252_13_not_null,CHECK,null,updated_at IS NOT NULL
+support_tickets,2200_25252_1_not_null,CHECK,null,id IS NOT NULL
+support_tickets,2200_25252_2_not_null,CHECK,null,ticket_number IS NOT NULL
+support_tickets,2200_25252_4_not_null,CHECK,null,subject IS NOT NULL
+support_tickets,2200_25252_5_not_null,CHECK,null,category IS NOT NULL
+support_tickets,2200_25252_6_not_null,CHECK,null,priority IS NOT NULL
+support_tickets,2200_25252_7_not_null,CHECK,null,status IS NOT NULL
+support_tickets,2200_25252_8_not_null,CHECK,null,description IS NOT NULL
+support_tickets,support_tickets_category_check,CHECK,null,"(category = ANY (ARRAY['tecnico'::text, 'facturacion'::text, 'cuenta'::text, 'general'::text, 'bug'::text, 'feature'::text]))"
+support_tickets,support_tickets_priority_check,CHECK,null,"(priority = ANY (ARRAY['baja'::text, 'media'::text, 'alta'::text, 'urgente'::text]))"
+support_tickets,support_tickets_status_check,CHECK,null,"(status = ANY (ARRAY['abierto'::text, 'en_progreso'::text, 'resuelto'::text, 'cerrado'::text]))"
+support_tickets,support_tickets_pkey,PRIMARY KEY,id,null
+support_tickets,support_tickets_ticket_number_key,UNIQUE,ticket_number,null
+team_members,2200_27104_1_not_null,CHECK,null,id IS NOT NULL
+team_members,team_members_pkey,PRIMARY KEY,id,null
+team_members,team_members_team_id_user_id_key,UNIQUE,team_id,null
+team_members,team_members_team_id_user_id_key,UNIQUE,user_id,null
+teams,2200_27088_1_not_null,CHECK,null,id IS NOT NULL
+teams,2200_27088_2_not_null,CHECK,null,name IS NOT NULL
+teams,2200_27088_3_not_null,CHECK,null,slug IS NOT NULL
+teams,teams_pkey,PRIMARY KEY,id,null
+teams,teams_slug_key,UNIQUE,slug,null
+user_presence,2200_30954_1_not_null,CHECK,null,user_id IS NOT NULL
+user_presence,2200_30954_2_not_null,CHECK,null,status IS NOT NULL
+user_presence,2200_30954_3_not_null,CHECK,null,last_seen IS NOT NULL
+user_presence,2200_30954_4_not_null,CHECK,null,updated_at IS NOT NULL
+user_presence,user_presence_status_check,CHECK,null,"(status = ANY (ARRAY['online'::text, 'offline'::text]))"
+user_presence,user_presence_pkey,PRIMARY KEY,user_id,null
+user_suspensions,2200_25412_1_not_null,CHECK,null,id IS NOT NULL
+user_suspensions,2200_25412_2_not_null,CHECK,null,user_id IS NOT NULL
+user_suspensions,2200_25412_3_not_null,CHECK,null,moderator_id IS NOT NULL
+user_suspensions,2200_25412_4_not_null,CHECK,null,reason IS NOT NULL
+user_suspensions,2200_25412_6_not_null,CHECK,null,suspended_at IS NOT NULL
+user_suspensions,user_suspensions_pkey,PRIMARY KEY,id,null
+users,2200_18511_1_not_null,CHECK,null,id IS NOT NULL
+users,2200_18511_2_not_null,CHECK,null,email IS NOT NULL
+users,2200_18511_3_not_null,CHECK,null,role IS NOT NULL
+users,users_pkey,PRIMARY KEY,id,null
+users,users_email_key,UNIQUE,email,null

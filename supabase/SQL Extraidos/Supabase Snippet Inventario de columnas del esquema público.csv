@@ -1,0 +1,54 @@
+tabla_origen,columna_origen,tabla_destino,columna_destino,nombre_constraint,on_update,on_delete
+academies,user_id,users,id,academies_user_id_fkey,NO ACTION,CASCADE
+admin_emails,from_user_id,users,id,admin_emails_from_user_id_fkey,NO ACTION,CASCADE
+blog_comments,blog_id,blogs,id,blog_comments_blog_id_fkey,NO ACTION,CASCADE
+blog_comments,parent_comment_id,blog_comments,id,blog_comments_parent_comment_id_fkey,NO ACTION,CASCADE
+blog_comments,user_id,users,id,blog_comments_user_id_fkey,NO ACTION,SET NULL
+blogs,author_id,users,id,blogs_author_id_fkey,NO ACTION,SET NULL
+clubs,user_id,users,id,clubs_user_id_fkey,NO ACTION,CASCADE
+coaches,user_id,users,id,coaches_user_id_fkey,NO ACTION,CASCADE
+content_reports,assigned_to,users,id,content_reports_assigned_to_fkey,NO ACTION,SET NULL
+content_reports,reported_user_id,users,id,content_reports_reported_user_id_fkey,NO ACTION,CASCADE
+content_reports,reporter_id,users,id,content_reports_reporter_id_fkey,NO ACTION,CASCADE
+conversation_activities,conversation_id,conversations,id,conversation_activities_conversation_id_fkey,NO ACTION,CASCADE
+conversation_activities,user_id,users,id,conversation_activities_user_id_fkey,NO ACTION,SET NULL
+conversation_notes,conversation_id,conversations,id,conversation_notes_conversation_id_fkey,NO ACTION,CASCADE
+conversation_notes,user_id,users,id,conversation_notes_user_id_fkey,NO ACTION,SET NULL
+conversation_sla_status,conversation_id,conversations,id,conversation_sla_status_conversation_id_fkey,NO ACTION,CASCADE
+conversation_sla_status,sla_rule_id,sla_rules,id,conversation_sla_status_sla_rule_id_fkey,NO ACTION,SET NULL
+conversations,assigned_to,users,id,conversations_assigned_to_fkey,NO ACTION,SET NULL
+conversations,team_id,teams,id,conversations_team_id_fkey,NO ACTION,SET NULL
+direct_conversation_participants,conversation_id,direct_conversations,id,direct_conversation_participants_conversation_id_fkey,NO ACTION,CASCADE
+direct_conversation_participants,user_id,users,id,direct_conversation_participants_user_id_fkey,NO ACTION,CASCADE
+direct_conversations,created_by,users,id,direct_conversations_created_by_fkey,NO ACTION,SET NULL
+direct_messages,conversation_id,direct_conversations,id,direct_messages_conversation_id_fkey,NO ACTION,CASCADE
+direct_messages,reply_to_message_id,direct_messages,id,direct_messages_reply_to_message_id_fkey,NO ACTION,SET NULL
+direct_messages,sender_id,users,id,direct_messages_sender_id_fkey,NO ACTION,SET NULL
+direct_typing_indicators,conversation_id,direct_conversations,id,direct_typing_indicators_conversation_id_fkey,NO ACTION,CASCADE
+direct_typing_indicators,user_id,users,id,direct_typing_indicators_user_id_fkey,NO ACTION,CASCADE
+email_replies,admin_id,users,id,email_replies_admin_id_fkey,NO ACTION,CASCADE
+email_replies,incoming_email_id,incoming_emails,id,email_replies_incoming_email_id_fkey,NO ACTION,CASCADE
+email_templates,created_by,users,id,email_templates_created_by_fkey,NO ACTION,SET NULL
+incoming_emails,assigned_to,users,id,incoming_emails_assigned_to_fkey,NO ACTION,SET NULL
+location_distance_cache,coach_id,users,id,location_distance_cache_coach_id_fkey,NO ACTION,CASCADE
+message_templates,created_by,users,id,message_templates_created_by_fkey,NO ACTION,SET NULL
+message_templates,team_id,teams,id,message_templates_team_id_fkey,NO ACTION,SET NULL
+messages,conversation_id,conversations,id,messages_conversation_id_fkey,NO ACTION,CASCADE
+messages,read_by,users,id,messages_read_by_fkey,NO ACTION,SET NULL
+moderation_actions,moderator_id,users,id,moderation_actions_moderator_id_fkey,NO ACTION,SET NULL
+moderation_actions,report_id,content_reports,id,moderation_actions_report_id_fkey,NO ACTION,CASCADE
+newsletter_sends,campaign_id,newsletter_campaigns,id,newsletter_sends_campaign_id_fkey,NO ACTION,CASCADE
+newsletter_sends,subscriber_id,newsletter_subscribers,id,newsletter_sends_subscriber_id_fkey,NO ACTION,CASCADE
+saved_replies,user_id,users,id,saved_replies_user_id_fkey,NO ACTION,CASCADE
+sessions,coach_id,users,id,sessions_coach_id_fkey,NO ACTION,CASCADE
+sessions,student_id,users,id,sessions_student_id_fkey,NO ACTION,CASCADE
+sla_rules,team_id,teams,id,sla_rules_team_id_fkey,NO ACTION,CASCADE
+support_messages,ticket_id,support_tickets,id,support_messages_ticket_id_fkey,NO ACTION,CASCADE
+support_messages,user_id,users,id,support_messages_user_id_fkey,NO ACTION,CASCADE
+support_tickets,assigned_to,users,id,support_tickets_assigned_to_fkey,NO ACTION,SET NULL
+support_tickets,user_id,users,id,support_tickets_user_id_fkey,NO ACTION,CASCADE
+team_members,team_id,teams,id,team_members_team_id_fkey,NO ACTION,CASCADE
+team_members,user_id,users,id,team_members_user_id_fkey,NO ACTION,CASCADE
+user_suspensions,lifted_by,users,id,user_suspensions_lifted_by_fkey,NO ACTION,SET NULL
+user_suspensions,moderator_id,users,id,user_suspensions_moderator_id_fkey,NO ACTION,SET NULL
+user_suspensions,user_id,users,id,user_suspensions_user_id_fkey,NO ACTION,CASCADE
