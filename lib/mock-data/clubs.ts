@@ -24,28 +24,42 @@ export interface Club {
 export const mockClubs: Club[] = [
   {
     id: 1,
-    name: "Padel Pro Madrid",
-    location: "Calle de Alcalá 123",
-    city: "Madrid",
-    lat: 40.4168,
-    lng: -3.7038,
-    courtsCount: 8,
+    name: "Full Padel",
+    location: "La Pobla de Vallbona",
+    city: "Valencia",
+    lat: 39.596,
+    lng: -0.548,
+    courtsCount: 7,
     instructorsCount: 12,
     classTypes: ["Iniciación", "Perfeccionamiento", "Competición", "Clases grupales", "Clases privadas"],
-    amenities: ["Parking gratuito", "Vestuarios", "Cafetería", "Tienda", "Alquiler de palas", "Material incluido"],
+    amenities: [
+      "7 pistas indoor (cubiertas)",
+      "Vestuarios",
+      "Cafetería",
+      "Torneos internos",
+      "Equipos de competición en series nacionales",
+      "Parking gratuito",
+      "Tienda de material"
+    ],
     rating: 4.8,
     reviewsCount: 342,
-    imageUrl: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&h=600&fit=crop",
+    imageUrl: "/imagenespruebaclub/_DSC7819.jpg",
     images: [
-      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800",
-      "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800",
-      "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
+      "/imagenespruebaclub/_DSC7819.jpg",
+      "/imagenespruebaclub/_DSC7841.jpg",
+      "/imagenespruebaclub/_DSC8014.jpg",
+      "/imagenespruebaclub/_DSC8031.jpg",
+      "/imagenespruebaclub/_DSC8040.jpg",
+      "/imagenespruebaclub/_DSC8116 (1).jpg"
     ],
-    description: "Club de pádel de alta gama con programa completo de clases para todos los niveles. 12 profesores titulados ofrecen entrenamiento personalizado y grupal. Método propio de enseñanza.",
+    description: "Full Pádel es un club indoor en La Pobla de Vallbona (Valencia) con 7 pistas cubiertas, vestuarios completos y cafetería, pensado para disfrutar del pádel todo el año. Ofrecemos clases para todos los niveles —desde iniciación hasta competición— con entrenadores cualificados y grupos adaptados por nivel. Además, organizamos torneos internos de forma regular y contamos con equipos de competición que participan en series nacionales, creando una comunidad activa para jugadores que quieren mejorar, competir y vivir el pádel al máximo. Una experiencia cómoda, rápida y profesional desde la reserva hasta la pista.",
     pricePerClass: 25,
     contactPhone: "+34 911 234 567",
     contactEmail: "info@padelpromadrid.com",
-    openingHours: ["Lunes a Viernes: 7:00 - 23:00", "Sábados y Domingos: 8:00 - 22:00"],
+    openingHours: [
+      "Lunes a Viernes: 7:00 – 23:00",
+      "Sábados y Domingos: 8:00 – 22:00"
+    ],
     isFeatured: true
   },
   {
