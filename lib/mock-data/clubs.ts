@@ -50,7 +50,7 @@ export const mockClubs: Club[] = [
       "/imagenespruebaclub/_DSC8014.jpg",
       "/imagenespruebaclub/_DSC8031.jpg",
       "/imagenespruebaclub/_DSC8040.jpg",
-      "/imagenespruebaclub/_DSC8116 (1).jpg"
+      "/imagenespruebaclub/_DSC8116-1.jpg"
     ],
     description: "Full Pádel es un club indoor en La Pobla de Vallbona (Valencia) con 7 pistas cubiertas, vestuarios completos y cafetería, pensado para disfrutar del pádel todo el año. Ofrecemos clases para todos los niveles —desde iniciación hasta competición— con entrenadores cualificados y grupos adaptados por nivel. Además, organizamos torneos internos de forma regular y contamos con equipos de competición que participan en series nacionales, creando una comunidad activa para jugadores que quieren mejorar, competir y vivir el pádel al máximo. Una experiencia cómoda, rápida y profesional desde la reserva hasta la pista.",
     pricePerClass: 25,
