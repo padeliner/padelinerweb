@@ -23,25 +23,39 @@ export interface Academy {
 export const mockAcademies: Academy[] = [
   {
     id: 1,
-    name: "Academia Pádel Elite Madrid",
-    location: "Calle Serrano 123",
-    city: "Madrid",
-    lat: 40.4168,
-    lng: -3.7038,
-    programs: ["Iniciación niños", "Perfeccionamiento adultos", "Competición", "Pádel intensivo", "Campus de verano"],
+    name: "Manu Martin Academy - Aspresso Valencia",
+    location: "Aspresso Valencia",
+    city: "Valencia",
+    lat: 39.4699,
+    lng: -0.3763,
+    programs: [
+      "Entrenamientos por niveles (iniciación, intermedio, avanzado, competición)",
+      "Clases individuales y grupales",
+      "Escuela mensual con grupos fijos",
+      "Programas de perfeccionamiento para adultos",
+      "Iniciación y formación para niños (si aplica en Aspresso)",
+      "Entrenamientos de competición",
+      "Clinics / intensivos puntuales",
+      "Metodología propia Manu Martín Academy",
+      "Entrenadores titulados y especializados"
+    ],
     rating: 4.9,
     reviewsCount: 256,
-    imageUrl: "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800&h=600&fit=crop",
+    imageUrl: "/imagenespruebaacademia/_DSC7700.jpg",
     images: [
-      "https://images.unsplash.com/photo-1587691592099-24045742c181?w=800",
-      "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800",
-      "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800"
+      "/imagenespruebaacademia/_DSC7700.jpg",
+      "/imagenespruebaacademia/_DSC7729.jpg",
+      "/imagenespruebaacademia/_DSC7943.jpg"
     ],
-    description: "La academia de pádel más prestigiosa de Madrid. Formación integral desde iniciación hasta alto rendimiento. Método propio avalado por jugadores profesionales.",
+    description: "Manu Martín Academy es la academia de pádel de referencia dentro de Aspresso Valencia, diseñada para jugadores que buscan una evolución real y medible en su juego. Con una metodología propia desarrollada por Manu Martín y su equipo, la academia estructura el entrenamiento por niveles —desde iniciación hasta alto rendimiento— combinando técnica, táctica y preparación específica para competición. Nuestros entrenadores cualificados trabajan con grupos reducidos y planes adaptados a cada jugador, asegurando seguimiento, progresión y una experiencia profesional desde la primera clase. Además, la academia impulsa una comunidad activa con programas intensivos, entrenamientos de competición y participación en dinámicas internas del club, creando un entorno perfecto para aprender, mejorar y competir con continuidad. Una experiencia premium, organizada y transparente: reservas simples, plazas controladas y oferta visible en un solo sistema.",
     pricePerMonth: 120,
     contactPhone: "+34 911 345 678",
     contactEmail: "info@padelelite.com",
-    schedule: ["Lunes a Viernes: 9:00 - 21:00", "Sábados: 9:00 - 14:00"],
+    schedule: [
+      "Lunes a Viernes: 9:00 – 21:00",
+      "Sábados: 9:00 – 14:00",
+      "Domingos: según disponibilidad de grupos / eventos"
+    ],
     isFeatured: true,
     studentCapacity: 150,
     coachesCount: 8
